@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using OrdemCerta.Application.Services.CustomerService;
 using OrdemCerta.Infrastructure.DataContext.Context;
 using OrdemCerta.Infrastructure.DataContext.Uow;
 using OrdemCerta.Infrastructure.Repositories.CustomerRepository;
@@ -11,6 +12,11 @@ public static class BuilderExtensions
     {
         AddDatabase(services, configuration);
         AddRepositories(services);
+    }
+    
+    public static void AddServices(this IServiceCollection services)
+    {
+        services.AddScoped<ICustomerService, CustomerService>();
     }
 
     private static void AddDatabase(IServiceCollection services, IConfiguration configuration)

@@ -11,7 +11,7 @@ public class CustomerName : ValueObject
         FullName = fullName;
     }
 
-    public Result<CustomerName> Create(string fullName)
+    public static Result<CustomerName> Create(string fullName)
     {
         var customerName = new CustomerName(fullName);
         return customerName;

@@ -21,7 +21,7 @@ public class CustomerAddress : ValueObject
         State = state;
     }
 
-    public Result<CustomerAddress> Create(
+    public static Result<CustomerAddress> Create(
         string? street, 
         string? number, 
         string? city, 

@@ -26,41 +26,6 @@ public class CustomerRepository : ICustomerRepository
         return customer;
     }
 
-    public async Task<Result<Customer>> GetByEmailAsync(string email, CancellationToken cancellationToken = default)
-    {
-        var customer = await _context.Customers
-            .AsNoTracking()
-            .FirstOrDefaultAsync(c => c.Email != null && c.Email.Value == email.ToLowerInvariant(), cancellationToken);
-
-        if (customer == null)
-            return "Cliente não encontrado";
-
-        return customer;
-    }
-
-    public async Task<Result<Customer>> GetByDocumentAsync(string document, CancellationToken cancellationToken = default)
-    {
-        var cleanDocument = new string(document.Where(char.IsDigit).ToArray());
-
-        var customer = await _context.Customers
-            .AsNoTracking()
-            .FirstOrDefaultAsync(c => c.Document != null && c.Document.Value == cleanDocument, cancellationToken);
-
-        if (customer == null)
-            return "Cliente não encontrado";
-
-        return customer;
-    }
-
-    public async Task<Result<IEnumerable<Customer>>> GetAllAsync(CancellationToken cancellationToken = default)
-    {
-        var customers = await _context.Customers
-            .AsNoTracking()
-            .ToListAsync(cancellationToken);
-
-        return Result<IEnumerable<Customer>>.Success(customers);
-    }
-
     public async Task<Result<IEnumerable<Customer>>> GetPagedAsync(int page, int pageSize, CancellationToken cancellationToken = default)
     {
         if (page < 1)
@@ -71,6 +36,30 @@ public class CustomerRepository : ICustomerRepository
 
         var customers = await _context.Customers
             .AsNoTracking()
+            .OrderBy(c => c.Name.FullName)
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync(cancellationToken);
+
+        return Result<IEnumerable<Customer>>.Success(customers);
+    }
+    
+    public async Task<Result<IEnumerable<Customer>>> GetByNameAsync(string searchTerm, int page, int pageSize, CancellationToken cancellationToken = default)
+    {
+        if (string.IsNullOrWhiteSpace(searchTerm))
+            return "Termo de busca é obrigatório";
+
+        if (page < 1)
+            return "Página deve ser maior que zero";
+
+        if (pageSize < 1 || pageSize > 100)
+            return "Tamanho da página deve estar entre 1 e 100";
+
+        var normalizedSearchTerm = searchTerm.Trim().ToLower();
+
+        var customers = await _context.Customers
+            .AsNoTracking()
+            .Where(c => EF.Functions.Like(c.Name.FullName.ToLower(), $"%{normalizedSearchTerm}%"))
             .OrderBy(c => c.Name.FullName)
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
@@ -94,21 +83,5 @@ public class CustomerRepository : ICustomerRepository
     {
         _context.Customers.Remove(customer);
         return Task.CompletedTask;
-    }
-
-    public async Task<bool> ExistsByEmailAsync(string email, CancellationToken cancellationToken = default)
-    {
-        return await _context.Customers
-            .AsNoTracking()
-            .AnyAsync(c => c.Email != null && c.Email.Value == email.ToLowerInvariant(), cancellationToken);
-    }
-
-    public async Task<bool> ExistsByDocumentAsync(string document, CancellationToken cancellationToken = default)
-    {
-        var cleanDocument = new string(document.Where(char.IsDigit).ToArray());
-
-        return await _context.Customers
-            .AsNoTracking()
-            .AnyAsync(c => c.Document != null && c.Document.Value == cleanDocument, cancellationToken);
     }
 }
