@@ -9,7 +9,7 @@ public class CustomerAddress : ValueObject
     public string? City { get; private set; }
     public string? State { get; private set; }
 
-    protected CustomerAddress(
+    private CustomerAddress(
         string? street, 
         string? number, 
         string? city, 

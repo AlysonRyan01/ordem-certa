@@ -6,7 +6,7 @@ public class CustomerName : ValueObject
 {
     public string FullName { get; private set; }
 
-    protected CustomerName(string fullName)
+    private CustomerName(string fullName)
     {
         FullName = fullName;
     }
