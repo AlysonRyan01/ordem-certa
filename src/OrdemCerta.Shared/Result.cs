@@ -5,13 +5,12 @@ public class Result<T>
     public bool IsSuccess { get; private set; }
     public bool IsFailure => !IsSuccess;
     public T? Value { get; private set; }
-    public string? ErrorMessage { get; private set; }
+    public List<string> Errors { get; private set; } = new();
 
     protected Result(T value)
     {
         Value = value;
         IsSuccess = true;
-        ErrorMessage = null;
     }
 
     protected Result(string errorMessage)
@@ -19,7 +18,14 @@ public class Result<T>
         if (string.IsNullOrWhiteSpace(errorMessage))
             throw new ArgumentException("Error message cannot be null or empty", nameof(errorMessage));
             
-        ErrorMessage = errorMessage;
+        Errors.Add(errorMessage);
+        IsSuccess = false;
+        Value = default;
+    }
+    
+    protected Result(List<string> errors)
+    {
+        Errors = errors;
         IsSuccess = false;
         Value = default;
     }
@@ -33,6 +39,11 @@ public class Result<T>
     {
         return new Result<T>(errorMessage);
     }
+    
+    public static Result<T> Failure(List<string> errors)
+    {
+        return new Result<T>(errors);
+    }
 
     public static implicit operator Result<T>(T value) => Success(value);
     
@@ -43,12 +54,11 @@ public class Result
 {
     public bool IsSuccess { get; private set; }
     public bool IsFailure => !IsSuccess;
-    public string? ErrorMessage { get; private set; }
+    public List<string> Errors { get; private set; } = new();
 
     protected Result()
     {
         IsSuccess = true;
-        ErrorMessage = null;
     }
 
     protected Result(string errorMessage)
@@ -56,7 +66,13 @@ public class Result
         if (string.IsNullOrWhiteSpace(errorMessage))
             throw new ArgumentException("Error message cannot be null or empty", nameof(errorMessage));
             
-        ErrorMessage = errorMessage;
+        Errors.Add(errorMessage);
+        IsSuccess = false;
+    }
+    
+    protected Result(List<string> errors)
+    {
+        Errors = errors;
         IsSuccess = false;
     }
     
@@ -68,6 +84,11 @@ public class Result
     public static Result Failure(string errorMessage)
     {
         return new Result(errorMessage);
+    }
+    
+    public static Result Failure(List<string> errors)
+    {
+        return new Result(errors);
     }
     
     public static implicit operator Result(string errorMessage) => Failure(errorMessage);

@@ -1,0 +1,35 @@
+﻿FROM mcr.microsoft.com/dotnet/sdk:9.0 AS development
+WORKDIR /app
+
+# Instala ferramentas do .NET (dotnet-ef para migrations)
+RUN dotnet tool install -g dotnet-ef
+ENV PATH="${PATH}:/root/.dotnet/tools"
+
+# Expõe as portas
+EXPOSE 5000
+EXPOSE 5001
+
+# Copia os arquivos .csproj e restaura dependências (cache layer)
+COPY ["src/OrdemCerta.Presentation/OrdemCerta.Presentation.csproj", "src/OrdemCerta.Presentation/"]
+COPY ["src/OrdemCerta.Application/OrdemCerta.Application.csproj", "src/OrdemCerta.Application/"]
+COPY ["src/OrdemCerta.Domain/OrdemCerta.Domain.csproj", "src/OrdemCerta.Domain/"]
+COPY ["src/OrdemCerta.Shared/OrdemCerta.Shared.csproj", "src/OrdemCerta.Shared/"]
+COPY ["src/OrdemCerta.Infrastructure/OrdemCerta.Infrastructure.csproj", "src/OrdemCerta.Infrastructure/"]
+
+WORKDIR /app/src/OrdemCerta.Presentation
+RUN dotnet restore
+
+# Volta para a raiz e copia todo o código
+WORKDIR /app
+COPY . .
+
+# Define o working directory para o projeto de apresentação
+WORKDIR /app/src/OrdemCerta.Presentation
+
+# Configuração para desenvolvimento
+ENV ASPNETCORE_ENVIRONMENT=Development
+ENV DOTNET_USE_POLLING_FILE_WATCHER=1
+ENV ASPNETCORE_URLS=http://+:5000
+
+# Comando para executar com hot reload
+ENTRYPOINT ["dotnet", "watch", "run", "--no-launch-profile"]

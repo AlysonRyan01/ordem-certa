@@ -20,6 +20,7 @@ public class Customer : AggregateRoot
         CustomerAddress? address = null,
         CustomerDocument? document = null)
     {
+        Id = Guid.NewGuid();
         Name = name;
         Email = email;
         Phones = phones;

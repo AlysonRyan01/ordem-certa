@@ -1,0 +1,3 @@
+dotnet ef migrations add CustomerMap \
+  --project src/OrdemCerta.Infrastructure/OrdemCerta.Infrastructure.csproj \
+  --startup-project src/OrdemCerta.Presentation/OrdemCerta.Presentation.csproj

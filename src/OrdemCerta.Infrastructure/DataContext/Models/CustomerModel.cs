@@ -11,11 +11,15 @@ public class CustomerModel : IEntityTypeConfiguration<Customer>
         builder.ToTable("customers");
 
         builder.HasKey(c => c.Id);
+        
+        builder.Property(c => c.Id)
+            .HasColumnName("id")
+            .ValueGeneratedNever();
 
         builder.OwnsOne(c => c.Name, name =>
         {
             name.Property(n => n.FullName)
-                .HasColumnName("first_name")
+                .HasColumnName("full_name")
                 .HasMaxLength(200)
                 .IsRequired();
         });
@@ -24,52 +28,37 @@ public class CustomerModel : IEntityTypeConfiguration<Customer>
         {
             email.Property(e => e.Value)
                 .HasColumnName("email")
-                .HasMaxLength(254)
-                .IsRequired(false);
-
-            email.HasIndex(e => e.Value)
-                .IsUnique()
-                .HasFilter("email IS NOT NULL");
+                .HasMaxLength(254);
         });
 
         builder.OwnsOne(c => c.Document, document =>
         {
             document.Property(d => d.Value)
                 .HasColumnName("document")
-                .HasMaxLength(14)
-                .IsRequired(false);
+                .HasMaxLength(14);
 
             document.Property(d => d.Type)
                 .HasColumnName("document_type")
-                .HasConversion<string>()
-                .IsRequired(false);
-
-            document.HasIndex(d => d.Value)
-                .IsUnique()
-                .HasFilter("document IS NOT NULL");
+                .HasConversion<string>();
         });
 
         builder.OwnsOne(c => c.Address, address =>
         {
             address.Property(a => a.Street)
                 .HasColumnName("address_street")
-                .HasMaxLength(200)
-                .IsRequired(false);
+                .HasMaxLength(200);
 
             address.Property(a => a.Number)
                 .HasColumnName("address_number")
-                .HasMaxLength(20)
-                .IsRequired(false);
+                .HasMaxLength(20);
 
             address.Property(a => a.City)
                 .HasColumnName("address_city")
-                .HasMaxLength(100)
-                .IsRequired(false);
+                .HasMaxLength(100);
 
             address.Property(a => a.State)
                 .HasColumnName("address_state")
-                .HasMaxLength(2)
-                .IsRequired(false);
+                .HasMaxLength(2);
         });
 
         builder.OwnsMany(c => c.Phones, phones =>

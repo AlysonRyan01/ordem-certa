@@ -27,7 +27,7 @@ public class CustomerController : ControllerBase
         var result = await _customerService.CreateAsync(input, cancellationToken);
 
         if (result.IsFailure)
-            return BadRequest(new { error = result.ErrorMessage });
+            return BadRequest(new { errors = result.Errors });
 
         return CreatedAtAction(
             nameof(GetById),
@@ -47,7 +47,7 @@ public class CustomerController : ControllerBase
         var result = await _customerService.UpdateAsync(id, input, cancellationToken);
 
         if (result.IsFailure)
-            return BadRequest(new { error = result.ErrorMessage });
+            return BadRequest(new { errors = result.Errors });
 
         return Ok(result.Value);
     }
@@ -62,7 +62,7 @@ public class CustomerController : ControllerBase
         var result = await _customerService.DeleteAsync(id, cancellationToken);
 
         if (result.IsFailure)
-            return NotFound(new { error = result.ErrorMessage });
+            return NotFound(new { errors = result.Errors });
 
         return NoContent();
     }
@@ -77,7 +77,7 @@ public class CustomerController : ControllerBase
         var result = await _customerService.GetByIdAsync(id, cancellationToken);
 
         if (result.IsFailure)
-            return NotFound(new { error = result.ErrorMessage });
+            return NotFound(new { errors = result.Errors });
 
         return Ok(result.Value);
     }
@@ -94,7 +94,7 @@ public class CustomerController : ControllerBase
         var result = await _customerService.GetPagedAsync(input, cancellationToken);
 
         if (result.IsFailure)
-            return BadRequest(new { error = result.ErrorMessage });
+            return BadRequest(new { errors = result.Errors });
 
         return Ok(new
         {
@@ -107,7 +107,7 @@ public class CustomerController : ControllerBase
     [HttpGet("search")]
     [ProducesResponseType(typeof(List<CustomerOutput>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> Search(
+    public async Task<IActionResult> GetByName(
         [FromQuery] string searchTerm,
         [FromQuery] int page = 1,
         [FromQuery] int pageSize = 10,
@@ -117,7 +117,7 @@ public class CustomerController : ControllerBase
         var result = await _customerService.GetByNameAsync(searchTerm, input, cancellationToken);
 
         if (result.IsFailure)
-            return BadRequest(new { error = result.ErrorMessage });
+            return BadRequest(new { errors = result.Errors });
 
         return Ok(new
         {
@@ -140,7 +140,7 @@ public class CustomerController : ControllerBase
         var result = await _customerService.AddPhoneAsync(id, input, cancellationToken);
 
         if (result.IsFailure)
-            return BadRequest(new { error = result.ErrorMessage });
+            return BadRequest(new { errors = result.Errors });
 
         return NoContent();
     }
@@ -157,7 +157,7 @@ public class CustomerController : ControllerBase
         var result = await _customerService.RemovePhoneAsync(id, input, cancellationToken);
 
         if (result.IsFailure)
-            return BadRequest(new { error = result.ErrorMessage });
+            return BadRequest(new { errors = result.Errors });
 
         return NoContent();
     }

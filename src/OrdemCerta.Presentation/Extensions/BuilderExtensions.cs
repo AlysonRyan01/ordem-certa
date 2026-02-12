@@ -1,3 +1,4 @@
+using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 using OrdemCerta.Application.Services.CustomerService;
 using OrdemCerta.Infrastructure.DataContext.Context;
@@ -17,6 +18,21 @@ public static class BuilderExtensions
     public static void AddServices(this IServiceCollection services)
     {
         services.AddScoped<ICustomerService, CustomerService>();
+        
+        services.AddValidatorsFromAssemblyContaining<CustomerService>();
+    }
+
+    public static void AddSwagger(this IServiceCollection services)
+    {
+        services.AddSwaggerGen(options =>
+        {
+            options.SwaggerDoc("v1", new Microsoft.OpenApi.OpenApiInfo
+            {
+                Title = "OrdemCerta API",
+                Version = "v1",
+                Description = "API para gerenciamento de clientes"
+            });
+        });
     }
 
     private static void AddDatabase(IServiceCollection services, IConfiguration configuration)

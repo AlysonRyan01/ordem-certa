@@ -1,0 +1,57 @@
+﻿services:
+  ordemcerta.db:
+    image: postgres:16-alpine
+    container_name: ordemcerta-db
+    environment:
+      - POSTGRES_DB=${POSTGRES_DB:-ordemcerta}
+      - POSTGRES_USER=${POSTGRES_USER:-postgres}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-postgres}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - ordemcerta-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-ordemcerta}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - ordemcerta-network
+
+  ordemcerta.presentation:
+    image: ordemcerta.presentation
+    container_name: ordemcerta-api
+    build:
+      context: .
+      dockerfile: src/OrdemCerta.Presentation/Dockerfile.dev
+    ports:
+      - "${API_PORT:-5001}:5000"
+    environment:
+      - ConnectionStrings__DefaultConnection=Host=ordemcerta.db;Port=5432;Database=${POSTGRES_DB:-ordemcerta};Username=${POSTGRES_USER:-postgres};Password=${POSTGRES_PASSWORD:-postgres}
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:5000
+    volumes:
+      - ./src:/app/src
+      - /app/src/OrdemCerta.Presentation/bin
+      - /app/src/OrdemCerta.Presentation/obj
+      - /app/src/OrdemCerta.Application/bin
+      - /app/src/OrdemCerta.Application/obj
+      - /app/src/OrdemCerta.Domain/bin
+      - /app/src/OrdemCerta.Domain/obj
+      - /app/src/OrdemCerta.Infrastructure/bin
+      - /app/src/OrdemCerta.Infrastructure/obj
+      - /app/src/OrdemCerta.Shared/bin
+      - /app/src/OrdemCerta.Shared/obj
+    depends_on:
+      ordemcerta.db:
+        condition: service_healthy
+    networks:
+      - ordemcerta-network
+
+volumes:
+  ordemcerta-db-data:
+    driver: local
+
+networks:
+  ordemcerta-network:
+    driver: bridge

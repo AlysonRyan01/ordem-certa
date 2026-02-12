@@ -57,3 +57,13 @@ idea
 .idea
 ide
 .ide
+
+.env
+.env.local
+.env.*.local
+
+# Database
+*.db
+*.db-shm
+*.db-wal
+OrdemCerta.sln.DotSettings.user
