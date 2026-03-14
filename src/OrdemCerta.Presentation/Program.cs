@@ -7,6 +7,7 @@ builder.Services.AddServices();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddMediatr();
+builder.Services.AddAuth(builder.Configuration);
 builder.Services.AddControllers();
 builder.Services.AddSwagger();
 
@@ -19,6 +20,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
 app.UseInfrastructure();

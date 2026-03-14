@@ -45,26 +45,26 @@
 
 ## Milestone 4 — Usuário e Autenticação
 
-- [ ] Domain: Aggregate `User` (nome, e-mail, senha hash, vínculo com empresa — um usuário por empresa)
-- [ ] Application: `IUserService` e `UserService` (registro, atualização de perfil)
-- [ ] Application: `IAuthService` e `AuthService` (login, geração de token JWT com `CompanyId`)
-- [ ] Infrastructure: `IUserRepository`, `UserRepository`, mapeamento EF e migration
-- [ ] Presentation: `AuthController` (login) e `UserController` (perfil)
-- [ ] Services usam o `CompanyId` do token diretamente nas queries — sem middleware
+- [x] Domain: Aggregate `User` (nome, e-mail, senha hash, vínculo com empresa — um usuário por empresa)
+- [x] Application: `IUserService` e `UserService` (registro, atualização de perfil)
+- [x] Application: `IAuthService` e `AuthService` (login, geração de token JWT com `CompanyId`)
+- [x] Infrastructure: `IUserRepository`, `UserRepository`, mapeamento EF e migration
+- [x] Presentation: `AuthController` (login) e `UserController` (perfil)
+- [x] Services usam o `CompanyId` do token diretamente nas queries — sem middleware
 
 ---
 
 ## Milestone 5 — Ordens de Serviço
 
-- [ ] Domain: Aggregate `ServiceOrder` com informações do equipamento (tipo, marca, modelo, defeito, acessórios, observações)
-- [ ] Domain: Enum `ServiceOrderStatus` (Recebido, Em análise, Orçamento pendente, Aguardando aprovação, Orçamento aprovado, Orçamento recusado, Em conserto, Pronto para retirada, Entregue, Cancelado)
-- [ ] Domain: Value Objects necessários (ex.: `EquipmentType`, `Budget`)
-- [ ] Domain: DTOs de saída e Extensions
-- [ ] Application: `IServiceOrderService` e `ServiceOrderService` (CRUD + mudança de status)
-- [ ] Application: Inputs e Validators
-- [ ] Infrastructure: `IServiceOrderRepository`, `ServiceOrderRepository`, mapeamento EF e migration
-- [ ] Presentation: `ServiceOrderController` com filtros (status, cliente, data)
-- [ ] Validação: plano Demo → máximo 10 ordens de serviço
+- [x] Domain: Aggregate `ServiceOrder` com informações do equipamento (tipo, marca, modelo, defeito, acessórios, observações)
+- [x] Domain: Enum `ServiceOrderStatus` (Recebido, Em análise, Orçamento pendente, Aguardando aprovação, Orçamento aprovado, Orçamento recusado, Em conserto, Pronto para retirada, Entregue, Cancelado)
+- [x] Domain: Value Object `EquipmentInfo` (agrupa os dados do equipamento)
+- [x] Domain: DTOs de saída e Extensions
+- [x] Application: `IServiceOrderService` e `ServiceOrderService` (CRUD + mudança de status)
+- [x] Application: Inputs e Validators
+- [x] Infrastructure: `IServiceOrderRepository`, `ServiceOrderRepository`, mapeamento EF e migration
+- [x] Presentation: `ServiceOrderController` com filtros (status, cliente)
+- [x] Validação: plano Demo → máximo 10 ordens de serviço
 
 ---
 
