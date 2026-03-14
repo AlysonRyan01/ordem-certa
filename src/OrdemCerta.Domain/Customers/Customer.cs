@@ -5,6 +5,7 @@ namespace OrdemCerta.Domain.Customers;
 
 public class Customer : AggregateRoot
 {
+    public Guid CompanyId { get; private set; }
     public CustomerName Name { get; private set; } = null!;
     public List<CustomerPhone> Phones { get; private set; } = new();
     public CustomerEmail? Email { get; private set; }
@@ -14,13 +15,15 @@ public class Customer : AggregateRoot
     private Customer() { }
 
     private Customer(
-        CustomerName name, 
+        Guid companyId,
+        CustomerName name,
         List<CustomerPhone> phones,
         CustomerEmail? email = null,
         CustomerAddress? address = null,
         CustomerDocument? document = null)
     {
         Id = Guid.NewGuid();
+        CompanyId = companyId;
         Name = name;
         Email = email;
         Phones = phones;
@@ -29,13 +32,14 @@ public class Customer : AggregateRoot
     }
 
     public static Result<Customer> Create(
+        Guid companyId,
         CustomerName name,
         List<CustomerPhone> phones,
         CustomerEmail? email = null,
         CustomerAddress? address = null,
         CustomerDocument? document = null)
     {
-        var customer = new Customer(name, phones, email, address, document);
+        var customer = new Customer(companyId, name, phones, email, address, document);
         return customer;
     }
 

@@ -1,7 +1,8 @@
+using MediatR;
 using Microsoft.EntityFrameworkCore;
+using OrdemCerta.Domain.Companies;
 using OrdemCerta.Domain.Customers;
 using OrdemCerta.Shared;
-using MediatR;
 
 namespace OrdemCerta.Infrastructure.DataContext.Context;
 
@@ -15,6 +16,7 @@ public class ApplicationDataContext : DbContext
         _mediator = mediator;
     }
 
+    public DbSet<Company> Companies => Set<Company>();
     public DbSet<Customer> Customers => Set<Customer>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)

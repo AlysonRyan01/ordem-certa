@@ -35,7 +35,7 @@ public class CustomerService : ICustomerService
         _removePhoneValidator = removePhoneValidator;
     }
 
-    public async Task<Result<CustomerOutput>> CreateAsync(CreateCustomerInput input, CancellationToken cancellationToken = default)
+    public async Task<Result<CustomerOutput>> CreateAsync(Guid companyId, CreateCustomerInput input, CancellationToken cancellationToken = default)
     {
         var validationResult = await _createValidator.ValidateAsync(input, cancellationToken);
         if (!validationResult.IsValid)
@@ -58,7 +58,7 @@ public class CustomerService : ICustomerService
             var emailResult = CustomerEmail.Create(input.Email);
             if (emailResult.IsFailure)
                 return Result<CustomerOutput>.Failure(emailResult.Errors);
-            
+
             email = emailResult.Value;
         }
 
@@ -68,7 +68,7 @@ public class CustomerService : ICustomerService
             var documentResult = CustomerDocument.Create(input.Document);
             if (documentResult.IsFailure)
                 return Result<CustomerOutput>.Failure(documentResult.Errors);
-            
+
             document = documentResult.Value;
         }
 
@@ -78,11 +78,12 @@ public class CustomerService : ICustomerService
             var addressResult = CustomerAddress.Create(input.Street, input.Number, input.City, input.State);
             if (addressResult.IsFailure)
                 return Result<CustomerOutput>.Failure(addressResult.Errors);
-            
+
             address = addressResult.Value;
         }
 
         var customerResult = Customer.Create(
+            companyId,
             nameResult.Value!,
             new List<CustomerPhone> { phoneResult.Value! },
             email,

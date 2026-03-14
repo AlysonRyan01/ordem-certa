@@ -1,8 +1,10 @@
 using FluentValidation;
 using Microsoft.EntityFrameworkCore;
+using OrdemCerta.Application.Services.CompanyService;
 using OrdemCerta.Application.Services.CustomerService;
 using OrdemCerta.Infrastructure.DataContext.Context;
 using OrdemCerta.Infrastructure.DataContext.Uow;
+using OrdemCerta.Infrastructure.Repositories.CompanyRepository;
 using OrdemCerta.Infrastructure.Repositories.CustomerRepository;
 
 namespace OrdemCerta.Presentation.Extensions;
@@ -17,8 +19,9 @@ public static class BuilderExtensions
     
     public static void AddServices(this IServiceCollection services)
     {
+        services.AddScoped<ICompanyService, CompanyService>();
         services.AddScoped<ICustomerService, CustomerService>();
-        
+
         services.AddValidatorsFromAssemblyContaining<CustomerService>();
     }
 
@@ -63,6 +66,7 @@ public static class BuilderExtensions
 
     private static void AddRepositories(IServiceCollection services)
     {
+        services.AddScoped<ICompanyRepository, CompanyRepository>();
         services.AddScoped<ICustomerRepository, CustomerRepository>();
     }
 

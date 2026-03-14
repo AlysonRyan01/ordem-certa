@@ -34,12 +34,12 @@
 
 ## Milestone 3 — Empresa
 
-- [ ] Domain: Aggregate `Company` com dados da empresa (nome, CNPJ, telefone de contato, endereço)
-- [ ] Domain: Enum `PlanType` (Demo / Pago) na `Company`
-- [ ] Application: `ICompanyService` e `CompanyService` (CRUD)
-- [ ] Infrastructure: `ICompanyRepository`, `CompanyRepository`, mapeamento EF e migration
-- [ ] Presentation: `CompanyController`
-- [ ] Adicionar `CompanyId` em `Customer` e nas futuras entidades
+- [x] Domain: Aggregate `Company` com dados da empresa (nome, CNPJ, telefone de contato, endereço)
+- [x] Domain: Enum `PlanType` (Demo / Pago) na `Company`
+- [x] Application: `ICompanyService` e `CompanyService` (CRUD)
+- [x] Infrastructure: `ICompanyRepository`, `CompanyRepository`, mapeamento EF e migration
+- [x] Presentation: `CompanyController`
+- [x] Adicionar `CompanyId` em `Customer` e nas futuras entidades
 
 ---
 

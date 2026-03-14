@@ -11,10 +11,14 @@ public class CustomerModel : IEntityTypeConfiguration<Customer>
         builder.ToTable("customers");
 
         builder.HasKey(c => c.Id);
-        
+
         builder.Property(c => c.Id)
             .HasColumnName("id")
             .ValueGeneratedNever();
+
+        builder.Property(c => c.CompanyId)
+            .HasColumnName("company_id")
+            .IsRequired();
 
         builder.OwnsOne(c => c.Name, name =>
         {
