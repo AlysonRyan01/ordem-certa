@@ -17,7 +17,7 @@ export interface Breadcrumb {
   template: `
     @if (crumbs().length > 1) {
       <nav class="flex items-center gap-1 text-sm text-gray-500 mb-4">
-        @for (crumb of crumbs(); track crumb.url; let last = $last) {
+        @for (crumb of crumbs(); track $index; let last = $last) {
           @if (!last) {
             <a [routerLink]="crumb.url" class="hover:text-gray-800 transition-colors">
               {{ crumb.label }}
@@ -48,6 +48,7 @@ export class BreadcrumbComponent {
     const { children } = route;
 
     for (const child of children) {
+      if (!child.snapshot) continue;
       const segments = child.snapshot.url.map((s) => s.path);
       const path = segments.length ? `${url}/${segments.join('/')}` : url;
       const label = child.snapshot.data['breadcrumb'];

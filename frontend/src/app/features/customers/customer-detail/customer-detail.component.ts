@@ -98,7 +98,7 @@ export class CustomerDetailComponent implements OnInit {
     const ref = this.dialog.open(ConfirmDialogComponent, {
       data: {
         title: 'Excluir cliente',
-        message: `Deseja excluir "${this.customer()?.name}"? Esta ação não pode ser desfeita.`,
+        message: `Deseja excluir "${this.customer()?.fullName}"? Esta ação não pode ser desfeita.`,
         confirmLabel: 'Excluir',
       },
     });

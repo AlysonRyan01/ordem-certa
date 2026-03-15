@@ -109,7 +109,7 @@ public class CustomerService : ICustomerService
             return Result<CustomerOutput>.Failure(errors);
         }
 
-        var customerResult = await _customerRepository.GetByIdAsync(id, cancellationToken);
+        var customerResult = await _customerRepository.GetByIdTrackedAsync(id, cancellationToken);
         if (customerResult.IsFailure)
             return Result<CustomerOutput>.Failure(customerResult.Errors);
 
@@ -153,7 +153,7 @@ public class CustomerService : ICustomerService
 
     public async Task<Result> DeleteAsync(Guid id, CancellationToken cancellationToken = default)
     {
-        var customerResult = await _customerRepository.GetByIdAsync(id, cancellationToken);
+        var customerResult = await _customerRepository.GetByIdTrackedAsync(id, cancellationToken);
         if (customerResult.IsFailure)
             return Result.Failure(customerResult.Errors);
 
@@ -190,61 +190,55 @@ public class CustomerService : ICustomerService
         return customersResult.Value!.ToOutput();
     }
 
-    public async Task<Result> AddPhoneAsync(Guid id, AddPhoneInput input, CancellationToken cancellationToken = default)
+    public async Task<Result<CustomerOutput>> AddPhoneAsync(Guid id, AddPhoneInput input, CancellationToken cancellationToken = default)
     {
         var validationResult = await _addPhoneValidator.ValidateAsync(input, cancellationToken);
         if (!validationResult.IsValid)
-        {
-            var errors = validationResult.Errors.Select(e => e.ErrorMessage).ToList();
-            return Result.Failure(errors);
-        }
+            return Result<CustomerOutput>.Failure(validationResult.Errors.Select(e => e.ErrorMessage).ToList());
 
-        var customerResult = await _customerRepository.GetByIdAsync(id, cancellationToken);
+        var customerResult = await _customerRepository.GetByIdTrackedAsync(id, cancellationToken);
         if (customerResult.IsFailure)
-            return Result.Failure(customerResult.Errors);
+            return Result<CustomerOutput>.Failure(customerResult.Errors);
 
         var customer = customerResult.Value!;
 
         var phoneResult = CustomerPhone.Create(input.Phone);
         if (phoneResult.IsFailure)
-            return Result.Failure(phoneResult.Errors);
+            return Result<CustomerOutput>.Failure(phoneResult.Errors);
 
         var addPhoneResult = customer.AddPhone(phoneResult.Value!);
         if (addPhoneResult.IsFailure)
-            return addPhoneResult;
+            return Result<CustomerOutput>.Failure(addPhoneResult.Errors);
 
         await _customerRepository.UpdateAsync(customer, cancellationToken);
         await _unitOfWork.CommitAsync(cancellationToken);
 
-        return Result.Success();
+        return customer.ToOutput();
     }
 
-    public async Task<Result> RemovePhoneAsync(Guid id, RemovePhoneInput input, CancellationToken cancellationToken = default)
+    public async Task<Result<CustomerOutput>> RemovePhoneAsync(Guid id, RemovePhoneInput input, CancellationToken cancellationToken = default)
     {
         var validationResult = await _removePhoneValidator.ValidateAsync(input, cancellationToken);
         if (!validationResult.IsValid)
-        {
-            var errors = validationResult.Errors.Select(e => e.ErrorMessage).ToList();
-            return Result.Failure(errors);
-        }
+            return Result<CustomerOutput>.Failure(validationResult.Errors.Select(e => e.ErrorMessage).ToList());
 
-        var customerResult = await _customerRepository.GetByIdAsync(id, cancellationToken);
+        var customerResult = await _customerRepository.GetByIdTrackedAsync(id, cancellationToken);
         if (customerResult.IsFailure)
-            return Result.Failure(customerResult.Errors);
+            return Result<CustomerOutput>.Failure(customerResult.Errors);
 
         var customer = customerResult.Value!;
 
         var phoneResult = CustomerPhone.Create(input.Phone);
         if (phoneResult.IsFailure)
-            return Result.Failure(phoneResult.Errors);
+            return Result<CustomerOutput>.Failure(phoneResult.Errors);
 
         var removePhoneResult = customer.RemovePhone(phoneResult.Value!);
         if (removePhoneResult.IsFailure)
-            return removePhoneResult;
+            return Result<CustomerOutput>.Failure(removePhoneResult.Errors);
 
         await _customerRepository.UpdateAsync(customer, cancellationToken);
         await _unitOfWork.CommitAsync(cancellationToken);
 
-        return Result.Success();
+        return customer.ToOutput();
     }
 }

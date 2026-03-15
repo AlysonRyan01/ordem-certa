@@ -9,7 +9,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { debounceTime, distinctUntilChanged, switchMap } from 'rxjs';
+import { debounceTime, distinctUntilChanged } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CustomerOutput } from '../../../core/models/customer.model';
 import { CustomerService } from '../../../core/services/customer.service';
@@ -50,21 +50,10 @@ export class CustomerListComponent implements OnInit {
 
   constructor() {
     this.searchControl.valueChanges
-      .pipe(
-        debounceTime(400),
-        distinctUntilChanged(),
-        switchMap((term) => {
-          this.loading.set(true);
-          this.page.set(1);
-          return term?.trim()
-            ? this.customerService.search(term.trim(), 1, this.pageSize())
-            : this.customerService.getPaged(1, this.pageSize());
-        }),
-        takeUntilDestroyed()
-      )
-      .subscribe((data) => {
-        this.customers.set(data);
-        this.loading.set(false);
+      .pipe(debounceTime(400), distinctUntilChanged(), takeUntilDestroyed())
+      .subscribe(() => {
+        this.page.set(1);
+        this.load();
       });
   }
 
@@ -86,7 +75,7 @@ export class CustomerListComponent implements OnInit {
     const ref = this.dialog.open(ConfirmDialogComponent, {
       data: {
         title: 'Excluir cliente',
-        message: `Deseja excluir o cliente "${customer.name}"? Esta ação não pode ser desfeita.`,
+        message: `Deseja excluir o cliente "${customer.fullName}"? Esta ação não pode ser desfeita.`,
         confirmLabel: 'Excluir',
       },
     });

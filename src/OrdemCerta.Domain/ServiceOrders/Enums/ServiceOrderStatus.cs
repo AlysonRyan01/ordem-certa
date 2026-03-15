@@ -1,5 +1,8 @@
+using System.Text.Json.Serialization;
+
 namespace OrdemCerta.Domain.ServiceOrders.Enums;
 
+[JsonConverter(typeof(JsonStringEnumConverter))]
 public enum ServiceOrderStatus
 {
     Received = 1,

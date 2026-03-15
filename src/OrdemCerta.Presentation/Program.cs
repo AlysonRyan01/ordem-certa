@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using System.Threading.RateLimiting;
 using Microsoft.AspNetCore.RateLimiting;
 using OrdemCerta.Presentation.Extensions;
@@ -21,7 +22,9 @@ try
             rollingInterval: RollingInterval.Day,
             retainedFileCountLimit: 30));
 
-    builder.Services.AddControllers();
+    builder.Services.AddControllers()
+        .AddJsonOptions(options =>
+            options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
     builder.Services.AddServices();
     builder.Services.AddEndpointsApiExplorer();
     builder.Services.AddInfrastructure(builder.Configuration);

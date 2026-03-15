@@ -26,6 +26,17 @@ public class CustomerRepository : ICustomerRepository
         return customer;
     }
 
+    public async Task<Result<Customer>> GetByIdTrackedAsync(Guid id, CancellationToken cancellationToken = default)
+    {
+        var customer = await _context.Customers
+            .FirstOrDefaultAsync(c => c.Id == id, cancellationToken);
+
+        if (customer == null)
+            return "Cliente não encontrado";
+
+        return customer;
+    }
+
     public async Task<Result<IEnumerable<Customer>>> GetPagedAsync(int page, int pageSize, CancellationToken cancellationToken = default)
     {
         if (page < 1)
@@ -75,7 +86,9 @@ public class CustomerRepository : ICustomerRepository
 
     public Task UpdateAsync(Customer customer, CancellationToken cancellationToken = default)
     {
-        _context.Customers.Update(customer);
+        if (_context.Entry(customer).State == EntityState.Detached)
+            _context.Customers.Update(customer);
+
         return Task.CompletedTask;
     }
 

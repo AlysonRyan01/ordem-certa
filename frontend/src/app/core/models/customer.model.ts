@@ -20,7 +20,7 @@ export interface CustomerAddressOutput {
 export interface CustomerOutput {
   id: string;
   companyId: string;
-  name: string;
+  fullName: string;
   email?: string;
   document?: CustomerDocumentOutput;
   address?: CustomerAddressOutput;

@@ -60,11 +60,13 @@ export class CustomerFormComponent implements OnInit {
     const id = this.route.snapshot.paramMap.get('id');
     if (id) {
       this.editId.set(id);
+      this.form.controls.phone.clearValidators();
+      this.form.controls.phone.updateValueAndValidity();
       this.loading.set(true);
       this.customerService.getById(id).subscribe({
         next: (c) => {
           this.form.patchValue({
-            fullName: c.name,
+            fullName: c.fullName,
             email: c.email ?? '',
             document: c.document?.value ?? '',
             street: c.address?.street ?? '',

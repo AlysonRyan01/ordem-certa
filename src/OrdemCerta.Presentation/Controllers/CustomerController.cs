@@ -97,14 +97,9 @@ public class CustomerController : ControllerBase
         if (result.IsFailure)
             return BadRequest(new { errors = result.Errors });
 
-        return Ok(new
-        {
-            page,
-            pageSize,
-            data = result.Value
-        });
+        return Ok(result.Value);
     }
-    
+
     [HttpGet("search")]
     [ProducesResponseType(typeof(List<CustomerOutput>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -120,17 +115,11 @@ public class CustomerController : ControllerBase
         if (result.IsFailure)
             return BadRequest(new { errors = result.Errors });
 
-        return Ok(new
-        {
-            searchTerm,
-            page,
-            pageSize,
-            data = result.Value
-        });
+        return Ok(result.Value);
     }
     
     [HttpPost("{id:guid}/phones")]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(typeof(CustomerOutput), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> AddPhone(
@@ -143,11 +132,11 @@ public class CustomerController : ControllerBase
         if (result.IsFailure)
             return BadRequest(new { errors = result.Errors });
 
-        return NoContent();
+        return Ok(result.Value);
     }
-    
+
     [HttpDelete("{id:guid}/phones")]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(typeof(CustomerOutput), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> RemovePhone(
@@ -160,6 +149,6 @@ public class CustomerController : ControllerBase
         if (result.IsFailure)
             return BadRequest(new { errors = result.Errors });
 
-        return NoContent();
+        return Ok(result.Value);
     }
 }

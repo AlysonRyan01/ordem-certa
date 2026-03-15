@@ -19,7 +19,7 @@
     <table mat-table [dataSource]="customers()" class="w-full">
       <ng-container matColumnDef="name">
         <th mat-header-cell *matHeaderCellDef>Nome</th>
-        <td mat-cell *matCellDef="let c">{{ c.name }}</td>
+        <td mat-cell *matCellDef="let c">{{ c.fullName }}</td>
       </ng-container>
 
       <ng-container matColumnDef="document">

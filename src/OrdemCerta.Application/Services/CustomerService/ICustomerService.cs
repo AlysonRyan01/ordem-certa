@@ -12,6 +12,6 @@ public interface ICustomerService
     Task<Result<CustomerOutput>> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
     Task<Result<List<CustomerOutput>>> GetPagedAsync(GetPagedInput input, CancellationToken cancellationToken = default);
     Task<Result<List<CustomerOutput>>> GetByNameAsync(string searchTerm, GetPagedInput input, CancellationToken cancellationToken = default);
-    Task<Result> AddPhoneAsync(Guid id, AddPhoneInput input, CancellationToken cancellationToken = default);
-    Task<Result> RemovePhoneAsync(Guid id, RemovePhoneInput input, CancellationToken cancellationToken = default);
+    Task<Result<CustomerOutput>> AddPhoneAsync(Guid id, AddPhoneInput input, CancellationToken cancellationToken = default);
+    Task<Result<CustomerOutput>> RemovePhoneAsync(Guid id, RemovePhoneInput input, CancellationToken cancellationToken = default);
 }

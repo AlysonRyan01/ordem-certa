@@ -95,10 +95,10 @@ export class OrderFormComponent implements OnInit {
 
   selectCustomer(customer: CustomerOutput): void {
     this.selectedCustomerId.set(customer.id);
-    this.form.controls.customerSearch.setValue(customer.name, { emitEvent: false });
+    this.form.controls.customerSearch.setValue(customer.fullName, { emitEvent: false });
   }
 
-  displayCustomer = (c: CustomerOutput | null): string => c?.name ?? '';
+  displayCustomer = (c: CustomerOutput | null): string => c?.fullName ?? '';
 
   onSubmit(): void {
     if (this.form.invalid || this.saving()) return;

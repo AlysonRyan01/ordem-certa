@@ -22,7 +22,7 @@
           />
           <mat-autocomplete #auto (optionSelected)="selectCustomer($event.option.value)">
             @for (c of customerSuggestions(); track c.id) {
-              <mat-option [value]="c">{{ c.name }}</mat-option>
+              <mat-option [value]="c">{{ c.fullName }}</mat-option>
             }
           </mat-autocomplete>
           <mat-hint>Digite pelo menos 2 caracteres</mat-hint>
