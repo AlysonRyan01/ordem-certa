@@ -7,7 +7,7 @@ using OrdemCerta.Shared;
 namespace OrdemCerta.Presentation.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/customers")]
 public class CustomerController : ControllerBase
 {
     private readonly ICustomerService _customerService;
