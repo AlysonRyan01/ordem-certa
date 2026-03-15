@@ -30,6 +30,10 @@
       - ConnectionStrings__DefaultConnection=Host=ordemcerta.db;Port=5432;Database=${POSTGRES_DB:-ordemcerta};Username=${POSTGRES_USER:-postgres};Password=${POSTGRES_PASSWORD:-postgres}
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:5000
+      - App__BaseUrl=http://localhost:5001
+      - EvolutionApi__BaseUrl=http://evolution-api:8080
+      - EvolutionApi__ApiKey=dev-key
+      - EvolutionApi__Instance=ordemcerta
     volumes:
       - ./src:/app/src
       - /app/src/OrdemCerta.Presentation/bin
@@ -45,6 +49,20 @@
     depends_on:
       ordemcerta.db:
         condition: service_healthy
+    networks:
+      - ordemcerta-network
+
+  ordemcerta.frontend:
+    image: ordemcerta.frontend
+    container_name: ordemcerta-frontend
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "${FRONTEND_PORT:-3000}:80"
+    depends_on:
+      ordemcerta.presentation:
+        condition: service_started
     networks:
       - ordemcerta-network
 

@@ -1,0 +1,64 @@
+<mat-sidenav-container class="h-full">
+  <mat-sidenav
+    [mode]="isMobile() ? 'over' : 'side'"
+    [opened]="isMobile() ? sidenavOpened() : true"
+    class="w-64"
+  >
+    <div class="p-4 border-b flex items-center justify-between">
+      <h1 class="text-lg font-bold">OrdemCerta</h1>
+      @if (isMobile()) {
+        <button mat-icon-button (click)="toggleSidenav()">
+          <mat-icon>close</mat-icon>
+        </button>
+      }
+    </div>
+
+    <mat-nav-list>
+      @for (item of navItems; track item.route) {
+        <a
+          mat-list-item
+          [routerLink]="item.route"
+          routerLinkActive="active-link"
+        >
+          <mat-icon matListItemIcon>{{ item.icon }}</mat-icon>
+          <span matListItemTitle>{{ item.label }}</span>
+        </a>
+      }
+    </mat-nav-list>
+
+    <div class="absolute bottom-0 w-full p-4 border-t">
+      @if (plan()) {
+        <div
+          class="flex items-center gap-2 text-sm"
+          [class.text-amber-600]="plan() === 'Demo'"
+          [class.text-green-600]="plan() === 'Paid'"
+        >
+          <mat-icon class="text-base">
+            {{ plan() === 'Demo' ? 'info' : 'verified' }}
+          </mat-icon>
+          <span>Plano {{ plan() === 'Demo' ? 'Demo' : 'Pago' }}</span>
+        </div>
+      }
+    </div>
+  </mat-sidenav>
+
+  <mat-sidenav-content class="flex flex-col">
+    <mat-toolbar color="primary">
+      @if (isMobile()) {
+        <button mat-icon-button (click)="toggleSidenav()" class="mr-2">
+          <mat-icon>menu</mat-icon>
+        </button>
+      }
+      <span class="flex-1"></span>
+      <span class="text-sm mr-4 hidden sm:inline">{{ auth.userName() }}</span>
+      <button mat-icon-button (click)="logout()" matTooltip="Sair">
+        <mat-icon>logout</mat-icon>
+      </button>
+    </mat-toolbar>
+
+    <main class="flex-1 p-6 overflow-auto">
+      <app-breadcrumb />
+      <router-outlet />
+    </main>
+  </mat-sidenav-content>
+</mat-sidenav-container>

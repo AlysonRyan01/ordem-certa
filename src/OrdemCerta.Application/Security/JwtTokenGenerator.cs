@@ -4,7 +4,7 @@ using System.Text;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using OrdemCerta.Application.Abstractions;
-using OrdemCerta.Domain.Users;
+using OrdemCerta.Domain.Companies;
 
 namespace OrdemCerta.Application.Security;
 
@@ -24,16 +24,16 @@ public class JwtTokenGenerator : IJwtTokenGenerator
         _expirationHours = int.TryParse(configuration["Jwt:ExpirationHours"], out var h) ? h : 24;
     }
 
-    public (string token, DateTime expiresAt) Generate(User user)
+    public (string token, DateTime expiresAt) Generate(Company company)
     {
         var expiresAt = DateTime.UtcNow.AddHours(_expirationHours);
 
         var claims = new[]
         {
-            new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
-            new Claim(JwtRegisteredClaimNames.Email, user.Email.Value),
-            new Claim(JwtRegisteredClaimNames.Name, user.Name.Value),
-            new Claim("companyId", user.CompanyId.ToString()),
+            new Claim(JwtRegisteredClaimNames.Sub, company.Id.ToString()),
+            new Claim(JwtRegisteredClaimNames.Email, company.Email),
+            new Claim(JwtRegisteredClaimNames.Name, company.Name.Value),
+            new Claim("companyId", company.Id.ToString()),
         };
 
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_secretKey));

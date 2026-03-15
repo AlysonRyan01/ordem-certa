@@ -18,29 +18,35 @@ namespace OrdemCerta.Application.Services.ServiceOrderService;
 public class ServiceOrderService : IServiceOrderService
 {
     private readonly IServiceOrderRepository _serviceOrderRepository;
+    private readonly ICompanyOrderSequenceRepository _sequenceRepository;
     private readonly ICompanyRepository _companyRepository;
     private readonly IUnitOfWork _unitOfWork;
     private readonly ICurrentCompany _currentCompany;
     private readonly IValidator<CreateServiceOrderInput> _createValidator;
     private readonly IValidator<UpdateServiceOrderInput> _updateValidator;
     private readonly IValidator<ChangeStatusInput> _changeStatusValidator;
+    private readonly IValidator<CreateBudgetInput> _createBudgetValidator;
 
     public ServiceOrderService(
         IServiceOrderRepository serviceOrderRepository,
+        ICompanyOrderSequenceRepository sequenceRepository,
         ICompanyRepository companyRepository,
         IUnitOfWork unitOfWork,
         ICurrentCompany currentCompany,
         IValidator<CreateServiceOrderInput> createValidator,
         IValidator<UpdateServiceOrderInput> updateValidator,
-        IValidator<ChangeStatusInput> changeStatusValidator)
+        IValidator<ChangeStatusInput> changeStatusValidator,
+        IValidator<CreateBudgetInput> createBudgetValidator)
     {
         _serviceOrderRepository = serviceOrderRepository;
+        _sequenceRepository = sequenceRepository;
         _companyRepository = companyRepository;
         _unitOfWork = unitOfWork;
         _currentCompany = currentCompany;
         _createValidator = createValidator;
         _updateValidator = updateValidator;
         _changeStatusValidator = changeStatusValidator;
+        _createBudgetValidator = createBudgetValidator;
     }
 
     public async Task<Result<ServiceOrderOutput>> CreateAsync(CreateServiceOrderInput input, CancellationToken cancellationToken)
@@ -71,9 +77,12 @@ public class ServiceOrderService : IServiceOrderService
         if (equipmentResult.IsFailure)
             return Result<ServiceOrderOutput>.Failure(equipmentResult.Errors);
 
+        var orderNumber = await _sequenceRepository.GetNextNumberAsync(_currentCompany.CompanyId, cancellationToken);
+
         var orderResult = ServiceOrder.Create(
             _currentCompany.CompanyId,
             input.CustomerId,
+            orderNumber,
             equipmentResult.Value!,
             input.TechnicianName);
 
@@ -174,5 +183,69 @@ public class ServiceOrderService : IServiceOrderService
         await _unitOfWork.CommitAsync(cancellationToken);
 
         return order.ToOutput();
+    }
+
+    public async Task<Result<ServiceOrderOutput>> CreateBudgetAsync(Guid id, CreateBudgetInput input, CancellationToken cancellationToken)
+    {
+        var validationResult = await _createBudgetValidator.ValidateAsync(input, cancellationToken);
+        if (!validationResult.IsValid)
+            return Result<ServiceOrderOutput>.Failure(validationResult.Errors.Select(e => e.ErrorMessage).ToList());
+
+        var orderResult = await _serviceOrderRepository.GetByIdAsync(id, cancellationToken);
+        if (orderResult.IsFailure)
+            return Result<ServiceOrderOutput>.Failure(orderResult.Errors);
+
+        var order = orderResult.Value!;
+
+        var budgetResult = Budget.Create(input.Value, input.Description);
+        if (budgetResult.IsFailure)
+            return Result<ServiceOrderOutput>.Failure(budgetResult.Errors);
+
+        order.CreateBudget(budgetResult.Value!);
+
+        await _serviceOrderRepository.UpdateAsync(order, cancellationToken);
+        await _unitOfWork.CommitAsync(cancellationToken);
+
+        return order.ToOutput();
+    }
+
+    public async Task<Result<ServiceOrderOutput>> ApproveBudgetAsync(Guid id, CancellationToken cancellationToken)
+    {
+        var orderResult = await _serviceOrderRepository.GetByIdAsync(id, cancellationToken);
+        if (orderResult.IsFailure)
+            return Result<ServiceOrderOutput>.Failure(orderResult.Errors);
+
+        var order = orderResult.Value!;
+        var approveResult = order.ApproveBudget();
+        if (approveResult.IsFailure)
+            return Result<ServiceOrderOutput>.Failure(approveResult.Errors);
+
+        await _serviceOrderRepository.UpdateAsync(order, cancellationToken);
+        await _unitOfWork.CommitAsync(cancellationToken);
+
+        var companyResult = await _companyRepository.GetByIdAsync(order.CompanyId, cancellationToken);
+        var companyName = companyResult.IsSuccess ? companyResult.Value!.Name.Value : null;
+
+        return order.ToOutput(companyName);
+    }
+
+    public async Task<Result<ServiceOrderOutput>> RefuseBudgetAsync(Guid id, CancellationToken cancellationToken)
+    {
+        var orderResult = await _serviceOrderRepository.GetByIdAsync(id, cancellationToken);
+        if (orderResult.IsFailure)
+            return Result<ServiceOrderOutput>.Failure(orderResult.Errors);
+
+        var order = orderResult.Value!;
+        var refuseResult = order.RefuseBudget();
+        if (refuseResult.IsFailure)
+            return Result<ServiceOrderOutput>.Failure(refuseResult.Errors);
+
+        await _serviceOrderRepository.UpdateAsync(order, cancellationToken);
+        await _unitOfWork.CommitAsync(cancellationToken);
+
+        var companyResult = await _companyRepository.GetByIdAsync(order.CompanyId, cancellationToken);
+        var companyName = companyResult.IsSuccess ? companyResult.Value!.Name.Value : null;
+
+        return order.ToOutput(companyName);
     }
 }

@@ -26,6 +26,18 @@ public class CompanyRepository : ICompanyRepository
         return company;
     }
 
+    public async Task<Result<Company>> GetByEmailAsync(string email, CancellationToken cancellationToken)
+    {
+        var company = await _context.Companies
+            .AsNoTracking()
+            .FirstOrDefaultAsync(c => c.Email == email, cancellationToken);
+
+        if (company is null)
+            return "E-mail ou senha inválidos";
+
+        return company;
+    }
+
     public async Task AddAsync(Company company, CancellationToken cancellationToken)
     {
         await _context.Companies.AddAsync(company, cancellationToken);

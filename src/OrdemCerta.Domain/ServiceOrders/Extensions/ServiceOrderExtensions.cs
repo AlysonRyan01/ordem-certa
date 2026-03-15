@@ -4,12 +4,13 @@ namespace OrdemCerta.Domain.ServiceOrders.Extensions;
 
 public static class ServiceOrderExtensions
 {
-    public static ServiceOrderOutput ToOutput(this ServiceOrder order)
+    public static ServiceOrderOutput ToOutput(this ServiceOrder order, string? companyName = null)
     {
         return new ServiceOrderOutput(
             order.Id,
             order.CompanyId,
             order.CustomerId,
+            order.OrderNumber,
             order.Equipment.DeviceType,
             order.Equipment.Brand,
             order.Equipment.Model,
@@ -18,7 +19,10 @@ public static class ServiceOrderExtensions
             order.Equipment.Observations,
             order.Status.ToString(),
             order.EntryDate,
-            order.TechnicianName);
+            order.TechnicianName,
+            order.Budget?.Value,
+            order.Budget?.Description,
+            companyName);
     }
 
     public static IEnumerable<ServiceOrderOutput> ToOutput(this IEnumerable<ServiceOrder> orders)

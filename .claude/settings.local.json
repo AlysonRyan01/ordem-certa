@@ -6,7 +6,18 @@
       "Bash(where dotnet-ef:*)",
       "Read(//c/Users/**)",
       "Bash(find:*)",
-      "Bash(grep:*)"
+      "Bash(grep:*)",
+      "Bash(/c/Users/alyso/.dotnet/tools/dotnet-ef migrations:*)",
+      "Bash(dotnet build:*)",
+      "Bash(dotnet test:*)",
+      "Bash(dotnet restore:*)",
+      "Bash(dotnet add:*)",
+      "Bash(ng version:*)",
+      "Bash(ng new:*)",
+      "Bash(npm install:*)",
+      "Bash(ng build:*)",
+      "Bash(ng add:*)",
+      "Bash(ls:*)"
     ]
   }
 }

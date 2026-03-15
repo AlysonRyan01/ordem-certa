@@ -1,0 +1,117 @@
+@if (loading()) {
+  <div class="flex flex-col gap-4 max-w-2xl">
+    <app-skeleton height="2rem" width="40%" />
+    <app-skeleton height="10rem" />
+    <app-skeleton height="8rem" />
+  </div>
+} @else if (order(); as o) {
+  <div class="max-w-2xl flex flex-col gap-6">
+
+    <!-- Cabeçalho -->
+    <div class="flex items-start justify-between">
+      <div>
+        <p class="text-sm text-gray-500 mb-1">Ordem de Serviço</p>
+        <h2 class="text-3xl font-bold">#{{ o.orderNumber }}</h2>
+        <p class="text-sm text-gray-500 mt-1">
+          Entrada: {{ o.entryDate | date:'dd/MM/yyyy' }}
+        </p>
+      </div>
+      <div class="flex gap-2 items-center">
+        <app-status-badge [status]="o.status" />
+        <a mat-stroked-button [routerLink]="['/orders', o.id, 'edit']">
+          <mat-icon>edit</mat-icon> Editar
+        </a>
+        <button mat-stroked-button color="warn" (click)="confirmDelete()">
+          <mat-icon>delete</mat-icon>
+        </button>
+      </div>
+    </div>
+
+    <!-- Equipamento -->
+    <mat-card>
+      <mat-card-header><mat-card-title class="text-base">Equipamento</mat-card-title></mat-card-header>
+      <mat-card-content class="pt-4">
+        <div class="grid grid-cols-2 gap-x-8 gap-y-2 text-sm">
+          <span class="text-gray-500">Tipo</span>       <span>{{ o.deviceType }}</span>
+          <span class="text-gray-500">Marca</span>      <span>{{ o.brand }}</span>
+          <span class="text-gray-500">Modelo</span>     <span>{{ o.model }}</span>
+          <span class="text-gray-500">Defeito</span>    <span>{{ o.reportedDefect }}</span>
+          <span class="text-gray-500">Acessórios</span> <span>{{ o.accessories ?? '—' }}</span>
+          <span class="text-gray-500">Observações</span><span>{{ o.observations ?? '—' }}</span>
+          <span class="text-gray-500">Técnico</span>    <span>{{ o.technicianName ?? '—' }}</span>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Alterar status -->
+    <mat-card>
+      <mat-card-header><mat-card-title class="text-base">Alterar Status</mat-card-title></mat-card-header>
+      <mat-card-content class="pt-4">
+        <div class="flex gap-3 items-start">
+          <mat-form-field appearance="outline" class="flex-1">
+            <mat-label>Novo status</mat-label>
+            <mat-select [formControl]="statusControl">
+              @for (s of allStatuses; track s.value) {
+                <mat-option [value]="s.value">{{ s.label }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+          <button mat-flat-button class="mt-1" (click)="applyStatus()" [disabled]="changingStatus()">
+            @if (changingStatus()) { <mat-spinner diameter="20" /> } @else { Aplicar }
+          </button>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Orçamento -->
+    <mat-card>
+      <mat-card-header><mat-card-title class="text-base">Orçamento</mat-card-title></mat-card-header>
+      <mat-card-content class="pt-4">
+        @if (o.budgetValue) {
+          <div class="grid grid-cols-2 gap-x-8 gap-y-2 text-sm mb-4">
+            <span class="text-gray-500">Valor</span>
+            <span class="font-semibold text-green-700">R$ {{ o.budgetValue | number:'1.2-2' }}</span>
+            <span class="text-gray-500">Descrição</span>
+            <span>{{ o.budgetDescription }}</span>
+          </div>
+
+          @if (o.status === 'WaitingApproval') {
+            <div class="flex gap-3">
+              <button mat-flat-button color="primary" (click)="approveBudget()">
+                <mat-icon>thumb_up</mat-icon> Aprovar
+              </button>
+              <button mat-stroked-button color="warn" (click)="refuseBudget()">
+                <mat-icon>thumb_down</mat-icon> Recusar
+              </button>
+            </div>
+          }
+        } @else {
+          <div class="flex flex-col gap-3">
+            <div class="flex gap-4">
+              <mat-form-field appearance="outline" class="w-40">
+                <mat-label>Valor (R$)</mat-label>
+                <input matInput type="number" [formControl]="budgetValueControl" min="0.01" step="0.01" />
+              </mat-form-field>
+              <mat-form-field appearance="outline" class="flex-1">
+                <mat-label>Descrição</mat-label>
+                <input matInput [formControl]="budgetDescControl" />
+              </mat-form-field>
+            </div>
+            <div>
+              <button mat-flat-button (click)="createBudget()"
+                      [disabled]="budgetValueControl.invalid || budgetDescControl.invalid">
+                <mat-icon>request_quote</mat-icon> Enviar Orçamento
+              </button>
+            </div>
+          </div>
+        }
+      </mat-card-content>
+    </mat-card>
+
+    <div class="flex justify-start">
+      <a mat-button routerLink="/orders">
+        <mat-icon>arrow_back</mat-icon> Voltar
+      </a>
+    </div>
+  </div>
+}

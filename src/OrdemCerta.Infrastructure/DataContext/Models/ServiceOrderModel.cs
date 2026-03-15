@@ -24,6 +24,10 @@ public class ServiceOrderModel : IEntityTypeConfiguration<ServiceOrder>
             .HasColumnName("customer_id")
             .IsRequired();
 
+        builder.Property(o => o.OrderNumber)
+            .HasColumnName("order_number")
+            .IsRequired();
+
         builder.OwnsOne(o => o.Equipment, equipment =>
         {
             equipment.Property(e => e.DeviceType)
@@ -66,6 +70,17 @@ public class ServiceOrderModel : IEntityTypeConfiguration<ServiceOrder>
         builder.Property(o => o.TechnicianName)
             .HasColumnName("technician_name")
             .HasMaxLength(200);
+
+        builder.OwnsOne(o => o.Budget, budget =>
+        {
+            budget.Property(b => b.Value)
+                .HasColumnName("budget_value")
+                .HasColumnType("numeric(10,2)");
+
+            budget.Property(b => b.Description)
+                .HasColumnName("budget_description")
+                .HasMaxLength(500);
+        });
 
         builder.Property(o => o.CreatedAt)
             .HasColumnName("created_at")

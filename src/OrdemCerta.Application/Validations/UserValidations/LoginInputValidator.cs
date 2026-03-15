@@ -1,7 +1,7 @@
 using FluentValidation;
-using OrdemCerta.Application.Inputs.UserInputs;
+using OrdemCerta.Application.Inputs.CompanyInputs;
 
-namespace OrdemCerta.Application.Validations.UserValidations;
+namespace OrdemCerta.Application.Validations.CompanyValidations;
 
 public class LoginInputValidator : AbstractValidator<LoginInput>
 {

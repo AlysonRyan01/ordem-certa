@@ -260,3 +260,304 @@ dotnet ef migrations add {ContextName}Map --project src/OrdemCerta.Infrastructur
 ## Próximos Contextos (conforme SPEC.md)
 
 Ao implementar novos contextos, consulte o `SPEC.md` para requisitos de negócio e siga este guia para estrutura técnica.
+
+---
+
+---
+
+# Frontend — Angular
+
+---
+
+## Stack e Dependências (Frontend)
+
+- **Framework:** Angular 19+ (standalone components, signals API)
+- **UI:** Angular Material 20 + TailwindCSS 4
+- **HTTP:** `HttpClient` com interceptors funcionais
+- **Formulários:** Reactive Forms (`FormControl`, `FormGroup`, `FormBuilder`)
+- **Máscaras:** ngx-mask (telefone, CPF/CNPJ)
+- **Reatividade:** RxJS 7 + Signals nativos do Angular
+- **Idioma:** Português pt-BR em todos os textos, labels, erros e placeholders
+
+---
+
+## Estrutura de Pastas (Frontend)
+
+```
+frontend/src/app/
+├── core/
+│   ├── guards/          # auth.guard.ts — CanActivateFn funcional
+│   ├── interceptors/    # auth.interceptor.ts, error.interceptor.ts
+│   ├── models/          # Interfaces TypeScript por domínio
+│   └── services/        # Serviços HTTP injetáveis (providedIn: 'root')
+├── features/
+│   ├── auth/login/
+│   ├── customers/       # customer-list, customer-detail, customer-form
+│   ├── dashboard/
+│   ├── orders/          # order-list, order-detail, order-form
+│   ├── profile/
+│   └── public/          # budget-response (sem AuthGuard)
+├── layouts/
+│   └── main-layout/     # Sidenav + toolbar + breadcrumb
+└── shared/
+    └── components/      # Componentes reutilizáveis
+        ├── breadcrumb/
+        ├── confirm-dialog/
+        ├── not-found/
+        ├── pagination/
+        ├── skeleton/        # SkeletonComponent + SkeletonTableComponent
+        └── status-badge/
+```
+
+**Fluxo de dependências:** features → core/services → core/models | shared
+
+---
+
+## Padrões de Componente
+
+Todos os componentes são **standalone**. Nunca use NgModules.
+
+```typescript
+@Component({
+  selector: 'app-{name}',
+  standalone: true,
+  imports: [/* só o que o template usa */],
+  templateUrl: './{name}.component.html',
+})
+export class {Name}Component {
+  // Injeção via inject()
+  private readonly service = inject({Name}Service);
+  private readonly router = inject(Router);
+  private readonly snackBar = inject(MatSnackBar);
+
+  // Estado com signals
+  readonly items = signal<{Model}[]>([]);
+  readonly loading = signal(true);
+  readonly saving = signal(false);
+
+  // Estado derivado com computed()
+  readonly isEmpty = computed(() => this.items().length === 0);
+}
+```
+
+**Template — fluxo de controle moderno (obrigatório):**
+```html
+@if (loading()) {
+  <app-skeleton />
+} @else if (items().length) {
+  @for (item of items(); track item.id) { ... }
+} @else {
+  <p>Nenhum item encontrado.</p>
+}
+```
+
+Nunca use `*ngIf`, `*ngFor`, `*ngSwitch` — use sempre `@if`, `@for`, `@switch`.
+
+---
+
+## Padrões de Service HTTP
+
+```typescript
+@Injectable({ providedIn: 'root' })
+export class {Name}Service {
+  private readonly http = inject(HttpClient);
+  private readonly base = `${environment.apiUrl}/api/{endpoint}`;
+
+  getAll(page: number, pageSize: number): Observable<{Model}[]> {
+    const params = new HttpParams().set('page', page).set('pageSize', pageSize);
+    return this.http.get<{Model}[]>(this.base, { params });
+  }
+
+  getById(id: string): Observable<{Model}> {
+    return this.http.get<{Model}>(`${this.base}/${id}`);
+  }
+
+  create(input: Create{Model}Input): Observable<{Model}> {
+    return this.http.post<{Model}>(this.base, input);
+  }
+
+  update(id: string, input: Update{Model}Input): Observable<{Model}> {
+    return this.http.put<{Model}>(`${this.base}/${id}`, input);
+  }
+
+  delete(id: string): Observable<void> {
+    return this.http.delete<void>(`${this.base}/${id}`);
+  }
+}
+```
+
+- Retorne sempre `Observable<T>` — nunca use `async/await` nos services
+- Subscreva nos componentes com `.subscribe({ next, error })`
+- Não trate erros HTTP nos services — o `error.interceptor.ts` exibe o snackBar automaticamente
+
+---
+
+## Padrões de Modelos (Types)
+
+Um arquivo por domínio em `core/models/`:
+
+```typescript
+// Output (API → Frontend)
+export interface {Model}Output {
+  id: string;
+  companyId: string;
+  // ... demais campos
+}
+
+// Inputs (Frontend → API)
+export interface Create{Model}Input { ... }
+export interface Update{Model}Input { ... }
+```
+
+- Todos os campos nullable da API são `?: string | number | etc.`
+- Enums como union types: `type {EnumName} = 'Value1' | 'Value2' | ...`
+- Status com metadados visuais: adicionar em arquivo `{model}-status.helper.ts`
+
+---
+
+## Padrões de Rota
+
+**`app.routes.ts`** — rotas raiz com lazy loading:
+```typescript
+{
+  path: 'feature',
+  data: { breadcrumb: 'Nome no Breadcrumb' },
+  loadChildren: () => import('./features/feature/feature.routes').then(m => m.featureRoutes),
+}
+```
+
+**`feature.routes.ts`** — rotas da feature:
+```typescript
+export const featureRoutes: Routes = [
+  { path: '', title: 'Lista — OrdemCerta', component: FeatureListComponent },
+  { path: 'new', title: 'Novo — OrdemCerta', data: { breadcrumb: 'Novo' }, component: FeatureFormComponent },
+  { path: ':id', title: 'Detalhe — OrdemCerta', data: { breadcrumb: 'Detalhe' }, component: FeatureDetailComponent },
+  { path: ':id/edit', title: 'Editar — OrdemCerta', data: { breadcrumb: 'Editar' }, component: FeatureFormComponent },
+];
+```
+
+- Rotas protegidas ficam sob o layout autenticado com `canActivate: [authGuard]`
+- Rotas públicas (sem login) ficam fora do layout, sem `authGuard`
+- Use `loadComponent` para rotas simples, `loadChildren` para features com sub-rotas
+
+---
+
+## Padrões de Formulário
+
+```typescript
+// FormControl simples com validação
+readonly nameControl = new FormControl('', [Validators.required, Validators.maxLength(100)]);
+
+// FormGroup
+readonly form = new FormGroup({
+  name: new FormControl('', Validators.required),
+  email: new FormControl('', [Validators.required, Validators.email]),
+});
+
+// Submissão com guard
+save(): void {
+  if (this.form.invalid || this.saving()) return;
+  this.saving.set(true);
+  this.service.create(this.form.getRawValue()).subscribe({
+    next: (result) => {
+      this.snackBar.open('Salvo com sucesso.', 'Fechar', { duration: 3000 });
+      this.router.navigate(['/feature', result.id]);
+    },
+    error: () => this.saving.set(false),
+  });
+}
+```
+
+**Template de erro de campo:**
+```html
+<mat-form-field appearance="outline">
+  <mat-label>Nome</mat-label>
+  <input matInput [formControl]="nameControl" />
+  @if (nameControl.hasError('required')) {
+    <mat-error>Campo obrigatório.</mat-error>
+  }
+</mat-form-field>
+```
+
+---
+
+## Padrões de UI
+
+### Feedback ao usuário
+```typescript
+// Sucesso
+this.snackBar.open('Operação realizada.', 'Fechar', { duration: 3000 });
+
+// Operações críticas — sempre usar ConfirmDialog antes de delete
+const ref = this.dialog.open(ConfirmDialogComponent, {
+  data: { title: 'Excluir item', message: 'Esta ação não pode ser desfeita.', confirmLabel: 'Excluir' },
+});
+ref.afterClosed().subscribe((confirmed) => { if (confirmed) this.delete(); });
+```
+
+### Loading skeleton
+```html
+@if (loading()) {
+  <app-skeleton height="2rem" width="40%" />
+  <app-skeleton height="10rem" />
+} @else { ... }
+```
+
+### Status badge
+```html
+<app-status-badge [status]="order.status" />
+```
+
+### Paginação
+```html
+<app-pagination [total]="total()" [page]="page()" [pageSize]="pageSize()"
+  (pageChange)="onPageChange($event)" />
+```
+
+### Botão com loading
+```html
+<button mat-flat-button (click)="save()" [disabled]="form.invalid || saving()">
+  @if (saving()) { <mat-spinner diameter="20" /> } @else { Salvar }
+</button>
+```
+
+---
+
+## Interceptors
+
+**`auth.interceptor.ts`** — injeta automaticamente o Bearer token em toda requisição. Redireciona para `/login` em 401.
+
+**`error.interceptor.ts`** — captura todos os erros HTTP (exceto 401) e exibe snackBar com `error.error?.errors ?? ['Erro inesperado...']`. **Não trate erros HTTP individualmente nos componentes** — o interceptor já faz isso. Use o bloco `error:` no `.subscribe()` apenas para resetar estado de loading/saving.
+
+---
+
+## Convenções de Nomenclatura (Frontend)
+
+| Elemento | Convenção | Exemplo |
+|---|---|---|
+| Componentes, Services, Guards | PascalCase | `OrderListComponent`, `AuthService` |
+| Arquivos | kebab-case | `order-list.component.ts` |
+| Signals | camelCase | `loading`, `items`, `saving` |
+| Inputs/Outputs de componente | camelCase funcional | `input()`, `output()` |
+| Interfaces de modelo | sufixo `Output` / `Input` | `ServiceOrderOutput`, `CreateOrderInput` |
+| Status helpers | sufixo `.helper.ts` | `service-order-status.helper.ts` |
+| Rotas de feature | sufixo `Routes` | `ordersRoutes`, `customersRoutes` |
+| Seletores CSS | `app-` prefix | `app-order-list` |
+
+---
+
+## Regras Gerais (Frontend)
+
+1. **Sempre standalone** — sem NgModules
+2. **Signals para estado local** — `signal()`, `computed()`, `toSignal()`
+3. **`@if/@for/@switch`** — nunca `*ngIf/*ngFor/*ngSwitch`
+4. **inject()** — nunca injeção por construtor
+5. **Reactive Forms** — nunca Template-driven Forms
+6. **Português** — todos os textos visíveis ao usuário em pt-BR
+7. **Sem erros HTTP nos components** — o interceptor trata; use `error:` só para resetar `saving.set(false)`
+8. **ConfirmDialog obrigatório** em toda ação destrutiva (delete)
+9. **SkeletonComponent** em todo carregamento de dados
+10. **MatSnackBar** para feedback de sucesso/aviso (duration 3000–5000ms)
+11. **`track item.id`** obrigatório em todo `@for`
+12. **Lazy loading** obrigatório para todas as features
+13. **Não adicionar** comentários, docstrings ou abstrações desnecessárias

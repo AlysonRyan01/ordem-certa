@@ -1,0 +1,26 @@
+:host {
+  display: block;
+  height: 100vh;
+}
+
+mat-sidenav-container {
+  height: 100%;
+}
+
+mat-sidenav {
+  background-color: var(--mat-sys-surface-container-low);
+}
+
+mat-sidenav-content {
+  display: flex;
+  flex-direction: column;
+}
+
+.active-link {
+  background-color: var(--mat-sys-secondary-container);
+  color: var(--mat-sys-on-secondary-container);
+
+  mat-icon {
+    color: var(--mat-sys-on-secondary-container);
+  }
+}

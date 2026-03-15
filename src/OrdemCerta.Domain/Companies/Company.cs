@@ -9,6 +9,8 @@ public class Company : AggregateRoot
     public CompanyName Name { get; private set; } = null!;
     public CompanyCnpj? Cnpj { get; private set; }
     public CompanyPhone Phone { get; private set; } = null!;
+    public string Email { get; private set; } = null!;
+    public string PasswordHash { get; private set; } = null!;
     public string? Street { get; private set; }
     public string? Number { get; private set; }
     public string? City { get; private set; }
@@ -20,6 +22,8 @@ public class Company : AggregateRoot
     private Company(
         CompanyName name,
         CompanyPhone phone,
+        string email,
+        string passwordHash,
         PlanType plan,
         CompanyCnpj? cnpj = null,
         string? street = null,
@@ -31,6 +35,8 @@ public class Company : AggregateRoot
         Name = name;
         Cnpj = cnpj;
         Phone = phone;
+        Email = email;
+        PasswordHash = passwordHash;
         Plan = plan;
         Street = street;
         Number = number;
@@ -41,13 +47,15 @@ public class Company : AggregateRoot
     public static Result<Company> Create(
         CompanyName name,
         CompanyPhone phone,
+        string email,
+        string passwordHash,
         CompanyCnpj? cnpj = null,
         string? street = null,
         string? number = null,
         string? city = null,
         string? state = null)
     {
-        var company = new Company(name, phone, PlanType.Demo, cnpj, street, number, city, state);
+        var company = new Company(name, phone, email, passwordHash, PlanType.Demo, cnpj, street, number, city, state);
         return company;
     }
 
@@ -69,6 +77,12 @@ public class Company : AggregateRoot
         Number = number;
         City = city;
         State = state;
+        return Result.Success();
+    }
+
+    public Result UpdatePasswordHash(string passwordHash)
+    {
+        PasswordHash = passwordHash;
         return Result.Success();
     }
 

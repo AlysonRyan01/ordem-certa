@@ -3,7 +3,6 @@ using Microsoft.EntityFrameworkCore;
 using OrdemCerta.Domain.Companies;
 using OrdemCerta.Domain.Customers;
 using OrdemCerta.Domain.ServiceOrders;
-using OrdemCerta.Domain.Users;
 using OrdemCerta.Shared;
 
 namespace OrdemCerta.Infrastructure.DataContext.Context;
@@ -20,8 +19,8 @@ public class ApplicationDataContext : DbContext
 
     public DbSet<Company> Companies => Set<Company>();
     public DbSet<Customer> Customers => Set<Customer>();
-    public DbSet<User> Users => Set<User>();
     public DbSet<ServiceOrder> ServiceOrders => Set<ServiceOrder>();
+    public DbSet<CompanyOrderSequence> CompanyOrderSequences => Set<CompanyOrderSequence>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

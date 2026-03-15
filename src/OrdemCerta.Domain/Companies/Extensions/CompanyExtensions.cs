@@ -10,6 +10,7 @@ public static class CompanyExtensions
         {
             Id = company.Id,
             Name = company.Name.Value,
+            Email = company.Email,
             Cnpj = company.Cnpj?.Value,
             CnpjFormatted = company.Cnpj?.GetFormatted(),
             Phone = company.Phone.Value,

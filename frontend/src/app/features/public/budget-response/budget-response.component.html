@@ -1,0 +1,94 @@
+<div class="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-6">
+
+  @switch (state()) {
+
+    @case ('loading') {
+      <mat-spinner diameter="48" />
+      <p class="mt-4 text-gray-500">Processando sua resposta...</p>
+    }
+
+    @case ('success') {
+      @if (order(); as o) {
+        <div class="w-full max-w-md flex flex-col gap-6 text-center">
+
+          @if (o.companyName) {
+            <p class="text-sm font-semibold text-gray-500 uppercase tracking-wide">{{ o.companyName }}</p>
+          }
+
+          <div class="flex flex-col items-center gap-2">
+            @if (action() === 'approve') {
+              <div class="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center">
+                <mat-icon class="text-green-600 !text-4xl">check_circle</mat-icon>
+              </div>
+              <h1 class="text-2xl font-bold text-green-700">Orçamento Aprovado!</h1>
+              <p class="text-gray-600">
+                Ótimo! Seu orçamento foi aprovado com sucesso.<br>
+                Em breve entraremos em contato para confirmar.
+              </p>
+            } @else {
+              <div class="w-16 h-16 rounded-full bg-red-100 flex items-center justify-center">
+                <mat-icon class="text-red-600 !text-4xl">cancel</mat-icon>
+              </div>
+              <h1 class="text-2xl font-bold text-red-700">Orçamento Recusado</h1>
+              <p class="text-gray-600">
+                Entendemos. Seu orçamento foi recusado.<br>
+                Entraremos em contato para discutir outras opções.
+              </p>
+            }
+          </div>
+
+          <mat-card>
+            <mat-card-header class="justify-center mb-2">
+              <mat-card-title class="text-sm text-gray-500">Detalhes do serviço</mat-card-title>
+            </mat-card-header>
+            <mat-card-content>
+              <div class="grid grid-cols-2 gap-x-6 gap-y-2 text-sm text-left">
+                <span class="text-gray-500">Ordem</span>
+                <span class="font-bold">#{{ o.orderNumber }}</span>
+
+                <span class="text-gray-500">Equipamento</span>
+                <span>{{ o.deviceType }} {{ o.brand }} {{ o.model }}</span>
+
+                @if (o.budgetValue) {
+                  <span class="text-gray-500">Valor do orçamento</span>
+                  <span class="font-semibold">R$ {{ o.budgetValue | number:'1.2-2' }}</span>
+                }
+              </div>
+            </mat-card-content>
+          </mat-card>
+
+          <p class="text-xs text-gray-400">
+            Você pode fechar esta página com segurança.
+          </p>
+        </div>
+      }
+    }
+
+    @case ('already-answered') {
+      <div class="text-center flex flex-col items-center gap-4">
+        <div class="w-16 h-16 rounded-full bg-yellow-100 flex items-center justify-center">
+          <mat-icon class="text-yellow-600 !text-4xl">info</mat-icon>
+        </div>
+        <h1 class="text-xl font-bold text-yellow-700">Este orçamento já foi respondido</h1>
+        <p class="text-gray-500 max-w-sm">
+          Esta ordem já recebeu uma resposta anteriormente.<br>
+          Caso tenha dúvidas, entre em contato com a assistência técnica.
+        </p>
+      </div>
+    }
+
+    @case ('error') {
+      <div class="text-center flex flex-col items-center gap-4">
+        <div class="w-16 h-16 rounded-full bg-red-100 flex items-center justify-center">
+          <mat-icon class="text-red-600 !text-4xl">error</mat-icon>
+        </div>
+        <h1 class="text-xl font-bold text-red-700">Algo deu errado</h1>
+        <p class="text-gray-500 max-w-sm">
+          Não foi possível processar sua resposta.<br>
+          Tente novamente ou entre em contato com a assistência técnica.
+        </p>
+      </div>
+    }
+
+  }
+</div>

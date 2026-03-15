@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
-using OrdemCerta.Application.Inputs.UserInputs;
+using OrdemCerta.Application.Inputs.CompanyInputs;
 using OrdemCerta.Application.Services.AuthService;
-using OrdemCerta.Domain.Users.DTOs;
+using OrdemCerta.Domain.Companies.DTOs;
 
 namespace OrdemCerta.Presentation.Controllers;
 

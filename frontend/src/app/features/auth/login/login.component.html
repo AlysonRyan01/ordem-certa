@@ -1,0 +1,52 @@
+<div class="min-h-screen flex items-center justify-center bg-gray-50">
+  <mat-card class="w-full max-w-md">
+    <mat-card-header class="justify-center mb-4">
+      <mat-card-title class="text-2xl font-bold text-center">OrdemCerta</mat-card-title>
+      <mat-card-subtitle class="text-center">Entre na sua conta</mat-card-subtitle>
+    </mat-card-header>
+
+    <mat-card-content>
+      <form [formGroup]="form" (ngSubmit)="onSubmit()" class="flex flex-col gap-4">
+        <mat-form-field appearance="outline">
+          <mat-label>E-mail</mat-label>
+          <input matInput type="email" formControlName="email" autocomplete="email" />
+          @if (form.controls.email.hasError('required')) {
+            <mat-error>E-mail é obrigatório</mat-error>
+          } @else if (form.controls.email.hasError('email')) {
+            <mat-error>E-mail inválido</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Senha</mat-label>
+          <input matInput type="password" formControlName="password" autocomplete="current-password" />
+          @if (form.controls.password.hasError('required')) {
+            <mat-error>Senha é obrigatória</mat-error>
+          } @else if (form.controls.password.hasError('minlength')) {
+            <mat-error>Senha deve ter no mínimo 6 caracteres</mat-error>
+          }
+        </mat-form-field>
+
+        <button
+          mat-flat-button
+          type="submit"
+          [disabled]="loading()"
+          class="w-full py-6"
+        >
+          @if (loading()) {
+            <mat-spinner diameter="20" />
+          } @else {
+            Entrar
+          }
+        </button>
+      </form>
+    </mat-card-content>
+
+    <mat-card-footer class="text-center py-4">
+      <p class="text-sm text-gray-500">
+        Não tem uma conta?
+        <a routerLink="/register" class="text-blue-600 hover:underline font-medium">Criar conta</a>
+      </p>
+    </mat-card-footer>
+  </mat-card>
+</div>

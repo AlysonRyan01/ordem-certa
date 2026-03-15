@@ -4,6 +4,7 @@ public record ServiceOrderOutput(
     Guid Id,
     Guid CompanyId,
     Guid CustomerId,
+    int OrderNumber,
     string DeviceType,
     string Brand,
     string Model,
@@ -12,4 +13,7 @@ public record ServiceOrderOutput(
     string? Observations,
     string Status,
     DateTime EntryDate,
-    string? TechnicianName);
+    string? TechnicianName,
+    decimal? BudgetValue,
+    string? BudgetDescription,
+    string? CompanyName = null);

@@ -1,27 +1,26 @@
 using FluentValidation;
 using OrdemCerta.Application.Abstractions;
-using OrdemCerta.Application.Inputs.UserInputs;
-using OrdemCerta.Domain.Users.DTOs;
-using OrdemCerta.Domain.Users.Extensions;
-using OrdemCerta.Infrastructure.Repositories.UserRepository;
+using OrdemCerta.Application.Inputs.CompanyInputs;
+using OrdemCerta.Domain.Companies.DTOs;
+using OrdemCerta.Infrastructure.Repositories.CompanyRepository;
 using OrdemCerta.Shared;
 
 namespace OrdemCerta.Application.Services.AuthService;
 
 public class AuthService : IAuthService
 {
-    private readonly IUserRepository _userRepository;
+    private readonly ICompanyRepository _companyRepository;
     private readonly IPasswordHasher _passwordHasher;
     private readonly IJwtTokenGenerator _jwtTokenGenerator;
     private readonly IValidator<LoginInput> _loginValidator;
 
     public AuthService(
-        IUserRepository userRepository,
+        ICompanyRepository companyRepository,
         IPasswordHasher passwordHasher,
         IJwtTokenGenerator jwtTokenGenerator,
         IValidator<LoginInput> loginValidator)
     {
-        _userRepository = userRepository;
+        _companyRepository = companyRepository;
         _passwordHasher = passwordHasher;
         _jwtTokenGenerator = jwtTokenGenerator;
         _loginValidator = loginValidator;
@@ -33,22 +32,21 @@ public class AuthService : IAuthService
         if (!validationResult.IsValid)
             return Result<TokenOutput>.Failure(validationResult.Errors.Select(e => e.ErrorMessage).ToList());
 
-        var userResult = await _userRepository.GetByEmailAsync(input.Email.Trim().ToLower(), cancellationToken);
-        if (userResult.IsFailure)
+        var companyResult = await _companyRepository.GetByEmailAsync(input.Email.Trim().ToLower(), cancellationToken);
+        if (companyResult.IsFailure)
             return "E-mail ou senha inválidos";
 
-        var user = userResult.Value!;
+        var company = companyResult.Value!;
 
-        if (!_passwordHasher.Verify(input.Password, user.PasswordHash))
+        if (!_passwordHasher.Verify(input.Password, company.PasswordHash))
             return "E-mail ou senha inválidos";
 
-        var (token, expiresAt) = _jwtTokenGenerator.Generate(user);
+        var (token, expiresAt) = _jwtTokenGenerator.Generate(company);
 
         return new TokenOutput
         {
             Token = token,
             ExpiresAt = expiresAt,
-            User = user.ToOutput()
         };
     }
 }

@@ -49,6 +49,15 @@ public class CompanyModel : IEntityTypeConfiguration<Company>
                 .IsRequired();
         });
 
+        builder.Property(c => c.Email)
+            .HasColumnName("email")
+            .HasMaxLength(200)
+            .IsRequired();
+
+        builder.Property(c => c.PasswordHash)
+            .HasColumnName("password_hash")
+            .IsRequired();
+
         builder.Property(c => c.Street)
             .HasColumnName("address_street")
             .HasMaxLength(200);

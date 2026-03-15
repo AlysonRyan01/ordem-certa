@@ -1,7 +1,9 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using OrdemCerta.Application.Inputs.CompanyInputs;
 using OrdemCerta.Application.Services.CompanyService;
 using OrdemCerta.Domain.Companies.DTOs;
+using OrdemCerta.Domain.Companies.Interfaces;
 
 namespace OrdemCerta.Presentation.Controllers;
 
@@ -10,10 +12,12 @@ namespace OrdemCerta.Presentation.Controllers;
 public class CompanyController : ControllerBase
 {
     private readonly ICompanyService _companyService;
+    private readonly ICurrentCompany _currentCompany;
 
-    public CompanyController(ICompanyService companyService)
+    public CompanyController(ICompanyService companyService, ICurrentCompany currentCompany)
     {
         _companyService = companyService;
+        _currentCompany = currentCompany;
     }
 
     [HttpPost]
@@ -64,5 +68,64 @@ public class CompanyController : ControllerBase
             return NotFound(new { errors = result.Errors });
 
         return Ok(result.Value);
+    }
+
+    [Authorize]
+    [HttpGet("me")]
+    [ProducesResponseType(typeof(CompanyOutput), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetMe(CancellationToken cancellationToken)
+    {
+        var result = await _companyService.GetByIdAsync(_currentCompany.CompanyId, cancellationToken);
+
+        if (result.IsFailure)
+            return NotFound(new { errors = result.Errors });
+
+        return Ok(result.Value);
+    }
+
+    [Authorize]
+    [HttpPut("me")]
+    [ProducesResponseType(typeof(CompanyOutput), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> UpdateMe(
+        [FromBody] UpdateCompanyInput input,
+        CancellationToken cancellationToken)
+    {
+        var result = await _companyService.UpdateAsync(_currentCompany.CompanyId, input, cancellationToken);
+
+        if (result.IsFailure)
+            return BadRequest(new { errors = result.Errors });
+
+        return Ok(result.Value);
+    }
+
+    [Authorize]
+    [HttpPost("me/request-password-change")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> RequestPasswordChange(CancellationToken cancellationToken)
+    {
+        var result = await _companyService.RequestPasswordChangeAsync(_currentCompany.CompanyId, cancellationToken);
+
+        if (result.IsFailure)
+            return BadRequest(new { errors = result.Errors });
+
+        return NoContent();
+    }
+
+    [Authorize]
+    [HttpPost("me/confirm-password-change")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> ConfirmPasswordChange(
+        [FromBody] ConfirmPasswordChangeInput input,
+        CancellationToken cancellationToken)
+    {
+        var result = await _companyService.ConfirmPasswordChangeAsync(_currentCompany.CompanyId, input, cancellationToken);
+
+        if (result.IsFailure)
+            return BadRequest(new { errors = result.Errors });
+
+        return NoContent();
     }
 }

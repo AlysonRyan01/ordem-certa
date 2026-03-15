@@ -1,0 +1,92 @@
+<div class="max-w-2xl">
+  <h2 class="text-2xl font-semibold mb-6">
+    {{ isEdit ? 'Editar Ordem' : 'Nova Ordem de Serviço' }}
+  </h2>
+
+  @if (loading()) {
+    <div class="flex justify-center p-12"><mat-spinner diameter="40" /></div>
+  } @else {
+    <form [formGroup]="form" (ngSubmit)="onSubmit()" class="flex flex-col gap-4">
+
+      @if (!isEdit) {
+        <h3 class="text-base font-medium text-gray-600">Cliente</h3>
+        <mat-form-field appearance="outline">
+          <mat-label>Buscar cliente</mat-label>
+          <mat-icon matPrefix>search</mat-icon>
+          <input
+            matInput
+            formControlName="customerSearch"
+            [matAutocomplete]="auto"
+            placeholder="Digite o nome..."
+          />
+          <mat-autocomplete #auto (optionSelected)="selectCustomer($event.option.value)">
+            @for (c of customerSuggestions(); track c.id) {
+              <mat-option [value]="c">{{ c.name }}</mat-option>
+            }
+          </mat-autocomplete>
+        </mat-form-field>
+        <mat-divider class="my-1" />
+      }
+
+      <h3 class="text-base font-medium text-gray-600">Equipamento</h3>
+
+      <div class="grid grid-cols-2 gap-4">
+        <mat-form-field appearance="outline">
+          <mat-label>Tipo *</mat-label>
+          <input matInput formControlName="deviceType" placeholder="Smartphone, Notebook..." />
+          @if (form.controls.deviceType.hasError('required')) {
+            <mat-error>Obrigatório</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Marca *</mat-label>
+          <input matInput formControlName="brand" />
+          @if (form.controls.brand.hasError('required')) {
+            <mat-error>Obrigatório</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Modelo *</mat-label>
+          <input matInput formControlName="model" />
+          @if (form.controls.model.hasError('required')) {
+            <mat-error>Obrigatório</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Técnico</mat-label>
+          <input matInput formControlName="technicianName" />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="col-span-2">
+          <mat-label>Defeito relatado *</mat-label>
+          <textarea matInput formControlName="reportedDefect" rows="3"></textarea>
+          @if (form.controls.reportedDefect.hasError('required')) {
+            <mat-error>Obrigatório</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Acessórios</mat-label>
+          <input matInput formControlName="accessories" placeholder="Carregador, capa..." />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Observações</mat-label>
+          <input matInput formControlName="observations" />
+        </mat-form-field>
+      </div>
+
+      <div class="flex gap-3 justify-end mt-4">
+        <button mat-button type="button" (click)="cancel()">Cancelar</button>
+        <button mat-flat-button type="submit" [disabled]="saving()">
+          @if (saving()) { <mat-spinner diameter="20" /> }
+          @else { {{ isEdit ? 'Salvar' : 'Criar Ordem' }} }
+        </button>
+      </div>
+
+    </form>
+  }
+</div>

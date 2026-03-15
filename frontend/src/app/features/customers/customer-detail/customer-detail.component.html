@@ -1,0 +1,100 @@
+@if (loading()) {
+  <div class="flex flex-col gap-4 max-w-2xl">
+    <app-skeleton height="2rem" width="50%" />
+    <app-skeleton height="8rem" />
+    <app-skeleton height="8rem" />
+  </div>
+} @else if (customer(); as c) {
+  <div class="max-w-2xl flex flex-col gap-6">
+
+    <div class="flex items-center justify-between">
+      <h2 class="text-2xl font-semibold">{{ c.name }}</h2>
+      <div class="flex gap-2">
+        <a mat-stroked-button [routerLink]="['/customers', c.id, 'edit']">
+          <mat-icon>edit</mat-icon> Editar
+        </a>
+        <button mat-stroked-button color="warn" (click)="confirmDelete()">
+          <mat-icon>delete</mat-icon> Excluir
+        </button>
+      </div>
+    </div>
+
+    <mat-card>
+      <mat-card-content class="flex flex-col gap-2 pt-4">
+        <div class="grid grid-cols-2 gap-x-8 gap-y-2 text-sm">
+          <span class="text-gray-500">E-mail</span>
+          <span>{{ c.email ?? '—' }}</span>
+
+          <span class="text-gray-500">Documento</span>
+          <span>{{ c.document ? c.document.value : '—' }}</span>
+
+          @if (c.address) {
+            <span class="text-gray-500">Endereço</span>
+            <span>
+              {{ c.address.street }}, {{ c.address.number }}
+              @if (c.address.complement) { — {{ c.address.complement }} }
+            </span>
+
+            <span class="text-gray-500">Cidade / UF</span>
+            <span>{{ c.address.city }} / {{ c.address.state }}</span>
+
+            <span class="text-gray-500">CEP</span>
+            <span>{{ c.address.zipCode }}</span>
+          }
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card>
+      <mat-card-header>
+        <mat-card-title class="text-base">Telefones</mat-card-title>
+      </mat-card-header>
+      <mat-card-content class="pt-4">
+        <div class="flex flex-wrap gap-2 mb-4">
+          @for (phone of c.phones; track phone.value) {
+            <mat-chip-set>
+              <mat-chip>
+                {{ phone.value }}
+                <button
+                  matChipRemove
+                  matTooltip="Remover"
+                  (click)="confirmRemovePhone(phone.value)"
+                >
+                  <mat-icon>cancel</mat-icon>
+                </button>
+              </mat-chip>
+            </mat-chip-set>
+          } @empty {
+            <p class="text-sm text-gray-500">Nenhum telefone cadastrado.</p>
+          }
+        </div>
+
+        <div class="flex gap-3 items-start">
+          <mat-form-field appearance="outline" class="flex-1">
+            <mat-label>Adicionar telefone</mat-label>
+            <input
+              matInput
+              [formControl]="phoneControl"
+              mask="(00) 00000-0000||(00) 0000-0000"
+              placeholder="(11) 98765-4321"
+            />
+          </mat-form-field>
+          <button
+            mat-flat-button
+            class="mt-1"
+            (click)="addPhone()"
+            [disabled]="phoneControl.invalid || addingPhone()"
+          >
+            Adicionar
+          </button>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <div class="flex justify-start">
+      <a mat-button routerLink="/customers">
+        <mat-icon>arrow_back</mat-icon> Voltar
+      </a>
+    </div>
+  </div>
+}

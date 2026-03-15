@@ -117,6 +117,22 @@ public class ServiceOrderController : ControllerBase
         return Ok(result.Value);
     }
 
+    [HttpPost("{id:guid}/budget")]
+    [ProducesResponseType(typeof(ServiceOrderOutput), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> CreateBudget(
+        [FromRoute] Guid id,
+        [FromBody] CreateBudgetInput input,
+        CancellationToken cancellationToken)
+    {
+        var result = await _serviceOrderService.CreateBudgetAsync(id, input, cancellationToken);
+
+        if (result.IsFailure)
+            return BadRequest(new { errors = result.Errors });
+
+        return Ok(result.Value);
+    }
+
     [HttpDelete("{id:guid}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]

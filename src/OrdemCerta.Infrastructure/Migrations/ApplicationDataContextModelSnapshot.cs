@@ -37,10 +37,21 @@ namespace OrdemCerta.Infrastructure.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("created_at");
 
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("email");
+
                     b.Property<string>("Number")
                         .HasMaxLength(20)
                         .HasColumnType("character varying(20)")
                         .HasColumnName("address_number");
+
+                    b.Property<string>("PasswordHash")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("password_hash");
 
                     b.Property<string>("Plan")
                         .IsRequired()
@@ -87,6 +98,21 @@ namespace OrdemCerta.Infrastructure.Migrations
                     b.ToTable("customers", (string)null);
                 });
 
+            modelBuilder.Entity("OrdemCerta.Domain.ServiceOrders.CompanyOrderSequence", b =>
+                {
+                    b.Property<Guid>("CompanyId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("company_id");
+
+                    b.Property<int>("LastNumber")
+                        .HasColumnType("integer")
+                        .HasColumnName("last_number");
+
+                    b.HasKey("CompanyId");
+
+                    b.ToTable("company_order_sequences", (string)null);
+                });
+
             modelBuilder.Entity("OrdemCerta.Domain.ServiceOrders.ServiceOrder", b =>
                 {
                     b.Property<Guid>("Id")
@@ -108,6 +134,10 @@ namespace OrdemCerta.Infrastructure.Migrations
                     b.Property<DateTime>("EntryDate")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("entry_date");
+
+                    b.Property<int>("OrderNumber")
+                        .HasColumnType("integer")
+                        .HasColumnName("order_number");
 
                     b.Property<int>("Status")
                         .HasColumnType("integer")
@@ -131,37 +161,6 @@ namespace OrdemCerta.Infrastructure.Migrations
                     b.HasIndex("Status");
 
                     b.ToTable("service_orders", (string)null);
-                });
-
-            modelBuilder.Entity("OrdemCerta.Domain.Users.User", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .HasColumnType("uuid")
-                        .HasColumnName("id");
-
-                    b.Property<Guid>("CompanyId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("company_id");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("created_at");
-
-                    b.Property<string>("PasswordHash")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("password_hash");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("updated_at");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CompanyId")
-                        .IsUnique();
-
-                    b.ToTable("users", (string)null);
                 });
 
             modelBuilder.Entity("OrdemCerta.Domain.Companies.Company", b =>
@@ -395,6 +394,29 @@ namespace OrdemCerta.Infrastructure.Migrations
 
             modelBuilder.Entity("OrdemCerta.Domain.ServiceOrders.ServiceOrder", b =>
                 {
+                    b.OwnsOne("OrdemCerta.Domain.ServiceOrders.ValueObjects.Budget", "Budget", b1 =>
+                        {
+                            b1.Property<Guid>("ServiceOrderId")
+                                .HasColumnType("uuid");
+
+                            b1.Property<string>("Description")
+                                .IsRequired()
+                                .HasMaxLength(500)
+                                .HasColumnType("character varying(500)")
+                                .HasColumnName("budget_description");
+
+                            b1.Property<decimal>("Value")
+                                .HasColumnType("numeric(10,2)")
+                                .HasColumnName("budget_value");
+
+                            b1.HasKey("ServiceOrderId");
+
+                            b1.ToTable("service_orders");
+
+                            b1.WithOwner()
+                                .HasForeignKey("ServiceOrderId");
+                        });
+
                     b.OwnsOne("OrdemCerta.Domain.ServiceOrders.ValueObjects.EquipmentInfo", "Equipment", b1 =>
                         {
                             b1.Property<Guid>("ServiceOrderId")
@@ -442,54 +464,9 @@ namespace OrdemCerta.Infrastructure.Migrations
                                 .HasForeignKey("ServiceOrderId");
                         });
 
+                    b.Navigation("Budget");
+
                     b.Navigation("Equipment")
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("OrdemCerta.Domain.Users.User", b =>
-                {
-                    b.OwnsOne("OrdemCerta.Domain.Users.ValueObjects.UserEmail", "Email", b1 =>
-                        {
-                            b1.Property<Guid>("UserId")
-                                .HasColumnType("uuid");
-
-                            b1.Property<string>("Value")
-                                .IsRequired()
-                                .HasMaxLength(254)
-                                .HasColumnType("character varying(254)")
-                                .HasColumnName("email");
-
-                            b1.HasKey("UserId");
-
-                            b1.ToTable("users");
-
-                            b1.WithOwner()
-                                .HasForeignKey("UserId");
-                        });
-
-                    b.OwnsOne("OrdemCerta.Domain.Users.ValueObjects.UserName", "Name", b1 =>
-                        {
-                            b1.Property<Guid>("UserId")
-                                .HasColumnType("uuid");
-
-                            b1.Property<string>("Value")
-                                .IsRequired()
-                                .HasMaxLength(200)
-                                .HasColumnType("character varying(200)")
-                                .HasColumnName("name");
-
-                            b1.HasKey("UserId");
-
-                            b1.ToTable("users");
-
-                            b1.WithOwner()
-                                .HasForeignKey("UserId");
-                        });
-
-                    b.Navigation("Email")
-                        .IsRequired();
-
-                    b.Navigation("Name")
                         .IsRequired();
                 });
 #pragma warning restore 612, 618

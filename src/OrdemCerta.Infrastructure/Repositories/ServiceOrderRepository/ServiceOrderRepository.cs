@@ -82,6 +82,37 @@ public class ServiceOrderRepository : IServiceOrderRepository
             .CountAsync(o => o.CompanyId == _currentCompany.CompanyId, cancellationToken);
     }
 
+    public async Task<int> CountByStatusesAsync(ServiceOrderStatus[] statuses, CancellationToken cancellationToken)
+    {
+        return await _context.ServiceOrders
+            .AsNoTracking()
+            .CountAsync(o => o.CompanyId == _currentCompany.CompanyId && statuses.Contains(o.Status), cancellationToken);
+    }
+
+    public async Task<List<ServiceOrder>> GetRecentAsync(int count, CancellationToken cancellationToken)
+    {
+        return await _context.ServiceOrders
+            .Where(o => o.CompanyId == _currentCompany.CompanyId)
+            .AsNoTracking()
+            .OrderByDescending(o => o.EntryDate)
+            .Take(count)
+            .ToListAsync(cancellationToken);
+    }
+
+    public async Task<List<(ServiceOrderStatus Status, int Count)>> GetCountsByStatusThisMonthAsync(CancellationToken cancellationToken)
+    {
+        var now = DateTime.UtcNow;
+        var startOfMonth = new DateTime(now.Year, now.Month, 1, 0, 0, 0, DateTimeKind.Utc);
+
+        return await _context.ServiceOrders
+            .Where(o => o.CompanyId == _currentCompany.CompanyId && o.EntryDate >= startOfMonth)
+            .AsNoTracking()
+            .GroupBy(o => o.Status)
+            .Select(g => new { Status = g.Key, Count = g.Count() })
+            .ToListAsync(cancellationToken)
+            .ContinueWith(t => t.Result.Select(x => (x.Status, x.Count)).ToList(), cancellationToken);
+    }
+
     public async Task AddAsync(ServiceOrder order, CancellationToken cancellationToken)
     {
         await _context.ServiceOrders.AddAsync(order, cancellationToken);
