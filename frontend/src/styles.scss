@@ -37,3 +37,15 @@ body {
 html, body { height: 100%; }
 body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 
+// Fix: Tailwind preflight conflita com Angular Material MDC form fields
+// 1. Remove a borda direita do notch que o Tailwind injeta, causando a divisão visual
+.mdc-notched-outline__notch {
+  border-right: none !important;
+}
+
+// 2. Restaura o box-sizing que o Tailwind sobrescreve, corrigindo o posicionamento do texto
+input.mat-mdc-input-element,
+textarea.mat-mdc-input-element {
+  box-sizing: content-box;
+}
+

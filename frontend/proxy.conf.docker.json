@@ -1,0 +1,12 @@
+{
+  "/api": {
+    "target": "http://ordemcerta.presentation:5000",
+    "secure": false,
+    "changeOrigin": true
+  },
+  "/public": {
+    "target": "http://ordemcerta.presentation:5000",
+    "secure": false,
+    "changeOrigin": true
+  }
+}

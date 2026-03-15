@@ -10,13 +10,11 @@ export interface CustomerDocumentOutput {
 }
 
 export interface CustomerAddressOutput {
-  street: string;
-  number: string;
-  complement?: string;
-  neighborhood: string;
-  city: string;
-  state: string;
-  zipCode: string;
+  street?: string;
+  number?: string;
+  city?: string;
+  state?: string;
+  fullAddress?: string;
 }
 
 export interface CustomerOutput {
@@ -30,28 +28,23 @@ export interface CustomerOutput {
 }
 
 export interface CreateCustomerInput {
-  name: string;
+  fullName: string;
+  phone: string;
   email?: string;
   document?: string;
   street?: string;
-  addressNumber?: string;
-  complement?: string;
-  neighborhood?: string;
+  number?: string;
   city?: string;
   state?: string;
-  zipCode?: string;
 }
 
 export interface UpdateCustomerInput {
-  name: string;
+  fullName: string;
   email?: string;
   street?: string;
-  addressNumber?: string;
-  complement?: string;
-  neighborhood?: string;
+  number?: string;
   city?: string;
   state?: string;
-  zipCode?: string;
 }
 
 export interface AddPhoneInput {

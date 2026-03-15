@@ -14,7 +14,7 @@ import {
 @Injectable({ providedIn: 'root' })
 export class ServiceOrderService {
   private readonly http = inject(HttpClient);
-  private readonly base = `${environment.apiUrl}/api/serviceorders`;
+  private readonly base = `${environment.apiUrl}/api/service-orders`;
 
   getPaged(page: number, pageSize: number): Observable<ServiceOrderOutput[]> {
     const params = new HttpParams().set('page', page).set('pageSize', pageSize);

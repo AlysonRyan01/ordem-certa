@@ -11,16 +11,27 @@
       <h3 class="text-base font-medium text-gray-600">Dados pessoais</h3>
 
       <mat-form-field appearance="outline">
-        <mat-label>Nome *</mat-label>
-        <input matInput formControlName="name" />
-        @if (form.controls.name.hasError('required')) {
+        <mat-label>Nome</mat-label>
+        <input matInput formControlName="fullName" />
+        @if (form.controls.fullName.hasError('required')) {
           <mat-error>Nome é obrigatório</mat-error>
         }
       </mat-form-field>
 
+      @if (!isEdit) {
+        <mat-form-field appearance="outline">
+          <mat-label>Telefone</mat-label>
+          <input matInput formControlName="phone" mask="(00) 00000-0000||(00) 0000-0000" />
+          <mat-hint>Ex: (11) 98765-4321</mat-hint>
+          @if (form.controls.phone.hasError('required')) {
+            <mat-error>Telefone é obrigatório</mat-error>
+          }
+        </mat-form-field>
+      }
+
       <mat-form-field appearance="outline">
         <mat-label>E-mail</mat-label>
-        <input matInput type="email" formControlName="email" />
+        <input matInput type="email" formControlName="email" autocomplete="email" />
         @if (form.controls.email.hasError('email')) {
           <mat-error>E-mail inválido</mat-error>
         }
@@ -44,17 +55,7 @@
 
         <mat-form-field appearance="outline">
           <mat-label>Número</mat-label>
-          <input matInput formControlName="addressNumber" />
-        </mat-form-field>
-
-        <mat-form-field appearance="outline">
-          <mat-label>Complemento</mat-label>
-          <input matInput formControlName="complement" />
-        </mat-form-field>
-
-        <mat-form-field appearance="outline">
-          <mat-label>Bairro</mat-label>
-          <input matInput formControlName="neighborhood" />
+          <input matInput formControlName="number" />
         </mat-form-field>
 
         <mat-form-field appearance="outline">
@@ -66,18 +67,16 @@
           <mat-label>Estado (UF)</mat-label>
           <input matInput formControlName="state" maxlength="2" style="text-transform:uppercase" />
         </mat-form-field>
-
-        <mat-form-field appearance="outline">
-          <mat-label>CEP</mat-label>
-          <input matInput formControlName="zipCode" mask="00000-000" />
-        </mat-form-field>
       </div>
 
       <div class="flex gap-3 justify-end mt-4">
         <button mat-button type="button" (click)="cancel()">Cancelar</button>
-        <button mat-flat-button type="submit" [disabled]="saving()">
-          @if (saving()) { <mat-spinner diameter="20" /> }
-          @else { {{ isEdit ? 'Salvar' : 'Criar' }} }
+        <button mat-flat-button type="submit" [disabled]="form.invalid || saving()">
+          @if (saving()) {
+            <mat-spinner diameter="20" />
+          } @else {
+            {{ isEdit ? 'Salvar' : 'Criar' }}
+          }
         </button>
       </div>
 

@@ -30,16 +30,10 @@
 
           @if (c.address) {
             <span class="text-gray-500">Endereço</span>
-            <span>
-              {{ c.address.street }}, {{ c.address.number }}
-              @if (c.address.complement) { — {{ c.address.complement }} }
-            </span>
+            <span>{{ c.address.street }}, {{ c.address.number }}</span>
 
             <span class="text-gray-500">Cidade / UF</span>
             <span>{{ c.address.city }} / {{ c.address.state }}</span>
-
-            <span class="text-gray-500">CEP</span>
-            <span>{{ c.address.zipCode }}</span>
           }
         </div>
       </mat-card-content>

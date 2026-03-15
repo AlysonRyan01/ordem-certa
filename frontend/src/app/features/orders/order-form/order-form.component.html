@@ -4,7 +4,9 @@
   </h2>
 
   @if (loading()) {
-    <div class="flex justify-center p-12"><mat-spinner diameter="40" /></div>
+    <div class="flex justify-center p-12">
+      <mat-spinner diameter="40" />
+    </div>
   } @else {
     <form [formGroup]="form" (ngSubmit)="onSubmit()" class="flex flex-col gap-4">
 
@@ -17,13 +19,13 @@
             matInput
             formControlName="customerSearch"
             [matAutocomplete]="auto"
-            placeholder="Digite o nome..."
           />
           <mat-autocomplete #auto (optionSelected)="selectCustomer($event.option.value)">
             @for (c of customerSuggestions(); track c.id) {
               <mat-option [value]="c">{{ c.name }}</mat-option>
             }
           </mat-autocomplete>
+          <mat-hint>Digite pelo menos 2 caracteres</mat-hint>
         </mat-form-field>
         <mat-divider class="my-1" />
       }
@@ -32,15 +34,16 @@
 
       <div class="grid grid-cols-2 gap-4">
         <mat-form-field appearance="outline">
-          <mat-label>Tipo *</mat-label>
-          <input matInput formControlName="deviceType" placeholder="Smartphone, Notebook..." />
+          <mat-label>Tipo</mat-label>
+          <input matInput formControlName="deviceType" />
+          <mat-hint>Smartphone, Notebook...</mat-hint>
           @if (form.controls.deviceType.hasError('required')) {
             <mat-error>Obrigatório</mat-error>
           }
         </mat-form-field>
 
         <mat-form-field appearance="outline">
-          <mat-label>Marca *</mat-label>
+          <mat-label>Marca</mat-label>
           <input matInput formControlName="brand" />
           @if (form.controls.brand.hasError('required')) {
             <mat-error>Obrigatório</mat-error>
@@ -48,7 +51,7 @@
         </mat-form-field>
 
         <mat-form-field appearance="outline">
-          <mat-label>Modelo *</mat-label>
+          <mat-label>Modelo</mat-label>
           <input matInput formControlName="model" />
           @if (form.controls.model.hasError('required')) {
             <mat-error>Obrigatório</mat-error>
@@ -56,12 +59,12 @@
         </mat-form-field>
 
         <mat-form-field appearance="outline">
-          <mat-label>Técnico</mat-label>
+          <mat-label>Técnico responsável</mat-label>
           <input matInput formControlName="technicianName" />
         </mat-form-field>
 
         <mat-form-field appearance="outline" class="col-span-2">
-          <mat-label>Defeito relatado *</mat-label>
+          <mat-label>Defeito relatado</mat-label>
           <textarea matInput formControlName="reportedDefect" rows="3"></textarea>
           @if (form.controls.reportedDefect.hasError('required')) {
             <mat-error>Obrigatório</mat-error>
@@ -70,7 +73,8 @@
 
         <mat-form-field appearance="outline">
           <mat-label>Acessórios</mat-label>
-          <input matInput formControlName="accessories" placeholder="Carregador, capa..." />
+          <input matInput formControlName="accessories" />
+          <mat-hint>Ex: Carregador, capa...</mat-hint>
         </mat-form-field>
 
         <mat-form-field appearance="outline">
@@ -81,9 +85,12 @@
 
       <div class="flex gap-3 justify-end mt-4">
         <button mat-button type="button" (click)="cancel()">Cancelar</button>
-        <button mat-flat-button type="submit" [disabled]="saving()">
-          @if (saving()) { <mat-spinner diameter="20" /> }
-          @else { {{ isEdit ? 'Salvar' : 'Criar Ordem' }} }
+        <button mat-flat-button type="submit" [disabled]="form.invalid || saving()">
+          @if (saving()) {
+            <mat-spinner diameter="20" />
+          } @else {
+            {{ isEdit ? 'Salvar' : 'Criar Ordem' }}
+          }
         </button>
       </div>
 

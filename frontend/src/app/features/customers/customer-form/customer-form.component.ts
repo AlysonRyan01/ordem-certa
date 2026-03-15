@@ -37,16 +37,14 @@ export class CustomerFormComponent implements OnInit {
   readonly editId = signal<string | null>(null);
 
   readonly form = this.fb.group({
-    name: ['', Validators.required],
+    fullName: ['', Validators.required],
+    phone: ['', Validators.required],
     email: ['', Validators.email],
     document: [''],
     street: [''],
-    addressNumber: [''],
-    complement: [''],
-    neighborhood: [''],
+    number: [''],
     city: [''],
     state: ['', Validators.maxLength(2)],
-    zipCode: [''],
   });
 
   get isEdit(): boolean {
@@ -66,16 +64,13 @@ export class CustomerFormComponent implements OnInit {
       this.customerService.getById(id).subscribe({
         next: (c) => {
           this.form.patchValue({
-            name: c.name,
+            fullName: c.name,
             email: c.email ?? '',
             document: c.document?.value ?? '',
             street: c.address?.street ?? '',
-            addressNumber: c.address?.number ?? '',
-            complement: c.address?.complement ?? '',
-            neighborhood: c.address?.neighborhood ?? '',
+            number: c.address?.number ?? '',
             city: c.address?.city ?? '',
             state: c.address?.state ?? '',
-            zipCode: c.address?.zipCode ?? '',
           });
           this.loading.set(false);
         },
@@ -90,27 +85,22 @@ export class CustomerFormComponent implements OnInit {
     const value = this.form.getRawValue();
     const obs = this.isEdit
       ? this.customerService.update(this.editId()!, {
-          name: value.name!,
+          fullName: value.fullName!,
           email: value.email || undefined,
           street: value.street || undefined,
-          addressNumber: value.addressNumber || undefined,
-          complement: value.complement || undefined,
-          neighborhood: value.neighborhood || undefined,
+          number: value.number || undefined,
           city: value.city || undefined,
           state: value.state || undefined,
-          zipCode: value.zipCode || undefined,
         })
       : this.customerService.create({
-          name: value.name!,
+          fullName: value.fullName!,
+          phone: value.phone!,
           email: value.email || undefined,
           document: value.document || undefined,
           street: value.street || undefined,
-          addressNumber: value.addressNumber || undefined,
-          complement: value.complement || undefined,
-          neighborhood: value.neighborhood || undefined,
+          number: value.number || undefined,
           city: value.city || undefined,
           state: value.state || undefined,
-          zipCode: value.zipCode || undefined,
         });
 
     obs.subscribe({
