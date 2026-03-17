@@ -115,16 +115,13 @@ public class StripeService : IStripeService
     {
         Event stripeEvent;
 
-        Console.WriteLine($"[WEBHOOK] Secret: {_webhookSecret}");
-        Console.WriteLine($"[WEBHOOK] Payload inicio: {payload[..50]}");
-        Console.WriteLine($"[WEBHOOK] Signature: {stripeSignature}");
-
         try
         {
             stripeEvent = EventUtility.ConstructEvent(payload, stripeSignature, _webhookSecret);
         }
-        catch
+        catch (Exception ex)
         {
+            Console.WriteLine($"[WEBHOOK] ERRO: {ex.Message}");
             return Result.Failure(["Assinatura do webhook inválida."]);
         }
 

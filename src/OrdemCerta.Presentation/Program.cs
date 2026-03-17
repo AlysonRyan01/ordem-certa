@@ -84,13 +84,6 @@ try
     app.UseHttpsRedirection();
     app.UseAuthentication();
     app.UseAuthorization();
-
-    app.Use(async (context, next) =>
-    {
-        context.Request.EnableBuffering();
-        await next();
-    });
-
     app.MapControllers();
     app.MapHealthChecks("/health");
     app.UseHangfireDashboard("/hangfire", new DashboardOptions
