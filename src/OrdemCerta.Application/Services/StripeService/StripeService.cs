@@ -117,7 +117,7 @@ public class StripeService : IStripeService
 
         try
         {
-            stripeEvent = EventUtility.ConstructEvent(payload, stripeSignature, _webhookSecret);
+            stripeEvent = EventUtility.ConstructEvent(payload, stripeSignature, _webhookSecret, throwOnApiVersionMismatch: false);
         }
         catch (Exception ex)
         {
