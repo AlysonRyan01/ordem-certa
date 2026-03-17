@@ -18,10 +18,7 @@ public static class AppExtensions
 
     public static void UseInfrastructure(this IApplicationBuilder app)
     {
-        if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development")
-        {
-            app.ApplyMigrations();
-        }
+        app.ApplyMigrations();
     }
     
     public static void AddSwagger(this IApplicationBuilder app)
