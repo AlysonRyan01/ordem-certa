@@ -36,6 +36,9 @@ services:
       - EvolutionApi__Instance=${EVOLUTIONAPI_INSTANCE:-ordemcerta}
       - Cors__PolicyName=${ORDEMCERTA_CORS_POLICYNAME:-DefaultPolicy}
       - Cors__Origins=${ORDEMCERTA_CORS_ORIGINS}
+      - Stripe__SecretKey=${STRIPE_SECRET_KEY}
+      - Stripe__WebhookSecret=${STRIPE_WEBHOOK_SECRET}
+      - Stripe__PriceId=${STRIPE_PRICE_ID}
     depends_on:
       ordemcerta.db:
         condition: service_healthy
