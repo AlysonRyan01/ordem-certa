@@ -115,6 +115,10 @@ public class StripeService : IStripeService
     {
         Event stripeEvent;
 
+        Console.WriteLine($"[WEBHOOK] Secret: {_webhookSecret}");
+        Console.WriteLine($"[WEBHOOK] Payload inicio: {payload[..50]}");
+        Console.WriteLine($"[WEBHOOK] Signature: {stripeSignature}");
+
         try
         {
             stripeEvent = EventUtility.ConstructEvent(payload, stripeSignature, _webhookSecret);
