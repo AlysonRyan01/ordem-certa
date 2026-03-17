@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using OrdemCerta.Application.Inputs.ServiceOrderInputs;
 using OrdemCerta.Application.Services.ServiceOrderService;
 using OrdemCerta.Domain.ServiceOrders.DTOs;
@@ -11,6 +12,7 @@ namespace OrdemCerta.Presentation.Controllers;
 [Authorize]
 [ApiController]
 [Route("api/service-orders")]
+[EnableRateLimiting("per-company")]
 public class ServiceOrderController : ControllerBase
 {
     private readonly IServiceOrderService _serviceOrderService;
@@ -117,6 +119,38 @@ public class ServiceOrderController : ControllerBase
         return Ok(result.Value);
     }
 
+    [HttpPatch("{id:guid}/warranty")]
+    [ProducesResponseType(typeof(ServiceOrderOutput), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> SetWarranty(
+        [FromRoute] Guid id,
+        [FromBody] SetWarrantyInput input,
+        CancellationToken cancellationToken)
+    {
+        var result = await _serviceOrderService.SetWarrantyAsync(id, input, cancellationToken);
+
+        if (result.IsFailure)
+            return BadRequest(new { errors = result.Errors });
+
+        return Ok(result.Value);
+    }
+
+    [HttpPatch("{id:guid}/repair-result")]
+    [ProducesResponseType(typeof(ServiceOrderOutput), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> SetRepairResult(
+        [FromRoute] Guid id,
+        [FromBody] SetRepairResultInput input,
+        CancellationToken cancellationToken)
+    {
+        var result = await _serviceOrderService.SetRepairResultAsync(id, input, cancellationToken);
+
+        if (result.IsFailure)
+            return BadRequest(new { errors = result.Errors });
+
+        return Ok(result.Value);
+    }
+
     [HttpPost("{id:guid}/budget")]
     [ProducesResponseType(typeof(ServiceOrderOutput), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -131,6 +165,127 @@ public class ServiceOrderController : ControllerBase
             return BadRequest(new { errors = result.Errors });
 
         return Ok(result.Value);
+    }
+
+    [HttpPut("{id:guid}/budget")]
+    [ProducesResponseType(typeof(ServiceOrderOutput), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> UpdateBudget(
+        [FromRoute] Guid id,
+        [FromBody] CreateBudgetInput input,
+        CancellationToken cancellationToken)
+    {
+        var result = await _serviceOrderService.UpdateBudgetAsync(id, input, cancellationToken);
+
+        if (result.IsFailure)
+            return BadRequest(new { errors = result.Errors });
+
+        return Ok(result.Value);
+    }
+
+    [HttpPost("{id:guid}/budget/approve")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> ApproveBudget(
+        [FromRoute] Guid id,
+        CancellationToken cancellationToken)
+    {
+        var result = await _serviceOrderService.ApproveBudgetAsync(id, cancellationToken);
+
+        if (result.IsFailure)
+            return BadRequest(new { errors = result.Errors });
+
+        return Ok(result.Value);
+    }
+
+    [HttpPost("{id:guid}/budget/refuse")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> RefuseBudget(
+        [FromRoute] Guid id,
+        CancellationToken cancellationToken)
+    {
+        var result = await _serviceOrderService.RefuseBudgetAsync(id, cancellationToken);
+
+        if (result.IsFailure)
+            return BadRequest(new { errors = result.Errors });
+
+        return Ok(result.Value);
+    }
+
+    [HttpPost("{id:guid}/notify/budget-created")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> NotifyBudgetCreated(
+        [FromRoute] Guid id,
+        CancellationToken cancellationToken)
+    {
+        var result = await _serviceOrderService.NotifyBudgetCreatedAsync(id, cancellationToken);
+
+        if (result.IsFailure)
+            return BadRequest(new { errors = result.Errors });
+
+        return NoContent();
+    }
+
+    [HttpPost("{id:guid}/notify/budget-approved")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> NotifyBudgetApproved(
+        [FromRoute] Guid id,
+        CancellationToken cancellationToken)
+    {
+        var result = await _serviceOrderService.NotifyBudgetApprovedAsync(id, cancellationToken);
+
+        if (result.IsFailure)
+            return BadRequest(new { errors = result.Errors });
+
+        return NoContent();
+    }
+
+    [HttpPost("{id:guid}/notify/budget-refused")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> NotifyBudgetRefused(
+        [FromRoute] Guid id,
+        CancellationToken cancellationToken)
+    {
+        var result = await _serviceOrderService.NotifyBudgetRefusedAsync(id, cancellationToken);
+
+        if (result.IsFailure)
+            return BadRequest(new { errors = result.Errors });
+
+        return NoContent();
+    }
+
+    [HttpPost("{id:guid}/notify/ready-for-pickup")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> NotifyReadyForPickup(
+        [FromRoute] Guid id,
+        CancellationToken cancellationToken)
+    {
+        var result = await _serviceOrderService.NotifyReadyForPickupAsync(id, cancellationToken);
+
+        if (result.IsFailure)
+            return BadRequest(new { errors = result.Errors });
+
+        return NoContent();
+    }
+
+    [HttpGet("{id:guid}/print")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> Print(
+        [FromRoute] Guid id,
+        CancellationToken cancellationToken)
+    {
+        var result = await _serviceOrderService.PrintAsync(id, cancellationToken);
+
+        if (result.IsFailure)
+            return BadRequest(new { errors = result.Errors });
+
+        return File(result.Value!, "application/pdf", $"ordem-{id}.pdf");
     }
 
     [HttpDelete("{id:guid}")]

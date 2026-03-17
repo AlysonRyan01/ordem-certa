@@ -63,6 +63,18 @@ public class ServiceOrderModel : IEntityTypeConfiguration<ServiceOrder>
             .HasColumnName("status")
             .IsRequired();
 
+        builder.Property(o => o.RepairResult)
+            .HasColumnName("repair_result");
+
+        builder.OwnsOne(o => o.Warranty, warranty =>
+        {
+            warranty.Property(w => w.Duration)
+                .HasColumnName("warranty_duration");
+
+            warranty.Property(w => w.Unit)
+                .HasColumnName("warranty_unit");
+        });
+
         builder.Property(o => o.EntryDate)
             .HasColumnName("entry_date")
             .IsRequired();

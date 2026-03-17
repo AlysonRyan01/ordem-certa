@@ -5,7 +5,7 @@ import { Component, input } from '@angular/core';
   standalone: true,
   template: `
     <div
-      class="animate-pulse bg-gray-200 rounded"
+      class="animate-pulse bg-slate-200 rounded-lg"
       [style.width]="width()"
       [style.height]="height()"
     ></div>

@@ -1,4 +1,4 @@
-import { ServiceOrderStatus } from './service-order.model';
+import { RepairResult, ServiceOrderStatus } from './service-order.model';
 
 export interface StatusMeta {
   label: string;
@@ -27,4 +27,27 @@ export const ALL_STATUSES = Object.entries(STATUS_META).map(([value, meta]) => (
 
 export function statusMeta(status: ServiceOrderStatus): StatusMeta {
   return STATUS_META[status];
+}
+
+export interface RepairResultMeta {
+  label: string;
+  color: string;
+  bg: string;
+  icon: string;
+}
+
+export const REPAIR_RESULT_META: Record<RepairResult, RepairResultMeta> = {
+  CanBeRepaired:  { label: 'Tem conserto',           color: 'text-green-700',  bg: 'bg-green-100',  icon: 'build' },
+  NoFix:          { label: 'Sem conserto',           color: 'text-red-700',   bg: 'bg-red-100',    icon: 'build_circle' },
+  NoDefectFound:  { label: 'Sem defeito detectado',  color: 'text-blue-700',  bg: 'bg-blue-100',   icon: 'search_off' },
+};
+
+export const ALL_REPAIR_RESULTS: { value: RepairResult; label: string }[] = [
+  { value: 'CanBeRepaired', label: 'Tem conserto' },
+  { value: 'NoFix',         label: 'Sem conserto' },
+  { value: 'NoDefectFound', label: 'Sem defeito detectado' },
+];
+
+export function repairResultMeta(result: RepairResult): RepairResultMeta {
+  return REPAIR_RESULT_META[result];
 }

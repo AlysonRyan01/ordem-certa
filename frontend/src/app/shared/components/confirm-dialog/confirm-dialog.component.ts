@@ -13,10 +13,12 @@ export interface ConfirmDialogData {
   standalone: true,
   imports: [MatDialogModule, MatButtonModule],
   template: `
-    <h2 mat-dialog-title>{{ data.title }}</h2>
-    <mat-dialog-content>{{ data.message }}</mat-dialog-content>
-    <mat-dialog-actions align="end">
-      <button mat-button mat-dialog-close>Cancelar</button>
+    <h2 mat-dialog-title class="!text-lg !font-bold !text-slate-900">{{ data.title }}</h2>
+    <mat-dialog-content class="!text-sm !text-slate-500 !leading-relaxed">
+      {{ data.message }}
+    </mat-dialog-content>
+    <mat-dialog-actions align="end" class="!gap-2 !pb-4 !px-6">
+      <button mat-button mat-dialog-close class="!text-slate-500">Cancelar</button>
       <button mat-flat-button color="warn" [mat-dialog-close]="true">
         {{ data.confirmLabel ?? 'Confirmar' }}
       </button>

@@ -9,10 +9,10 @@ import { statusMeta } from '../../../core/models/service-order-status.helper';
   imports: [MatIconModule],
   template: `
     <span
-      class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium"
+      class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold whitespace-nowrap"
       [class]="meta().bg + ' ' + meta().color"
     >
-      <mat-icon class="!text-sm !w-4 !h-4 !leading-4">{{ meta().icon }}</mat-icon>
+      <mat-icon class="!text-[11px] !w-3 !h-3 !leading-3 flex-shrink-0">{{ meta().icon }}</mat-icon>
       {{ meta().label }}
     </span>
   `,

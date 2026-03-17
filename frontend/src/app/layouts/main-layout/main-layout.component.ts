@@ -45,7 +45,7 @@ export class MainLayoutComponent implements OnInit {
     { initialValue: false }
   );
 
-  readonly sidenavOpened = signal(true);
+  readonly sidenavOpened = signal(false);
   readonly plan = signal<'Demo' | 'Paid' | null>(null);
 
   readonly navItems = [
@@ -53,6 +53,7 @@ export class MainLayoutComponent implements OnInit {
     { label: 'Ordens de Serviço', icon: 'build', route: '/orders' },
     { label: 'Clientes', icon: 'people', route: '/customers' },
     { label: 'Perfil', icon: 'person', route: '/profile' },
+    { label: 'Planos', icon: 'workspace_premium', route: '/billing' },
   ];
 
   ngOnInit(): void {
@@ -63,6 +64,10 @@ export class MainLayoutComponent implements OnInit {
 
   toggleSidenav(): void {
     this.sidenavOpened.update((v) => !v);
+  }
+
+  closeSidenav(): void {
+    this.sidenavOpened.set(false);
   }
 
   logout(): void {

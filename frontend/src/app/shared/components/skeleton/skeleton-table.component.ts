@@ -6,11 +6,16 @@ import { SkeletonComponent } from './skeleton.component';
   standalone: true,
   imports: [SkeletonComponent],
   template: `
-    <div class="flex flex-col gap-3">
+    <div class="flex flex-col gap-2.5">
+      <div class="flex gap-4 mb-1">
+        @for (col of colArray(); track $index) {
+          <app-skeleton height="1.25rem" [style.flex]="1" />
+        }
+      </div>
       @for (row of rowArray(); track $index) {
         <div class="flex gap-4">
           @for (col of colArray(); track $index) {
-            <app-skeleton height="2.5rem" [style.flex]="1" />
+            <app-skeleton height="2.75rem" [style.flex]="1" />
           }
         </div>
       }

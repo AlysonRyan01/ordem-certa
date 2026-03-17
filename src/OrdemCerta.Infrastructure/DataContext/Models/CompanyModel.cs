@@ -79,6 +79,14 @@ public class CompanyModel : IEntityTypeConfiguration<Company>
             .HasConversion<string>()
             .IsRequired();
 
+        builder.Property(c => c.StripeCustomerId)
+            .HasColumnName("stripe_customer_id")
+            .HasMaxLength(100);
+
+        builder.Property(c => c.StripeSubscriptionId)
+            .HasColumnName("stripe_subscription_id")
+            .HasMaxLength(100);
+
         builder.Property(c => c.CreatedAt)
             .HasColumnName("created_at")
             .IsRequired();

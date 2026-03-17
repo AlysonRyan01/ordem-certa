@@ -1,5 +1,6 @@
 using System.Text.Json.Serialization;
 using System.Threading.RateLimiting;
+using Hangfire;
 using Microsoft.AspNetCore.RateLimiting;
 using OrdemCerta.Presentation.Extensions;
 using Serilog;
@@ -25,12 +26,17 @@ try
     builder.Services.AddControllers()
         .AddJsonOptions(options =>
             options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
+
+    builder.Services.Configure<RouteOptions>(options => options.LowercaseUrls = true);
+    builder.WebHost.ConfigureKestrel(options =>
+        options.AllowSynchronousIO = true);
     builder.Services.AddServices();
     builder.Services.AddEndpointsApiExplorer();
     builder.Services.AddInfrastructure(builder.Configuration);
     builder.Services.AddMediatr();
     builder.Services.AddAuth(builder.Configuration);
     builder.Services.AddWhatsApp(builder.Configuration);
+    builder.Services.AddHangfire(builder.Configuration);
     builder.Services.AddSwagger();
     builder.Services.AddHealthChecks()
         .AddNpgSql(
@@ -47,6 +53,20 @@ try
             limiter.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
             limiter.QueueLimit = 0;
         });
+
+        options.AddPolicy("per-company", httpContext =>
+            RateLimitPartition.GetFixedWindowLimiter(
+                partitionKey: httpContext.User.FindFirst("companyId")?.Value
+                              ?? httpContext.Connection.RemoteIpAddress?.ToString()
+                              ?? "anonymous",
+                factory: _ => new FixedWindowRateLimiterOptions
+                {
+                    PermitLimit = 60,
+                    Window = TimeSpan.FromMinutes(1),
+                    QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
+                    QueueLimit = 0,
+                }));
+
         options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
     });
 
@@ -66,6 +86,10 @@ try
     app.UseAuthorization();
     app.MapControllers();
     app.MapHealthChecks("/health");
+    app.UseHangfireDashboard("/hangfire", new DashboardOptions
+    {
+        Authorization = [],
+    });
     app.UseInfrastructure();
 
     app.Run();

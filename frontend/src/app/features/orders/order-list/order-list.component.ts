@@ -1,7 +1,7 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -41,6 +41,7 @@ import { StatusBadgeComponent } from '../../../shared/components/status-badge/st
 export class OrderListComponent implements OnInit {
   private readonly orderService = inject(ServiceOrderService);
   private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
   private readonly dialog = inject(MatDialog);
   private readonly snackBar = inject(MatSnackBar);
 
@@ -55,6 +56,11 @@ export class OrderListComponent implements OnInit {
   readonly columns = ['orderNumber', 'customer', 'equipment', 'status', 'entryDate', 'technician', 'actions'];
 
   ngOnInit(): void {
+    const statusParam = this.route.snapshot.queryParamMap.get('status') as ServiceOrderStatus | null;
+    if (statusParam) {
+      this.statusFilter.setValue(statusParam, { emitEvent: false });
+    }
+
     this.statusFilter.valueChanges.subscribe(() => {
       this.page.set(1);
       this.load();

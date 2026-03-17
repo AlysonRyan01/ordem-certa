@@ -10,6 +10,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { NgxMaskDirective, provideNgxMask } from 'ngx-mask';
 import { CustomerOutput } from '../../../core/models/customer.model';
@@ -30,6 +31,7 @@ import { SkeletonComponent } from '../../../shared/components/skeleton/skeleton.
     MatFormFieldModule,
     MatInputModule,
     MatDividerModule,
+    MatProgressSpinnerModule,
     MatTooltipModule,
     NgxMaskDirective,
     SkeletonComponent,

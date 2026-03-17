@@ -1,0 +1,60 @@
+<div class="max-w-3xl flex flex-col gap-6">
+
+  <div>
+    <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Assinatura</p>
+    <h2 class="text-2xl font-bold text-slate-900">Planos</h2>
+  </div>
+
+  <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+
+    <!-- Demo -->
+    <div class="oc-section-card relative" [class.ring-2]="!isPaid" [class.ring-slate-300]="!isPaid">
+      @if (!isPaid) {
+        <span class="absolute top-3 right-3 text-xs font-bold bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full">Plano atual</span>
+      }
+      <div class="oc-section-header">Demo</div>
+      <div class="px-5 py-5 flex flex-col gap-3">
+        <p class="text-3xl font-bold text-slate-800">Grátis</p>
+        <ul class="flex flex-col gap-2 text-sm text-slate-600">
+          <li class="flex items-center gap-2"><mat-icon class="!text-base text-slate-400">check</mat-icon> Até 10 ordens de serviço</li>
+          <li class="flex items-center gap-2"><mat-icon class="!text-base text-slate-400">check</mat-icon> Clientes ilimitados</li>
+          <li class="flex items-center gap-2"><mat-icon class="!text-base text-slate-400">check</mat-icon> Geração de PDF</li>
+          <li class="flex items-center gap-2"><mat-icon class="!text-base text-red-300">close</mat-icon> WhatsApp</li>
+          <li class="flex items-center gap-2"><mat-icon class="!text-base text-red-300">close</mat-icon> Ordens ilimitadas</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Pago -->
+    <div class="oc-section-card relative ring-2" [class.ring-emerald-500]="isPaid" [class.ring-slate-200]="!isPaid">
+      @if (isPaid) {
+        <span class="absolute top-3 right-3 text-xs font-bold bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full">Plano atual</span>
+      }
+      <div class="oc-section-header">Pago</div>
+      <div class="px-5 py-5 flex flex-col gap-3">
+        <div>
+          <p class="text-3xl font-bold text-slate-800">R$ 49<span class="text-base font-normal text-slate-400">/mês</span></p>
+          <p class="text-xs text-slate-400 mt-0.5">Cancele quando quiser</p>
+        </div>
+        <ul class="flex flex-col gap-2 text-sm text-slate-600">
+          <li class="flex items-center gap-2"><mat-icon class="!text-base text-emerald-500">check</mat-icon> Ordens de serviço ilimitadas</li>
+          <li class="flex items-center gap-2"><mat-icon class="!text-base text-emerald-500">check</mat-icon> Clientes ilimitados</li>
+          <li class="flex items-center gap-2"><mat-icon class="!text-base text-emerald-500">check</mat-icon> Geração de PDF</li>
+          <li class="flex items-center gap-2"><mat-icon class="!text-base text-emerald-500">check</mat-icon> Notificações via WhatsApp</li>
+          <li class="flex items-center gap-2"><mat-icon class="!text-base text-emerald-500">check</mat-icon> Suporte prioritário</li>
+        </ul>
+
+        @if (!isPaid) {
+          <button mat-flat-button class="!bg-emerald-600 !text-white mt-2" (click)="upgrade()" [disabled]="loadingCheckout()">
+            @if (loadingCheckout()) { <mat-spinner diameter="20" /> } @else { Fazer upgrade }
+          </button>
+        } @else {
+          <button mat-stroked-button class="mt-2" (click)="manageSubscription()" [disabled]="loadingPortal()">
+            @if (loadingPortal()) { <mat-spinner diameter="20" /> } @else { Gerenciar assinatura }
+          </button>
+        }
+      </div>
+    </div>
+
+  </div>
+</div>

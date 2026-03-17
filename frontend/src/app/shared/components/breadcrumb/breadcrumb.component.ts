@@ -16,15 +16,15 @@ export interface Breadcrumb {
   imports: [RouterLink, MatIconModule],
   template: `
     @if (crumbs().length > 1) {
-      <nav class="flex items-center gap-1 text-sm text-gray-500 mb-4">
+      <nav class="flex items-center gap-1 text-xs text-slate-400 mb-5">
         @for (crumb of crumbs(); track $index; let last = $last) {
           @if (!last) {
-            <a [routerLink]="crumb.url" class="hover:text-gray-800 transition-colors">
+            <a [routerLink]="crumb.url" class="hover:text-slate-600 transition-colors no-underline font-medium">
               {{ crumb.label }}
             </a>
-            <mat-icon class="text-base leading-none">chevron_right</mat-icon>
+            <mat-icon class="!text-xs !w-3 !h-3 !leading-3 text-slate-300">chevron_right</mat-icon>
           } @else {
-            <span class="text-gray-800 font-medium">{{ crumb.label }}</span>
+            <span class="text-slate-600 font-semibold">{{ crumb.label }}</span>
           }
         }
       </nav>

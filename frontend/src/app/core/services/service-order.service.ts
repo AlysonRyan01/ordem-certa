@@ -8,6 +8,9 @@ import {
   CreateServiceOrderInput,
   ServiceOrderOutput,
   ServiceOrderStatus,
+  SetRepairResultInput,
+  SetWarrantyInput,
+  UpdateBudgetInput,
   UpdateServiceOrderInput,
 } from '../models/service-order.model';
 
@@ -65,11 +68,61 @@ export class ServiceOrderService {
     return this.http.post<ServiceOrderOutput>(`${this.base}/${id}/budget`, input);
   }
 
+  updateBudget(id: string, input: UpdateBudgetInput): Observable<ServiceOrderOutput> {
+    return this.http.put<ServiceOrderOutput>(`${this.base}/${id}/budget`, input);
+  }
+
+  getPublicById(id: string): Observable<ServiceOrderOutput> {
+    return this.http.get<ServiceOrderOutput>(`${environment.apiUrl}/api/public/orders/${id}`);
+  }
+
   approveBudget(id: string): Observable<ServiceOrderOutput> {
-    return this.http.get<ServiceOrderOutput>(`${environment.apiUrl}/public/orders/${id}/approve`);
+    return this.http.post<ServiceOrderOutput>(`${this.base}/${id}/budget/approve`, {});
   }
 
   refuseBudget(id: string): Observable<ServiceOrderOutput> {
+    return this.http.post<ServiceOrderOutput>(`${this.base}/${id}/budget/refuse`, {});
+  }
+
+  approveBudgetFromLink(id: string): Observable<ServiceOrderOutput> {
+    return this.http.get<ServiceOrderOutput>(`${environment.apiUrl}/public/orders/${id}/approve`);
+  }
+
+  refuseBudgetFromLink(id: string): Observable<ServiceOrderOutput> {
     return this.http.get<ServiceOrderOutput>(`${environment.apiUrl}/public/orders/${id}/refuse`);
+  }
+
+  setRepairResult(id: string, input: SetRepairResultInput): Observable<ServiceOrderOutput> {
+    return this.http.patch<ServiceOrderOutput>(`${this.base}/${id}/repair-result`, input);
+  }
+
+  setWarranty(id: string, input: SetWarrantyInput): Observable<ServiceOrderOutput> {
+    return this.http.patch<ServiceOrderOutput>(`${this.base}/${id}/warranty`, input);
+  }
+
+  notifyBudgetCreated(id: string): Observable<void> {
+    return this.http.post<void>(`${this.base}/${id}/notify/budget-created`, {});
+  }
+
+  notifyBudgetApproved(id: string): Observable<void> {
+    return this.http.post<void>(`${this.base}/${id}/notify/budget-approved`, {});
+  }
+
+  notifyBudgetRefused(id: string): Observable<void> {
+    return this.http.post<void>(`${this.base}/${id}/notify/budget-refused`, {});
+  }
+
+  notifyReadyForPickup(id: string): Observable<void> {
+    return this.http.post<void>(`${this.base}/${id}/notify/ready-for-pickup`, {});
+  }
+
+  print(id: string): void {
+    this.http.get(`${this.base}/${id}/print`, { responseType: 'blob' }).subscribe({
+      next: (blob) => {
+        const url = URL.createObjectURL(blob);
+        window.open(url, '_blank');
+        setTimeout(() => URL.revokeObjectURL(url), 10000);
+      },
+    });
   }
 }

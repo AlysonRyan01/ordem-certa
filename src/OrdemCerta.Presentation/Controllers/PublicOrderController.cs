@@ -16,6 +16,21 @@ public class PublicOrderController : ControllerBase
         _serviceOrderService = serviceOrderService;
     }
 
+    [HttpGet("/api/public/orders/{id:guid}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> GetById(
+        [FromRoute] Guid id,
+        CancellationToken cancellationToken)
+    {
+        var result = await _serviceOrderService.GetByIdAsync(id, cancellationToken);
+
+        if (result.IsFailure)
+            return BadRequest(new { errors = result.Errors });
+
+        return Ok(result.Value);
+    }
+
     [HttpGet("{id:guid}/approve")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -23,7 +38,7 @@ public class PublicOrderController : ControllerBase
         [FromRoute] Guid id,
         CancellationToken cancellationToken)
     {
-        var result = await _serviceOrderService.ApproveBudgetAsync(id, cancellationToken);
+        var result = await _serviceOrderService.ApproveBudgetFromLinkAsync(id, cancellationToken);
 
         if (result.IsFailure)
             return BadRequest(new { errors = result.Errors });
@@ -38,7 +53,7 @@ public class PublicOrderController : ControllerBase
         [FromRoute] Guid id,
         CancellationToken cancellationToken)
     {
-        var result = await _serviceOrderService.RefuseBudgetAsync(id, cancellationToken);
+        var result = await _serviceOrderService.RefuseBudgetFromLinkAsync(id, cancellationToken);
 
         if (result.IsFailure)
             return BadRequest(new { errors = result.Errors });

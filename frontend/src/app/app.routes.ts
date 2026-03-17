@@ -51,22 +51,33 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./features/profile/profile.component').then((m) => m.ProfileComponent),
       },
+      {
+        path: 'billing',
+        title: 'Planos — OrdemCerta',
+        data: { breadcrumb: 'Planos' },
+        loadComponent: () =>
+          import('./features/billing/billing.component').then((m) => m.BillingComponent),
+      },
     ],
   },
   {
-    path: 'public/orders/:id/approve',
-    title: 'Aprovação de Orçamento — OrdemCerta',
+    path: 'billing/success',
+    title: 'Assinatura ativada — OrdemCerta',
     loadComponent: () =>
-      import('./features/public/budget-response/budget-response.component').then(
-        (m) => m.BudgetResponseComponent
-      ),
+      import('./features/billing/billing-success/billing-success.component').then((m) => m.BillingSuccessComponent),
   },
   {
-    path: 'public/orders/:id/refuse',
-    title: 'Recusa de Orçamento — OrdemCerta',
+    path: 'billing/cancel',
+    title: 'Checkout cancelado — OrdemCerta',
     loadComponent: () =>
-      import('./features/public/budget-response/budget-response.component').then(
-        (m) => m.BudgetResponseComponent
+      import('./features/billing/billing-cancel/billing-cancel.component').then((m) => m.BillingCancelComponent),
+  },
+  {
+    path: 'orcamento/order/:id',
+    title: 'Orçamento — OrdemCerta',
+    loadComponent: () =>
+      import('./features/public/budget-view/budget-view.component').then(
+        (m) => m.BudgetViewComponent
       ),
   },
   {

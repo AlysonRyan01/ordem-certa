@@ -1,5 +1,7 @@
 using System.Text;
 using FluentValidation;
+using Hangfire;
+using Hangfire.PostgreSql;
 using Microsoft.OpenApi;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
@@ -10,13 +12,14 @@ using OrdemCerta.Application.Services.AuthService;
 using OrdemCerta.Application.Services.CompanyService;
 using OrdemCerta.Application.Services.CustomerService;
 using OrdemCerta.Application.Services.DashboardService;
+using OrdemCerta.Application.Services.PdfService;
 using OrdemCerta.Application.Services.ServiceOrderService;
+using OrdemCerta.Application.Services.StripeService;
 using OrdemCerta.Infrastructure.DataContext.Context;
 using OrdemCerta.Infrastructure.DataContext.Uow;
 using OrdemCerta.Infrastructure.Repositories.CompanyRepository;
 using OrdemCerta.Infrastructure.Repositories.CustomerRepository;
 using OrdemCerta.Infrastructure.Repositories.ServiceOrderRepository;
-using OrdemCerta.Application.EventHandlers;
 using OrdemCerta.Application.Security;
 using OrdemCerta.Application.WhatsApp;
 
@@ -39,6 +42,8 @@ public static class BuilderExtensions
         services.AddScoped<ICustomerService, CustomerService>();
         services.AddScoped<IAuthService, AuthService>();
         services.AddScoped<IServiceOrderService, ServiceOrderService>();
+        services.AddScoped<IPdfService, PdfService>();
+        services.AddScoped<IStripeService, StripeService>();
         services.AddScoped<IDashboardService, DashboardService>();
         services.AddMemoryCache();
 
@@ -142,8 +147,22 @@ public static class BuilderExtensions
         services.AddMediatR(cfg =>
         {
             cfg.RegisterServicesFromAssembly(typeof(BuilderExtensions).Assembly);
-            cfg.RegisterServicesFromAssembly(typeof(BudgetCreatedEventHandler).Assembly);
+            cfg.RegisterServicesFromAssembly(typeof(ServiceOrderService).Assembly);
         });
+    }
+
+    public static void AddHangfire(this IServiceCollection services, IConfiguration configuration)
+    {
+        var connectionString = configuration.GetConnectionString("DefaultConnection")
+            ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
+
+        services.AddHangfire(config => config
+            .SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
+            .UseSimpleAssemblyNameTypeSerializer()
+            .UseRecommendedSerializerSettings()
+            .UsePostgreSqlStorage(options => options.UseNpgsqlConnection(connectionString)));
+
+        services.AddHangfireServer();
     }
 
     public static void AddWhatsApp(this IServiceCollection services, IConfiguration configuration)

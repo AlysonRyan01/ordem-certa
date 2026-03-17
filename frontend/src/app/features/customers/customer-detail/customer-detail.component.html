@@ -1,93 +1,102 @@
 @if (loading()) {
   <div class="flex flex-col gap-4 max-w-2xl">
-    <app-skeleton height="2rem" width="50%" />
-    <app-skeleton height="8rem" />
-    <app-skeleton height="8rem" />
+    <app-skeleton height="2.5rem" width="50%" />
+    <app-skeleton height="9rem" />
+    <app-skeleton height="9rem" />
   </div>
 } @else if (customer(); as c) {
-  <div class="max-w-2xl flex flex-col gap-6">
+  <div class="max-w-2xl flex flex-col gap-5">
 
-    <div class="flex items-center justify-between">
-      <h2 class="text-2xl font-semibold">{{ c.fullName }}</h2>
-      <div class="flex gap-2">
+    <!-- Header -->
+    <div class="flex flex-col sm:flex-row sm:items-start gap-3">
+      <div class="flex items-start gap-4 flex-1 min-w-0">
+        <div class="w-12 h-12 rounded-xl bg-slate-100 flex items-center justify-center flex-shrink-0">
+          <mat-icon class="text-slate-500 !text-2xl">person</mat-icon>
+        </div>
+        <div class="flex-1 min-w-0">
+          <h2 class="text-2xl font-bold text-slate-900 tracking-tight">{{ c.fullName }}</h2>
+          <p class="text-sm text-slate-400 mt-0.5">{{ c.email ?? 'Sem e-mail cadastrado' }}</p>
+        </div>
+      </div>
+      <div class="flex gap-2 flex-wrap sm:flex-shrink-0">
+        <a mat-flat-button [routerLink]="['/orders', 'new']">
+          <mat-icon>add</mat-icon> Nova Ordem
+        </a>
         <a mat-stroked-button [routerLink]="['/customers', c.id, 'edit']">
           <mat-icon>edit</mat-icon> Editar
         </a>
         <button mat-stroked-button color="warn" (click)="confirmDelete()">
-          <mat-icon>delete</mat-icon> Excluir
+          <mat-icon>delete</mat-icon>
         </button>
       </div>
     </div>
 
-    <mat-card>
-      <mat-card-content class="flex flex-col gap-2 pt-4">
-        <div class="grid grid-cols-2 gap-x-8 gap-y-2 text-sm">
-          <span class="text-gray-500">E-mail</span>
-          <span>{{ c.email ?? '—' }}</span>
-
-          <span class="text-gray-500">Documento</span>
-          <span>{{ c.document ? c.document.value : '—' }}</span>
-
+    <!-- Info -->
+    <div class="oc-section-card">
+      <div class="oc-section-header">Informações</div>
+      <div class="px-5 py-5">
+        <dl class="grid grid-cols-2 gap-x-8 gap-y-4 text-sm">
+          <div>
+            <dt class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">E-mail</dt>
+            <dd class="text-slate-700">{{ c.email ?? '—' }}</dd>
+          </div>
+          <div>
+            <dt class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Documento</dt>
+            <dd class="text-slate-700 font-mono">{{ c.document ? c.document.value : '—' }}</dd>
+          </div>
           @if (c.address) {
-            <span class="text-gray-500">Endereço</span>
-            <span>{{ c.address.street }}, {{ c.address.number }}</span>
-
-            <span class="text-gray-500">Cidade / UF</span>
-            <span>{{ c.address.city }} / {{ c.address.state }}</span>
+            <div>
+              <dt class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Endereço</dt>
+              <dd class="text-slate-700">{{ c.address.street }}, {{ c.address.number }}</dd>
+            </div>
+            <div>
+              <dt class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Cidade / UF</dt>
+              <dd class="text-slate-700">{{ c.address.city }} / {{ c.address.state }}</dd>
+            </div>
           }
-        </div>
-      </mat-card-content>
-    </mat-card>
+        </dl>
+      </div>
+    </div>
 
-    <mat-card>
-      <mat-card-header>
-        <mat-card-title class="text-base">Telefones</mat-card-title>
-      </mat-card-header>
-      <mat-card-content class="pt-4">
+    <!-- Phones -->
+    <div class="oc-section-card">
+      <div class="oc-section-header flex items-center justify-between">
+        <span>Telefones</span>
+        <span class="text-slate-400 font-normal">{{ c.phones.length }} cadastrado(s)</span>
+      </div>
+      <div class="px-5 py-5">
         <div class="flex flex-wrap gap-2 mb-4">
           @for (phone of c.phones; track phone.value) {
             <mat-chip-set>
               <mat-chip>
+                <mat-icon matChipAvatar class="!text-sm">phone</mat-icon>
                 {{ phone.value }}
-                <button
-                  matChipRemove
-                  matTooltip="Remover"
-                  (click)="confirmRemovePhone(phone.value)"
-                >
+                <button matChipRemove matTooltip="Remover" (click)="confirmRemovePhone(phone.value)">
                   <mat-icon>cancel</mat-icon>
                 </button>
               </mat-chip>
             </mat-chip-set>
           } @empty {
-            <p class="text-sm text-gray-500">Nenhum telefone cadastrado.</p>
+            <p class="text-sm text-slate-400">Nenhum telefone cadastrado.</p>
           }
         </div>
 
-        <div class="flex gap-3 items-start">
+        <div class="flex gap-3 items-start pt-3 border-t border-slate-100">
           <mat-form-field appearance="outline" class="flex-1">
             <mat-label>Adicionar telefone</mat-label>
-            <input
-              matInput
-              [formControl]="phoneControl"
-              mask="(00) 00000-0000||(00) 0000-0000"
-              placeholder="(11) 98765-4321"
-            />
+            <mat-icon matPrefix>phone</mat-icon>
+            <input matInput [formControl]="phoneControl" mask="(00) 00000-0000||(00) 0000-0000" placeholder="(11) 98765-4321" />
           </mat-form-field>
-          <button
-            mat-flat-button
-            class="mt-1"
-            (click)="addPhone()"
-            [disabled]="phoneControl.invalid || addingPhone()"
-          >
-            Adicionar
+          <button mat-flat-button class="mt-1" (click)="addPhone()" [disabled]="phoneControl.invalid || addingPhone()">
+            @if (addingPhone()) { <mat-spinner diameter="18" /> } @else { Adicionar }
           </button>
         </div>
-      </mat-card-content>
-    </mat-card>
+      </div>
+    </div>
 
-    <div class="flex justify-start">
+    <div>
       <a mat-button routerLink="/customers">
-        <mat-icon>arrow_back</mat-icon> Voltar
+        <mat-icon>arrow_back</mat-icon> Voltar para clientes
       </a>
     </div>
   </div>

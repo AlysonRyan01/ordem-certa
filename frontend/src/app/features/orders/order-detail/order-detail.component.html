@@ -1,52 +1,84 @@
 @if (loading()) {
   <div class="flex flex-col gap-4 max-w-2xl">
-    <app-skeleton height="2rem" width="40%" />
+    <app-skeleton height="2.5rem" width="40%" />
     <app-skeleton height="10rem" />
+    <app-skeleton height="8rem" />
     <app-skeleton height="8rem" />
   </div>
 } @else if (order(); as o) {
-  <div class="max-w-2xl flex flex-col gap-6">
+  <div class="max-w-2xl flex flex-col gap-5">
 
-    <!-- Cabeçalho -->
-    <div class="flex items-start justify-between">
+    <!-- Header -->
+    <div class="flex items-start justify-between gap-4">
       <div>
-        <p class="text-sm text-gray-500 mb-1">Ordem de Serviço</p>
-        <h2 class="text-3xl font-bold">#{{ o.orderNumber }}</h2>
-        <p class="text-sm text-gray-500 mt-1">
+        <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Ordem de Serviço</p>
+        <h2 class="text-3xl font-bold text-slate-900 font-mono tracking-tight">#{{ o.orderNumber }}</h2>
+        <p class="text-sm text-slate-400 mt-1">
           Entrada: {{ o.entryDate | date:'dd/MM/yyyy' }}
         </p>
       </div>
-      <div class="flex gap-2 items-center">
+      <div class="flex items-center gap-2 flex-wrap justify-end">
         <app-status-badge [status]="o.status" />
+        <a mat-stroked-button [routerLink]="['/customers', o.customerId]">
+          <mat-icon>person</mat-icon> Ver cliente
+        </a>
         <a mat-stroked-button [routerLink]="['/orders', o.id, 'edit']">
           <mat-icon>edit</mat-icon> Editar
         </a>
+        <button mat-stroked-button (click)="orderService.print(o.id)">
+          <mat-icon>print</mat-icon> Reimprimir
+        </button>
         <button mat-stroked-button color="warn" (click)="confirmDelete()">
           <mat-icon>delete</mat-icon>
         </button>
       </div>
     </div>
 
-    <!-- Equipamento -->
-    <mat-card>
-      <mat-card-header><mat-card-title class="text-base">Equipamento</mat-card-title></mat-card-header>
-      <mat-card-content class="pt-4">
-        <div class="grid grid-cols-2 gap-x-8 gap-y-2 text-sm">
-          <span class="text-gray-500">Tipo</span>       <span>{{ o.deviceType }}</span>
-          <span class="text-gray-500">Marca</span>      <span>{{ o.brand }}</span>
-          <span class="text-gray-500">Modelo</span>     <span>{{ o.model }}</span>
-          <span class="text-gray-500">Defeito</span>    <span>{{ o.reportedDefect }}</span>
-          <span class="text-gray-500">Acessórios</span> <span>{{ o.accessories ?? '—' }}</span>
-          <span class="text-gray-500">Observações</span><span>{{ o.observations ?? '—' }}</span>
-          <span class="text-gray-500">Técnico</span>    <span>{{ o.technicianName ?? '—' }}</span>
-        </div>
-      </mat-card-content>
-    </mat-card>
+    <!-- Equipment -->
+    <div class="oc-section-card">
+      <div class="oc-section-header">Equipamento</div>
+      <div class="px-5 py-5">
+        <dl class="grid grid-cols-2 gap-x-8 gap-y-4 text-sm">
+          <div>
+            <dt class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Tipo</dt>
+            <dd class="text-slate-800 font-semibold">{{ o.deviceType }}</dd>
+          </div>
+          <div>
+            <dt class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Marca</dt>
+            <dd class="text-slate-800">{{ o.brand }}</dd>
+          </div>
+          <div>
+            <dt class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Modelo</dt>
+            <dd class="text-slate-800">{{ o.model }}</dd>
+          </div>
+          <div>
+            <dt class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Técnico</dt>
+            <dd class="text-slate-800">{{ o.technicianName ?? '—' }}</dd>
+          </div>
+          <div class="col-span-2">
+            <dt class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Defeito relatado</dt>
+            <dd class="text-slate-700 bg-slate-50 rounded-lg px-4 py-3 leading-relaxed border border-slate-100">{{ o.reportedDefect }}</dd>
+          </div>
+          @if (o.accessories) {
+            <div>
+              <dt class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Acessórios</dt>
+              <dd class="text-slate-600">{{ o.accessories }}</dd>
+            </div>
+          }
+          @if (o.observations) {
+            <div>
+              <dt class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Observações</dt>
+              <dd class="text-slate-600">{{ o.observations }}</dd>
+            </div>
+          }
+        </dl>
+      </div>
+    </div>
 
-    <!-- Alterar status -->
-    <mat-card>
-      <mat-card-header><mat-card-title class="text-base">Alterar Status</mat-card-title></mat-card-header>
-      <mat-card-content class="pt-4">
+    <!-- Change status -->
+    <div class="oc-section-card">
+      <div class="oc-section-header">Alterar Status</div>
+      <div class="px-5 py-5">
         <div class="flex gap-3 items-start">
           <mat-form-field appearance="outline" class="flex-1">
             <mat-label>Novo status</mat-label>
@@ -60,57 +92,181 @@
             @if (changingStatus()) { <mat-spinner diameter="20" /> } @else { Aplicar }
           </button>
         </div>
-      </mat-card-content>
-    </mat-card>
+      </div>
+    </div>
 
-    <!-- Orçamento -->
-    <mat-card>
-      <mat-card-header><mat-card-title class="text-base">Orçamento</mat-card-title></mat-card-header>
-      <mat-card-content class="pt-4">
-        @if (o.budgetValue) {
-          <div class="grid grid-cols-2 gap-x-8 gap-y-2 text-sm mb-4">
-            <span class="text-gray-500">Valor</span>
-            <span class="font-semibold text-green-700">R$ {{ o.budgetValue | number:'1.2-2' }}</span>
-            <span class="text-gray-500">Descrição</span>
-            <span>{{ o.budgetDescription }}</span>
+    <!-- Budget -->
+    <div class="oc-section-card">
+      <div class="oc-section-header">Orçamento</div>
+
+      @if (o.budgetValue) {
+
+        @if (!editingBudget()) {
+          <!-- Receipt view -->
+          <div class="bg-gradient-to-br from-emerald-50 to-slate-50 px-5 py-5 border-b border-slate-100">
+            <div class="flex items-start justify-between gap-4 flex-wrap">
+              <div>
+                <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Valor do orçamento</p>
+                <p class="text-4xl font-bold text-emerald-600 tracking-tight leading-none">
+                  <span class="text-xl font-semibold text-emerald-500 mr-1">R$</span>{{ o.budgetValue | number:'1.2-2' }}
+                </p>
+              </div>
+              <div class="flex flex-col gap-1.5 items-end">
+                @if (o.repairResult) {
+                  <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold"
+                        [class]="repairResultMeta[o.repairResult].color + ' ' + repairResultMeta[o.repairResult].bg">
+                    <mat-icon class="!text-sm !w-3.5 !h-3.5">{{ repairResultMeta[o.repairResult].icon }}</mat-icon>
+                    {{ repairResultMeta[o.repairResult].label }}
+                  </span>
+                }
+                @if (o.warrantyDuration && o.warrantyUnit) {
+                  <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-blue-50 text-blue-700">
+                    <mat-icon class="!text-sm !w-3.5 !h-3.5">verified_user</mat-icon>
+                    Garantia: {{ o.warrantyDuration }}
+                    {{ o.warrantyUnit === 'Days'   ? (o.warrantyDuration === 1 ? 'dia'  : 'dias')
+                     : o.warrantyUnit === 'Months' ? (o.warrantyDuration === 1 ? 'mês'  : 'meses')
+                     :                               (o.warrantyDuration === 1 ? 'ano'  : 'anos') }}
+                  </span>
+                }
+              </div>
+            </div>
+            @if (o.budgetDescription) {
+              <p class="mt-3 text-sm text-slate-600 leading-relaxed border-t border-emerald-100 pt-3">
+                {{ o.budgetDescription }}
+              </p>
+            }
           </div>
 
-          @if (o.status === 'WaitingApproval') {
-            <div class="flex gap-3">
-              <button mat-flat-button color="primary" (click)="approveBudget()">
+          <div class="px-5 py-4 flex gap-3 flex-wrap items-center">
+            @if (o.status === 'WaitingApproval') {
+              <button mat-flat-button (click)="approveBudget()"
+                      class="flex-1 !bg-emerald-600 !text-white hover:!bg-emerald-700">
                 <mat-icon>thumb_up</mat-icon> Aprovar
               </button>
-              <button mat-stroked-button color="warn" (click)="refuseBudget()">
+              <button mat-flat-button (click)="refuseBudget()"
+                      class="flex-1 !bg-red-50 !text-red-700 hover:!bg-red-100 border border-red-200">
                 <mat-icon>thumb_down</mat-icon> Recusar
               </button>
-            </div>
-          }
-        } @else {
-          <div class="flex flex-col gap-3">
-            <div class="flex gap-4">
-              <mat-form-field appearance="outline" class="w-40">
-                <mat-label>Valor (R$)</mat-label>
-                <input matInput type="number" [formControl]="budgetValueControl" min="0.01" step="0.01" />
-              </mat-form-field>
-              <mat-form-field appearance="outline" class="flex-1">
-                <mat-label>Descrição</mat-label>
-                <input matInput [formControl]="budgetDescControl" />
-              </mat-form-field>
-            </div>
-            <div>
-              <button mat-flat-button (click)="createBudget()"
-                      [disabled]="budgetValueControl.invalid || budgetDescControl.invalid">
-                <mat-icon>request_quote</mat-icon> Enviar Orçamento
+            }
+            @if (canEditBudget()) {
+              <button mat-stroked-button (click)="startEditBudget()" class="ml-auto">
+                <mat-icon>edit</mat-icon> Editar
               </button>
-            </div>
+            }
+          </div>
+
+        } @else {
+          <!-- Edit form -->
+          <div class="px-5 py-5">
+            <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4">Editando orçamento</p>
+            <ng-container [formGroup]="editBudgetForm">
+              <div class="flex gap-4 flex-wrap mb-4">
+                <mat-form-field appearance="outline" class="!w-44">
+                  <mat-label>Valor (R$)</mat-label>
+                  <input matInput type="number" formControlName="value" min="0.01" step="0.01" />
+                </mat-form-field>
+                <mat-form-field appearance="outline" class="flex-1 !min-w-48">
+                  <mat-label>Descrição do serviço</mat-label>
+                  <input matInput formControlName="description" />
+                </mat-form-field>
+              </div>
+              <div class="flex gap-4 flex-wrap mb-4">
+                <mat-form-field appearance="outline" class="flex-1">
+                  <mat-label>Resultado do diagnóstico</mat-label>
+                  <mat-select formControlName="repairResult">
+                    <mat-option [value]="null">— Não informado —</mat-option>
+                    @for (r of allRepairResults; track r.value) {
+                      <mat-option [value]="r.value">{{ r.label }}</mat-option>
+                    }
+                  </mat-select>
+                </mat-form-field>
+              </div>
+              <div class="flex gap-4 flex-wrap mb-5">
+                <mat-form-field appearance="outline" class="!w-32">
+                  <mat-label>Prazo garantia</mat-label>
+                  <input matInput type="number" formControlName="warrantyDuration" min="1" step="1" />
+                </mat-form-field>
+                <mat-form-field appearance="outline" class="!w-36">
+                  <mat-label>Unidade</mat-label>
+                  <mat-select formControlName="warrantyUnit">
+                    <mat-option [value]="null">— Sem garantia —</mat-option>
+                    @for (u of warrantyUnits; track u.value) {
+                      <mat-option [value]="u.value">{{ u.label }}</mat-option>
+                    }
+                  </mat-select>
+                </mat-form-field>
+              </div>
+              <div class="flex gap-3">
+                <button mat-flat-button (click)="saveBudget()" [disabled]="editBudgetForm.invalid">
+                  <mat-icon>save</mat-icon> Salvar
+                </button>
+                <button mat-stroked-button (click)="cancelEditBudget()">Cancelar</button>
+              </div>
+            </ng-container>
           </div>
         }
-      </mat-card-content>
-    </mat-card>
 
-    <div class="flex justify-start">
+      } @else {
+        <!-- Empty state + Create form -->
+        <div class="px-5 pt-5 pb-4 flex items-center gap-3 border-b border-dashed border-slate-200">
+          <div class="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center flex-shrink-0">
+            <mat-icon class="text-slate-400 !text-xl">request_quote</mat-icon>
+          </div>
+          <div>
+            <p class="text-sm font-semibold text-slate-700">Nenhum orçamento enviado</p>
+            <p class="text-xs text-slate-400">Preencha os dados abaixo para criar o orçamento desta ordem</p>
+          </div>
+        </div>
+        <div class="px-5 py-5">
+          <ng-container [formGroup]="createBudgetForm">
+            <div class="flex gap-4 flex-wrap mb-4">
+              <mat-form-field appearance="outline" class="!w-44">
+                <mat-label>Valor (R$)</mat-label>
+                <input matInput type="number" formControlName="value" min="0.01" step="0.01" />
+              </mat-form-field>
+              <mat-form-field appearance="outline" class="flex-1 !min-w-48">
+                <mat-label>Descrição do serviço</mat-label>
+                <input matInput formControlName="description" />
+              </mat-form-field>
+            </div>
+            <div class="flex gap-4 flex-wrap mb-4">
+              <mat-form-field appearance="outline" class="flex-1">
+                <mat-label>Resultado do diagnóstico</mat-label>
+                <mat-select formControlName="repairResult">
+                  <mat-option [value]="null">— Não informado —</mat-option>
+                  @for (r of allRepairResults; track r.value) {
+                    <mat-option [value]="r.value">{{ r.label }}</mat-option>
+                  }
+                </mat-select>
+              </mat-form-field>
+            </div>
+            <div class="flex gap-4 flex-wrap mb-5">
+              <mat-form-field appearance="outline" class="!w-32">
+                <mat-label>Prazo garantia</mat-label>
+                <input matInput type="number" formControlName="warrantyDuration" min="1" step="1" />
+              </mat-form-field>
+              <mat-form-field appearance="outline" class="!w-36">
+                <mat-label>Unidade</mat-label>
+                <mat-select formControlName="warrantyUnit">
+                  <mat-option [value]="null">— Sem garantia —</mat-option>
+                  @for (u of warrantyUnits; track u.value) {
+                    <mat-option [value]="u.value">{{ u.label }}</mat-option>
+                  }
+                </mat-select>
+              </mat-form-field>
+            </div>
+            <button mat-flat-button (click)="createBudget()" [disabled]="createBudgetForm.invalid">
+              <mat-icon>send</mat-icon> Enviar Orçamento
+            </button>
+          </ng-container>
+        </div>
+      }
+
+    </div>
+
+    <div>
       <a mat-button routerLink="/orders">
-        <mat-icon>arrow_back</mat-icon> Voltar
+        <mat-icon>arrow_back</mat-icon> Voltar para ordens
       </a>
     </div>
   </div>

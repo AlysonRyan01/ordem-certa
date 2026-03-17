@@ -1,33 +1,39 @@
 <div class="flex items-center justify-between mb-6">
-  <h2 class="text-2xl font-semibold">Ordens de Serviço</h2>
+  <div>
+    <h2 class="text-2xl font-bold text-slate-900 tracking-tight">Ordens de Serviço</h2>
+    <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider mt-0.5">Acompanhe e gerencie todas as ordens</p>
+  </div>
   <button mat-flat-button (click)="navigateTo(['/orders', 'new'])">
     <mat-icon>add</mat-icon>
     Nova Ordem
   </button>
 </div>
 
-<div class="mb-4 w-64">
-  <mat-form-field appearance="outline" class="w-full">
-    <mat-label>Filtrar por status</mat-label>
-    <mat-select [formControl]="statusFilter">
-      <mat-option value="">Todos</mat-option>
-      @for (s of allStatuses; track s.value) {
-        <mat-option [value]="s.value">{{ s.label }}</mat-option>
-      }
-    </mat-select>
-  </mat-form-field>
-</div>
+<div class="bg-white border border-slate-200 rounded-xl shadow-sm">
+  <div class="px-4 pt-4 pb-1 border-b border-slate-100">
+    <mat-form-field appearance="outline" class="w-56">
+      <mat-label>Filtrar por status</mat-label>
+      <mat-select [formControl]="statusFilter">
+        <mat-option value="">Todos os status</mat-option>
+        @for (s of allStatuses; track s.value) {
+          <mat-option [value]="s.value">{{ s.label }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+  </div>
+  <div class="overflow-hidden rounded-b-xl">
 
-@if (loading()) {
-  <app-skeleton-table [rows]="5" [cols]="7" />
-} @else {
-  <div class="mat-elevation-z1 rounded overflow-hidden">
+  @if (loading()) {
+    <div class="p-4">
+      <app-skeleton-table [rows]="5" [cols]="7" />
+    </div>
+  } @else {
     <table mat-table [dataSource]="orders()" class="w-full">
 
       <ng-container matColumnDef="orderNumber">
         <th mat-header-cell *matHeaderCellDef>Ordem</th>
         <td mat-cell *matCellDef="let o">
-          <span class="font-bold text-base">#{{ o.orderNumber }}</span>
+          <span class="font-mono font-bold text-slate-800">#{{ o.orderNumber }}</span>
         </td>
       </ng-container>
 
@@ -39,7 +45,8 @@
       <ng-container matColumnDef="equipment">
         <th mat-header-cell *matHeaderCellDef>Equipamento</th>
         <td mat-cell *matCellDef="let o">
-          {{ o.deviceType }} {{ o.brand }} {{ o.model }}
+          <span class="font-semibold text-slate-800">{{ o.deviceType }}</span>
+          <span class="text-slate-500"> {{ o.brand }} {{ o.model }}</span>
         </td>
       </ng-container>
 
@@ -52,7 +59,7 @@
 
       <ng-container matColumnDef="entryDate">
         <th mat-header-cell *matHeaderCellDef>Entrada</th>
-        <td mat-cell *matCellDef="let o">
+        <td mat-cell *matCellDef="let o" class="!font-mono tabular-nums">
           {{ o.entryDate | date:'dd/MM/yyyy' }}
         </td>
       </ng-container>
@@ -63,8 +70,8 @@
       </ng-container>
 
       <ng-container matColumnDef="actions">
-        <th mat-header-cell *matHeaderCellDef class="w-32"></th>
-        <td mat-cell *matCellDef="let o">
+        <th mat-header-cell *matHeaderCellDef class="w-36"></th>
+        <td mat-cell *matCellDef="let o" (click)="$event.stopPropagation()">
           <button mat-icon-button matTooltip="Ver detalhe" (click)="navigateTo(['/orders', o.id])">
             <mat-icon>visibility</mat-icon>
           </button>
@@ -78,21 +85,27 @@
       </ng-container>
 
       <tr mat-header-row *matHeaderRowDef="columns"></tr>
-      <tr mat-row *matRowDef="let row; columns: columns" class="cursor-pointer hover:bg-gray-50"
+      <tr mat-row *matRowDef="let row; columns: columns" class="cursor-pointer"
           (click)="navigateTo(['/orders', row.id])"></tr>
 
       <tr class="mat-row" *matNoDataRow>
-        <td class="mat-cell text-center py-8 text-gray-500" [attr.colspan]="columns.length">
-          Nenhuma ordem encontrada.
+        <td class="mat-cell" [attr.colspan]="columns.length">
+          <div class="flex flex-col items-center justify-center py-12 gap-2 text-slate-400">
+            <mat-icon class="!text-4xl text-slate-200">assignment</mat-icon>
+            <p class="text-sm">Nenhuma ordem encontrada.</p>
+          </div>
         </td>
       </tr>
     </table>
-  </div>
 
-  <app-pagination
-    [total]="total()"
-    [page]="page()"
-    [pageSize]="pageSize()"
-    (pageChange)="onPageChange($event)"
-  />
-}
+    <div class="border-t border-slate-100">
+      <app-pagination
+        [total]="total()"
+        [page]="page()"
+        [pageSize]="pageSize()"
+        (pageChange)="onPageChange($event)"
+      />
+    </div>
+  }
+  </div>
+</div>

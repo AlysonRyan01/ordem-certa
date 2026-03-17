@@ -1,13 +1,65 @@
-<div class="min-h-screen flex items-center justify-center bg-gray-50">
-  <mat-card class="w-full max-w-md">
-    <mat-card-header class="justify-center mb-4">
-      <mat-card-title class="text-2xl font-bold text-center">OrdemCerta</mat-card-title>
-      <mat-card-subtitle class="text-center">Entre na sua conta</mat-card-subtitle>
-    </mat-card-header>
+<div class="min-h-screen grid lg:grid-cols-2">
 
-    <mat-card-content>
+  <!-- Branding panel -->
+  <div class="hidden lg:flex flex-col justify-between bg-[#0F1629] p-12">
+    <div class="flex items-center gap-3">
+      <div class="w-10 h-10 rounded-xl bg-amber-400 flex items-center justify-center flex-shrink-0">
+        <mat-icon class="!text-2xl text-[#0F1629]">build_circle</mat-icon>
+      </div>
+      <span class="text-white font-bold text-xl tracking-tight">OrdemCerta</span>
+    </div>
+
+    <div class="flex flex-col gap-8">
+      <h1 class="text-4xl font-bold text-white leading-tight">
+        Gerencie ordens de serviço com <span class="text-amber-400">eficiência</span>
+      </h1>
+      <p class="text-slate-400 text-lg leading-relaxed">
+        A plataforma completa para assistências técnicas de eletrônicos.
+        Controle clientes, equipamentos e orçamentos em um só lugar.
+      </p>
+      <div class="flex flex-col gap-3">
+        <div class="flex items-center gap-3">
+          <div class="w-5 h-5 rounded-full bg-amber-400/20 flex items-center justify-center flex-shrink-0">
+            <mat-icon class="!text-xs text-amber-400">check</mat-icon>
+          </div>
+          <span class="text-slate-300 text-sm">Aprovação de orçamento por link WhatsApp</span>
+        </div>
+        <div class="flex items-center gap-3">
+          <div class="w-5 h-5 rounded-full bg-amber-400/20 flex items-center justify-center flex-shrink-0">
+            <mat-icon class="!text-xs text-amber-400">check</mat-icon>
+          </div>
+          <span class="text-slate-300 text-sm">Dashboard com visão geral em tempo real</span>
+        </div>
+        <div class="flex items-center gap-3">
+          <div class="w-5 h-5 rounded-full bg-amber-400/20 flex items-center justify-center flex-shrink-0">
+            <mat-icon class="!text-xs text-amber-400">check</mat-icon>
+          </div>
+          <span class="text-slate-300 text-sm">Multi-tenant — cada empresa com seus dados isolados</span>
+        </div>
+      </div>
+    </div>
+
+    <p class="text-slate-600 text-sm">© 2025 OrdemCerta</p>
+  </div>
+
+  <!-- Form panel -->
+  <div class="flex items-center justify-center p-8 bg-slate-50">
+    <div class="w-full max-w-sm">
+
+      <!-- Mobile logo -->
+      <div class="flex items-center gap-2 mb-8 lg:hidden">
+        <div class="w-8 h-8 rounded-lg bg-amber-400 flex items-center justify-center">
+          <mat-icon class="!text-base text-[#0F1629]">build_circle</mat-icon>
+        </div>
+        <span class="font-bold text-lg text-slate-800">OrdemCerta</span>
+      </div>
+
+      <div class="mb-8">
+        <h2 class="text-2xl font-bold text-slate-900 tracking-tight">Bem-vindo de volta</h2>
+        <p class="text-slate-500 text-sm mt-1">Entre na sua conta para continuar</p>
+      </div>
+
       <form [formGroup]="form" (ngSubmit)="onSubmit()" class="flex flex-col gap-4">
-
         <mat-form-field appearance="outline">
           <mat-label>E-mail</mat-label>
           <input matInput type="email" formControlName="email" autocomplete="email" />
@@ -27,26 +79,26 @@
           @if (form.controls.password.hasError('required')) {
             <mat-error>Senha é obrigatória</mat-error>
           } @else if (form.controls.password.hasError('minlength')) {
-            <mat-error>Senha deve ter no mínimo 6 caracteres</mat-error>
+            <mat-error>Mínimo de 6 caracteres</mat-error>
           }
         </mat-form-field>
 
-        <button mat-flat-button type="submit" [disabled]="form.invalid || loading()" class="w-full h-10">
+        <button mat-flat-button type="submit" [disabled]="form.invalid || loading()" class="w-full !h-11 !text-base !font-semibold !rounded-lg mt-1">
           @if (loading()) {
             <mat-spinner diameter="22" />
           } @else {
             Entrar
           }
         </button>
-
       </form>
-    </mat-card-content>
 
-    <mat-card-footer class="text-center py-4">
-      <p class="text-sm text-gray-500">
+      <p class="text-center text-sm text-slate-500 mt-6">
         Não tem uma conta?
-        <a routerLink="/register" class="text-blue-600 hover:underline font-medium">Criar conta</a>
+        <a routerLink="/register" class="text-amber-600 font-semibold hover:text-amber-700 transition-colors no-underline">
+          Criar conta grátis
+        </a>
       </p>
-    </mat-card-footer>
-  </mat-card>
+    </div>
+  </div>
+
 </div>

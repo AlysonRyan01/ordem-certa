@@ -1,4 +1,9 @@
-<div class="max-w-lg flex flex-col gap-6">
+<div class="max-w-2xl flex flex-col gap-5">
+
+  <div class="mb-1">
+    <h2 class="text-2xl font-bold text-slate-900 tracking-tight">Perfil</h2>
+    <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider mt-0.5">Gerencie os dados da sua empresa</p>
+  </div>
 
   @if (loading()) {
     <app-skeleton height="4rem" />
@@ -6,12 +11,17 @@
     <app-skeleton height="4rem" />
   } @else if (company(); as c) {
 
-    <!-- Dados da empresa -->
-    <mat-card>
-      <mat-card-header>
-        <mat-card-title class="text-base">Dados da empresa</mat-card-title>
-      </mat-card-header>
-      <mat-card-content class="pt-4 flex flex-col gap-3" [formGroup]="companyForm">
+    <!-- Company data -->
+    <div class="oc-section-card">
+      <div class="oc-section-header flex items-center justify-between">
+        <span>Dados da empresa</span>
+        @if (c.plan === 'Demo') {
+          <span class="text-xs font-bold px-2.5 py-1 rounded-full bg-amber-100 text-amber-800">Plano Demo</span>
+        } @else {
+          <span class="text-xs font-bold px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800">Plano Pago</span>
+        }
+      </div>
+      <div class="px-5 py-5 flex flex-col gap-4" [formGroup]="companyForm">
 
         <mat-form-field appearance="outline">
           <mat-label>Nome da empresa</mat-label>
@@ -21,33 +31,38 @@
           }
         </mat-form-field>
 
-        @if (c.cnpjFormatted) {
-          <mat-form-field appearance="outline">
-            <mat-label>CNPJ</mat-label>
-            <input matInput [value]="c.cnpjFormatted" readonly />
-            <mat-hint>O CNPJ não pode ser alterado.</mat-hint>
-          </mat-form-field>
-        }
-
-        <mat-form-field appearance="outline">
-          <mat-label>E-mail</mat-label>
-          <input matInput [value]="c.email" readonly />
-          <mat-hint>O e-mail não pode ser alterado.</mat-hint>
-        </mat-form-field>
-
-        <mat-form-field appearance="outline">
-          <mat-label>Telefone (WhatsApp)</mat-label>
-          <input matInput formControlName="phone" mask="(00) 00000-0000||(00) 0000-0000" />
-          @if (companyForm.controls.phone.hasError('required')) {
-            <mat-error>Campo obrigatório.</mat-error>
+        <div class="grid grid-cols-2 gap-4">
+          @if (c.cnpjFormatted) {
+            <mat-form-field appearance="outline">
+              <mat-label>CNPJ</mat-label>
+              <input matInput [value]="c.cnpjFormatted" readonly />
+              <mat-hint>Não pode ser alterado.</mat-hint>
+            </mat-form-field>
           }
-        </mat-form-field>
 
-        <mat-divider />
+          <mat-form-field appearance="outline">
+            <mat-label>E-mail</mat-label>
+            <input matInput [value]="c.email" readonly />
+            <mat-hint>Não pode ser alterado.</mat-hint>
+          </mat-form-field>
 
-        <p class="text-sm font-medium text-gray-500 mt-1">Endereço</p>
+          <mat-form-field appearance="outline">
+            <mat-label>Telefone (WhatsApp)</mat-label>
+            <mat-icon matPrefix>phone</mat-icon>
+            <input matInput formControlName="phone" mask="(00) 00000-0000||(00) 0000-0000" />
+            @if (companyForm.controls.phone.hasError('required')) {
+              <mat-error>Campo obrigatório.</mat-error>
+            }
+          </mat-form-field>
+        </div>
 
-        <div class="grid grid-cols-2 gap-3">
+        <div class="h-px bg-slate-100"></div>
+
+        <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">
+          Endereço <span class="font-normal normal-case">(opcional)</span>
+        </p>
+
+        <div class="grid grid-cols-2 gap-4">
           <mat-form-field appearance="outline" class="col-span-2">
             <mat-label>Rua / Logradouro</mat-label>
             <input matInput formControlName="street" />
@@ -69,35 +84,21 @@
           </mat-form-field>
         </div>
 
-        <mat-divider />
-
-        <div class="flex items-center gap-2 mt-1">
-          <p class="text-sm text-gray-500">Plano:</p>
-          @if (c.plan === 'Demo') {
-            <span class="text-xs font-semibold px-2 py-1 rounded bg-amber-100 text-amber-800">Demo</span>
-          } @else {
-            <span class="text-xs font-semibold px-2 py-1 rounded bg-green-100 text-green-800">Pago</span>
-          }
-        </div>
-
         <div>
-          <button mat-flat-button (click)="saveCompany()"
-                  [disabled]="companyForm.invalid || saving()">
-            @if (saving()) { <mat-spinner diameter="20" /> } @else { Salvar }
+          <button mat-flat-button (click)="saveCompany()" [disabled]="companyForm.invalid || saving()">
+            @if (saving()) { <mat-spinner diameter="20" /> } @else { Salvar alterações }
           </button>
         </div>
-      </mat-card-content>
-    </mat-card>
+      </div>
+    </div>
 
-    <!-- Alterar senha -->
-    <mat-card>
-      <mat-card-header>
-        <mat-card-title class="text-base">Alterar senha</mat-card-title>
-      </mat-card-header>
-      <mat-card-content class="pt-4 flex flex-col gap-3">
+    <!-- Password change -->
+    <div class="oc-section-card">
+      <div class="oc-section-header">Alterar senha</div>
+      <div class="px-5 py-5 flex flex-col gap-4">
 
         @if (passwordStep() === 'idle') {
-          <p class="text-sm text-gray-500">
+          <p class="text-sm text-slate-500">
             Enviaremos um código de 6 dígitos para o WhatsApp cadastrado da empresa.
           </p>
           <div>
@@ -110,14 +111,15 @@
             </button>
           </div>
         } @else {
-          <p class="text-sm text-green-700 flex items-center gap-1">
-            <mat-icon class="!text-base">check_circle</mat-icon>
-            Código enviado! Verifique seu WhatsApp.
-          </p>
+          <div class="flex items-center gap-2 text-emerald-700 bg-emerald-50 rounded-lg px-3 py-2.5 border border-emerald-100">
+            <mat-icon class="!text-base flex-shrink-0">check_circle</mat-icon>
+            <p class="text-sm font-medium">Código enviado! Verifique seu WhatsApp.</p>
+          </div>
 
-          <div [formGroup]="passwordForm" class="flex flex-col gap-3">
+          <div [formGroup]="passwordForm" class="flex flex-col gap-4">
             <mat-form-field appearance="outline">
               <mat-label>Código de verificação</mat-label>
+              <mat-icon matPrefix>lock</mat-icon>
               <input matInput formControlName="code" maxlength="6" placeholder="000000" />
               @if (passwordForm.controls.code.hasError('required')) {
                 <mat-error>Informe o código.</mat-error>
@@ -139,15 +141,15 @@
                 @if (passwordStep() === 'saving') {
                   <mat-spinner diameter="20" />
                 } @else {
-                  Confirmar
+                  Confirmar nova senha
                 }
               </button>
               <button mat-button (click)="passwordStep.set('idle')">Cancelar</button>
             </div>
           </div>
         }
-      </mat-card-content>
-    </mat-card>
+      </div>
+    </div>
 
   }
 </div>

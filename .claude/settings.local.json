@@ -19,7 +19,8 @@
       "Bash(ng add:*)",
       "Bash(ls:*)",
       "Bash(sudo chmod:*)",
-      "Bash(npm cache:*)"
+      "Bash(npm cache:*)",
+      "Bash(~/.dotnet/tools/dotnet-ef migrations:*)"
     ]
   }
 }

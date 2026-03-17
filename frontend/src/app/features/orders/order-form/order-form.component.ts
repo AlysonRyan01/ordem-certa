@@ -1,6 +1,6 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDividerModule } from '@angular/material/divider';
@@ -20,6 +20,7 @@ import { ServiceOrderService } from '../../../core/services/service-order.servic
   standalone: true,
   imports: [
     ReactiveFormsModule,
+    RouterLink,
     MatFormFieldModule,
     MatIconModule,
     MatInputModule,
@@ -95,7 +96,6 @@ export class OrderFormComponent implements OnInit {
 
   selectCustomer(customer: CustomerOutput): void {
     this.selectedCustomerId.set(customer.id);
-    this.form.controls.customerSearch.setValue(customer.fullName, { emitEvent: false });
   }
 
   displayCustomer = (c: CustomerOutput | null): string => c?.fullName ?? '';
@@ -133,6 +133,9 @@ export class OrderFormComponent implements OnInit {
           this.isEdit ? 'Ordem atualizada.' : `Ordem #${order.orderNumber} criada.`,
           'Fechar', { duration: 4000 }
         );
+        if (!this.isEdit) {
+          this.orderService.print(order.id);
+        }
         this.router.navigate(['/orders', order.id]);
       },
       error: (err) => {

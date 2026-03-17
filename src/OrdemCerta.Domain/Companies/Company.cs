@@ -16,6 +16,8 @@ public class Company : AggregateRoot
     public string? City { get; private set; }
     public string? State { get; private set; }
     public PlanType Plan { get; private set; }
+    public string? StripeCustomerId { get; private set; }
+    public string? StripeSubscriptionId { get; private set; }
 
     protected Company() { }
 
@@ -86,9 +88,23 @@ public class Company : AggregateRoot
         return Result.Success();
     }
 
-    public Result UpgradeToPaid()
+    public Result SetStripeCustomerId(string stripeCustomerId)
     {
+        StripeCustomerId = stripeCustomerId;
+        return Result.Success();
+    }
+
+    public Result ActivateSubscription(string stripeSubscriptionId)
+    {
+        StripeSubscriptionId = stripeSubscriptionId;
         Plan = PlanType.Paid;
+        return Result.Success();
+    }
+
+    public Result CancelSubscription()
+    {
+        StripeSubscriptionId = null;
+        Plan = PlanType.Demo;
         return Result.Success();
     }
 }

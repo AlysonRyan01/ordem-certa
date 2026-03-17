@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using OrdemCerta.Application.Inputs.CustomerInputs;
 using OrdemCerta.Application.Services.CustomerService;
 using OrdemCerta.Domain.Customers.DTOs;
@@ -8,6 +9,7 @@ namespace OrdemCerta.Presentation.Controllers;
 
 [ApiController]
 [Route("api/customers")]
+[EnableRateLimiting("per-company")]
 public class CustomerController : ControllerBase
 {
     private readonly ICustomerService _customerService;

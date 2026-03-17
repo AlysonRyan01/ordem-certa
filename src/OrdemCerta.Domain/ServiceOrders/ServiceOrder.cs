@@ -1,5 +1,4 @@
 using OrdemCerta.Domain.ServiceOrders.Enums;
-using OrdemCerta.Domain.ServiceOrders.Events;
 using OrdemCerta.Domain.ServiceOrders.ValueObjects;
 using OrdemCerta.Shared;
 
@@ -12,6 +11,8 @@ public class ServiceOrder : AggregateRoot
     public int OrderNumber { get; private set; }
     public EquipmentInfo Equipment { get; private set; } = null!;
     public ServiceOrderStatus Status { get; private set; }
+    public RepairResult? RepairResult { get; private set; }
+    public Warranty? Warranty { get; private set; }
     public DateTime EntryDate { get; private set; }
     public string? TechnicianName { get; private set; }
     public Budget? Budget { get; private set; }
@@ -50,31 +51,45 @@ public class ServiceOrder : AggregateRoot
     public Result ChangeStatus(ServiceOrderStatus status)
     {
         Status = status;
-
-        if (status == ServiceOrderStatus.ReadyForPickup)
-            RaiseDomainEvent(new ServiceReadyEvent(
-                Id, OrderNumber, CompanyId, CustomerId,
-                Equipment.DeviceType, Equipment.Brand, Equipment.Model));
-
         return Result.Success();
     }
 
-    public Result CreateBudget(Budget budget)
+    public Result SetWarranty(Warranty warranty)
+    {
+        Warranty = warranty;
+        return Result.Success();
+    }
+
+    public Result SetRepairResult(RepairResult result)
+    {
+        if (Status == ServiceOrderStatus.Delivered || Status == ServiceOrderStatus.Cancelled)
+            return "Não é possível registrar o resultado de uma ordem finalizada.";
+
+        RepairResult = result;
+        return Result.Success();
+    }
+
+    public Result CreateBudget(Budget budget, RepairResult? repairResult = null, Warranty? warranty = null)
     {
         Budget = budget;
         Status = ServiceOrderStatus.WaitingApproval;
+        if (repairResult.HasValue) RepairResult = repairResult;
+        if (warranty is not null) Warranty = warranty;
+        return Result.Success();
+    }
 
-        RaiseDomainEvent(new BudgetCreatedEvent(
-            Id,
-            OrderNumber,
-            CompanyId,
-            CustomerId,
-            Equipment.DeviceType,
-            Equipment.Brand,
-            Equipment.Model,
-            budget.Value,
-            budget.Description));
+    public Result UpdateBudget(Budget budget, RepairResult? repairResult = null, Warranty? warranty = null)
+    {
+        if (Status == ServiceOrderStatus.BudgetApproved)
+            return "Não é possível alterar o orçamento após aprovação.";
 
+        if (Status == ServiceOrderStatus.Delivered || Status == ServiceOrderStatus.Cancelled)
+            return "Não é possível alterar o orçamento de uma ordem finalizada.";
+
+        Budget = budget;
+        Status = ServiceOrderStatus.WaitingApproval;
+        if (repairResult.HasValue) RepairResult = repairResult;
+        if (warranty is not null) Warranty = warranty;
         return Result.Success();
     }
 
@@ -84,7 +99,6 @@ public class ServiceOrder : AggregateRoot
             return "A ordem não está aguardando aprovação";
 
         Status = ServiceOrderStatus.BudgetApproved;
-        RaiseDomainEvent(new BudgetRespondedEvent(Id, OrderNumber, CompanyId, Approved: true));
         return Result.Success();
     }
 
@@ -94,7 +108,6 @@ public class ServiceOrder : AggregateRoot
             return "A ordem não está aguardando aprovação";
 
         Status = ServiceOrderStatus.BudgetRefused;
-        RaiseDomainEvent(new BudgetRespondedEvent(Id, OrderNumber, CompanyId, Approved: false));
         return Result.Success();
     }
 }

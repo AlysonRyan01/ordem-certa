@@ -1,0 +1,265 @@
+<div class="min-h-screen bg-[#0F1629] flex flex-col">
+
+  <!-- Brand header -->
+  <div class="flex items-center gap-3 px-8 py-6 flex-shrink-0">
+    <div class="w-8 h-8 rounded-lg bg-amber-400 flex items-center justify-center flex-shrink-0">
+      <mat-icon class="!text-base text-[#0F1629]">build_circle</mat-icon>
+    </div>
+    <span class="text-white font-bold text-base tracking-tight">OrdemCerta</span>
+  </div>
+
+  <!-- Content -->
+  <div class="flex-1 flex items-center justify-center p-6">
+
+    @switch (state()) {
+
+      @case ('loading') {
+        <div class="flex flex-col items-center gap-4">
+          <mat-spinner diameter="48" />
+          <p class="text-slate-400 text-sm">Carregando orçamento...</p>
+        </div>
+      }
+
+      @case ('view') {
+        @if (order(); as o) {
+          <div class="w-full max-w-md flex flex-col gap-4">
+
+            <!-- Header card -->
+            <div class="text-center">
+              <p class="text-slate-400 text-xs font-semibold uppercase tracking-widest mb-1">
+                {{ o.companyName ?? 'Assistência Técnica' }}
+              </p>
+              <h1 class="text-white text-2xl font-bold">Orçamento para aprovação</h1>
+              <p class="text-slate-400 text-sm mt-1">Revise os detalhes abaixo e escolha uma opção</p>
+            </div>
+
+            <!-- Order card -->
+            <div class="bg-white rounded-2xl shadow-2xl overflow-hidden">
+
+              <!-- Order number bar -->
+              <div class="bg-slate-50 border-b border-slate-100 px-6 py-3 flex items-center justify-between">
+                <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Ordem de Serviço</span>
+                <span class="font-mono font-bold text-slate-800">#{{ o.orderNumber }}</span>
+              </div>
+
+              <!-- Equipment -->
+              <div class="px-6 py-5 border-b border-slate-100">
+                <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Equipamento</p>
+                <div class="flex items-center gap-3">
+                  <div class="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center flex-shrink-0">
+                    <mat-icon class="text-slate-500">devices</mat-icon>
+                  </div>
+                  <div>
+                    <p class="font-semibold text-slate-800">{{ o.deviceType }} {{ o.brand }} {{ o.model }}</p>
+                    <p class="text-xs text-slate-500 mt-0.5 leading-relaxed">{{ o.reportedDefect }}</p>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Budget value -->
+              <div class="px-6 py-5 bg-gradient-to-br from-emerald-50 to-slate-50 border-b border-slate-100">
+                <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Valor do orçamento</p>
+                <p class="text-4xl font-bold text-emerald-600 tracking-tight leading-none">
+                  <span class="text-xl font-semibold text-emerald-500 mr-1">R$</span>{{ o.budgetValue | number:'1.2-2' }}
+                </p>
+                @if (o.budgetDescription) {
+                  <p class="text-sm text-slate-600 mt-3 leading-relaxed">{{ o.budgetDescription }}</p>
+                }
+              </div>
+
+              <!-- Warranty -->
+              @if (o.warrantyDuration && o.warrantyUnit) {
+                <div class="px-6 py-4 border-b border-slate-100 flex items-center gap-2">
+                  <mat-icon class="text-blue-500 !text-base flex-shrink-0">verified_user</mat-icon>
+                  <p class="text-sm text-slate-700">
+                    Garantia de
+                    <span class="font-semibold">
+                      {{ o.warrantyDuration }}
+                      {{ o.warrantyUnit === 'Days'   ? (o.warrantyDuration === 1 ? 'dia'  : 'dias')
+                       : o.warrantyUnit === 'Months' ? (o.warrantyDuration === 1 ? 'mês'  : 'meses')
+                       :                               (o.warrantyDuration === 1 ? 'ano'  : 'anos') }}
+                    </span>
+                    após a entrega
+                  </p>
+                </div>
+              }
+
+              <!-- Actions -->
+              <div class="px-6 py-5 flex flex-col gap-3">
+                <button mat-flat-button class="w-full !bg-emerald-600 !text-white hover:!bg-emerald-700 !py-3 !text-base"
+                        (click)="confirm('approve')">
+                  <mat-icon>thumb_up</mat-icon>
+                  Aprovar orçamento
+                </button>
+                <button mat-flat-button class="w-full !bg-red-50 !text-red-700 hover:!bg-red-100 !py-3 !text-base border border-red-200"
+                        (click)="confirm('refuse')">
+                  <mat-icon>thumb_down</mat-icon>
+                  Recusar orçamento
+                </button>
+              </div>
+            </div>
+
+            <p class="text-center text-xs text-slate-500">
+              Ao aprovar, a assistência técnica iniciará o reparo do seu equipamento.
+            </p>
+          </div>
+        }
+      }
+
+      @case ('confirming') {
+        @if (order(); as o) {
+          <div class="w-full max-w-sm">
+            <div class="bg-white rounded-2xl shadow-2xl overflow-hidden">
+              <div class="px-8 py-8 flex flex-col items-center text-center gap-5">
+
+                <div class="w-16 h-16 rounded-full flex items-center justify-center"
+                     [class.bg-emerald-100]="action() === 'approve'"
+                     [class.bg-red-100]="action() === 'refuse'">
+                  <mat-icon class="!text-4xl"
+                            [class.text-emerald-600]="action() === 'approve'"
+                            [class.text-red-600]="action() === 'refuse'">
+                    {{ action() === 'approve' ? 'thumb_up' : 'thumb_down' }}
+                  </mat-icon>
+                </div>
+
+                <div>
+                  <h2 class="text-xl font-bold text-slate-900 mb-2">
+                    {{ action() === 'approve' ? 'Confirmar aprovação?' : 'Confirmar recusa?' }}
+                  </h2>
+                  <p class="text-slate-500 text-sm leading-relaxed">
+                    @if (action() === 'approve') {
+                      Você está aprovando o orçamento de
+                      <span class="font-bold text-emerald-600">R$ {{ o.budgetValue | number:'1.2-2' }}</span>.
+                      Esta ação não pode ser desfeita.
+                    } @else {
+                      Você está recusando o orçamento de
+                      <span class="font-bold text-slate-800">R$ {{ o.budgetValue | number:'1.2-2' }}</span>.
+                      A assistência entrará em contato.
+                    }
+                  </p>
+                </div>
+
+                <div class="flex flex-col gap-2 w-full">
+                  <button mat-flat-button class="w-full"
+                          [class.!bg-emerald-600]="action() === 'approve'"
+                          [class.!text-white]="action() === 'approve'"
+                          [class.!bg-red-600]="action() === 'refuse'"
+                          (click)="submit()"
+                          [disabled]="submitting()">
+                    @if (submitting()) {
+                      <mat-spinner diameter="20" />
+                    } @else {
+                      {{ action() === 'approve' ? 'Sim, aprovar' : 'Sim, recusar' }}
+                    }
+                  </button>
+                  <button mat-button class="w-full" (click)="cancel()" [disabled]="submitting()">
+                    Voltar
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        }
+      }
+
+      @case ('success') {
+        @if (order(); as o) {
+          <div class="w-full max-w-md">
+            <div class="bg-white rounded-2xl shadow-2xl overflow-hidden">
+              <div class="h-1.5"
+                   [class.bg-emerald-400]="action() === 'approve'"
+                   [class.bg-red-400]="action() === 'refuse'"></div>
+
+              <div class="px-8 py-8 flex flex-col items-center text-center gap-6">
+
+                @if (o.companyName) {
+                  <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">{{ o.companyName }}</p>
+                }
+
+                <div class="w-16 h-16 rounded-full flex items-center justify-center"
+                     [class.bg-emerald-100]="action() === 'approve'"
+                     [class.bg-red-100]="action() === 'refuse'">
+                  <mat-icon class="!text-4xl"
+                            [class.text-emerald-600]="action() === 'approve'"
+                            [class.text-red-600]="action() === 'refuse'">
+                    {{ action() === 'approve' ? 'check_circle' : 'cancel' }}
+                  </mat-icon>
+                </div>
+
+                @if (action() === 'approve') {
+                  <div>
+                    <h1 class="text-2xl font-bold text-slate-900 mb-2">Orçamento Aprovado!</h1>
+                    <p class="text-slate-500 text-sm leading-relaxed">
+                      Ótimo! Seu orçamento foi aprovado com sucesso.<br>
+                      Em breve entraremos em contato para confirmar.
+                    </p>
+                  </div>
+                } @else {
+                  <div>
+                    <h1 class="text-2xl font-bold text-slate-900 mb-2">Orçamento Recusado</h1>
+                    <p class="text-slate-500 text-sm leading-relaxed">
+                      Entendemos. Entraremos em contato para discutir outras opções.
+                    </p>
+                  </div>
+                }
+
+                <div class="w-full bg-slate-50 rounded-xl p-5 text-left border border-slate-100">
+                  <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4">Resumo</p>
+                  <div class="flex flex-col gap-3 text-sm">
+                    <div class="flex items-center justify-between">
+                      <span class="text-slate-500">Ordem</span>
+                      <span class="font-bold text-slate-800 font-mono">#{{ o.orderNumber }}</span>
+                    </div>
+                    <div class="flex items-center justify-between">
+                      <span class="text-slate-500">Equipamento</span>
+                      <span class="text-slate-800">{{ o.deviceType }} {{ o.brand }}</span>
+                    </div>
+                    @if (o.budgetValue) {
+                      <div class="flex items-center justify-between pt-3 border-t border-slate-200">
+                        <span class="text-slate-500">Valor</span>
+                        <span class="font-bold text-emerald-700 text-base">R$ {{ o.budgetValue | number:'1.2-2' }}</span>
+                      </div>
+                    }
+                  </div>
+                </div>
+
+                <p class="text-xs text-slate-400">Você pode fechar esta página com segurança.</p>
+              </div>
+            </div>
+          </div>
+        }
+      }
+
+      @case ('already-answered') {
+        <div class="bg-white rounded-2xl shadow-2xl px-10 py-10 max-w-md w-full flex flex-col items-center text-center gap-5">
+          <div class="w-16 h-16 rounded-full bg-amber-100 flex items-center justify-center">
+            <mat-icon class="text-amber-500 !text-4xl">info</mat-icon>
+          </div>
+          <div>
+            <h1 class="text-xl font-bold text-slate-900 mb-2">Orçamento já respondido</h1>
+            <p class="text-slate-500 text-sm leading-relaxed">
+              Este orçamento já foi aprovado ou recusado anteriormente.<br>
+              Caso tenha dúvidas, entre em contato com a assistência técnica.
+            </p>
+          </div>
+        </div>
+      }
+
+      @case ('error') {
+        <div class="bg-white rounded-2xl shadow-2xl px-10 py-10 max-w-md w-full flex flex-col items-center text-center gap-5">
+          <div class="w-16 h-16 rounded-full bg-red-100 flex items-center justify-center">
+            <mat-icon class="text-red-600 !text-4xl">error</mat-icon>
+          </div>
+          <div>
+            <h1 class="text-xl font-bold text-slate-900 mb-2">Algo deu errado</h1>
+            <p class="text-slate-500 text-sm leading-relaxed">
+              Não foi possível carregar o orçamento.<br>
+              Tente novamente ou entre em contato com a assistência técnica.
+            </p>
+          </div>
+        </div>
+      }
+
+    }
+  </div>
+</div>

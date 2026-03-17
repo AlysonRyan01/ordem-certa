@@ -2,13 +2,17 @@
 
 ---
 
-## Milestone 1 — Fundação e Infraestrutura
+## Backend
+
+---
+
+### Milestone 1 — Fundação e Infraestrutura ✅
 
 - [x] Configurar solução .NET com projetos por camada (Domain, Application, Infrastructure, Presentation, Shared, Tests)
 - [x] Configurar DbContext com PostgreSQL (Npgsql + EF Core)
 - [x] Implementar base classes: `Entity`, `AggregateRoot`, `ValueObject`, `Result<T>`, `GetPagedInput`
 - [x] Configurar Unit of Work (`IUnitOfWork`, `UnitOfWork`)
-- [x] Configurar MediatR para publicação de Domain Events
+- [x] Configurar MediatR
 - [x] Configurar FluentValidation
 - [x] Configurar Swagger
 - [x] Configurar Docker Compose para desenvolvimento (PostgreSQL + API com hot-reload)
@@ -16,51 +20,48 @@
 
 ---
 
-## Milestone 2 — Contexto de Clientes
+### Milestone 2 — Contexto de Clientes ✅
 
 - [x] Domain: Aggregate `Customer` com Value Objects (`CustomerName`, `CustomerPhone`, `CustomerEmail`, `CustomerDocument`, `CustomerAddress`)
 - [x] Domain: Enum `CustomerDocumentType` (CPF / CNPJ)
-- [x] Domain: DTOs de saída (`CustomerOutput`, `CustomerPhoneOutput`, `CustomerAddressOutput`, `CustomerDocumentOutput`)
-- [x] Domain: `CustomerExtensions` com `ToOutput()`
+- [x] Domain: DTOs de saída e `CustomerExtensions` com `ToOutput()`
 - [x] Application: `ICustomerService` e `CustomerService`
-- [x] Application: Inputs (`CreateCustomerInput`, `UpdateCustomerInput`, `AddPhoneInput`, `RemovePhoneInput`)
-- [x] Application: Validators (`CreateCustomerInputValidator`, `UpdateCustomerInputValidator`, `AddPhoneInputValidator`, `RemovePhoneInputValidator`)
-- [x] Infrastructure: `ICustomerRepository` e `CustomerRepository`
-- [x] Infrastructure: Mapeamento EF (`CustomerModel`) com tabelas `customers` e `customer_phones`
-- [x] Infrastructure: Migration `CustomerMap`
-- [x] Presentation: `CustomerController` (CRUD + gerenciamento de telefones + busca por nome)
+- [x] Application: Inputs e Validators (Create, Update, AddPhone, RemovePhone)
+- [x] Infrastructure: `ICustomerRepository`, `CustomerRepository`, mapeamento EF e migration
+- [x] Presentation: `CustomerController` (CRUD + telefones + busca por nome)
 
 ---
 
-## Milestone 3 — Empresa
+### Milestone 3 — Empresa ✅
 
-- [x] Domain: Aggregate `Company` com dados da empresa (nome, CNPJ, telefone de contato, endereço)
-- [x] Domain: Enum `PlanType` (Demo / Pago) na `Company`
+- [x] Domain: Aggregate `Company` com dados da empresa (nome, CNPJ, telefone, endereço)
+- [x] Domain: Enum `PlanType` (Demo / Paid)
 - [x] Application: `ICompanyService` e `CompanyService` (CRUD)
 - [x] Infrastructure: `ICompanyRepository`, `CompanyRepository`, mapeamento EF e migration
 - [x] Presentation: `CompanyController`
-- [x] Adicionar `CompanyId` em `Customer` e nas futuras entidades
+- [x] `CompanyId` propagado para todas as entidades
 
 ---
 
-## Milestone 4 — Usuário e Autenticação
+### Milestone 4 — Usuário e Autenticação ✅
 
-- [x] Domain: Aggregate `User` (nome, e-mail, senha hash, vínculo com empresa — um usuário por empresa)
-- [x] Application: `IUserService` e `UserService` (registro, atualização de perfil)
+- [x] Domain: Aggregate `User` (nome, e-mail, senha hash, vínculo com empresa)
 - [x] Application: `IAuthService` e `AuthService` (login, geração de token JWT com `CompanyId`)
+- [x] Application: `IUserService` e `UserService` (perfil)
 - [x] Infrastructure: `IUserRepository`, `UserRepository`, mapeamento EF e migration
 - [x] Presentation: `AuthController` (login) e `UserController` (perfil)
-- [x] Services usam o `CompanyId` do token diretamente nas queries — sem middleware
 
 ---
 
-## Milestone 5 — Ordens de Serviço
+### Milestone 5 — Ordens de Serviço ✅
 
-- [x] Domain: Aggregate `ServiceOrder` com informações do equipamento (tipo, marca, modelo, defeito, acessórios, observações)
-- [x] Domain: Enum `ServiceOrderStatus` (Recebido, Em análise, Orçamento pendente, Aguardando aprovação, Orçamento aprovado, Orçamento recusado, Em conserto, Pronto para retirada, Entregue, Cancelado)
-- [x] Domain: Value Object `EquipmentInfo` (agrupa os dados do equipamento)
+- [x] Domain: Aggregate `ServiceOrder` com Value Object `EquipmentInfo`
+- [x] Domain: Enum `ServiceOrderStatus` (10 status)
+- [x] Domain: Enum `RepairResult` (CanBeRepaired, NoFix, NoDefectFound)
+- [x] Domain: Value Object `Warranty` (duração + `WarrantyUnit`)
+- [x] Domain: Value Object `Budget` (valor + descrição)
 - [x] Domain: DTOs de saída e Extensions
-- [x] Application: `IServiceOrderService` e `ServiceOrderService` (CRUD + mudança de status)
+- [x] Application: `IServiceOrderService` e `ServiceOrderService` (CRUD + status + orçamento + garantia)
 - [x] Application: Inputs e Validators
 - [x] Infrastructure: `IServiceOrderRepository`, `ServiceOrderRepository`, mapeamento EF e migration
 - [x] Presentation: `ServiceOrderController` com filtros (status, cliente)
@@ -68,137 +69,167 @@
 
 ---
 
-## Milestone 6 — Fluxo de Orçamento
+### Milestone 6 — Fluxo de Orçamento ✅
 
-- [x] Domain: Value Object `Budget` (valor, descrição)
-- [x] Application: método `CreateBudgetAsync` no `ServiceOrderService` — muda status para "Aguardando aprovação"
-- [x] Application: métodos `ApproveBudgetAsync` e `RefuseBudgetAsync` — muda status para "Aprovado" ou "Recusado"
-- [x] Geração de token único por ordem para os links de resposta
-- [x] Endpoint público `GET /public/orders/{token}/approve` — aprova direto, sem página
-- [x] Endpoint público `GET /public/orders/{token}/refuse` — recusa direto, sem página
-
----
-
-## Milestone 7 — Integração com WhatsApp
-
-- [x] Provider: Evolution API
-- [x] Serviço de envio de mensagem (`IWhatsAppService` + `WhatsAppService`)
-- [x] Domain Event `BudgetCreatedEvent` — dispara envio automático ao cliente
-- [x] Domain Event `BudgetRespondedEvent` — dispara notificação para a empresa
-- [x] Template de mensagem: identificação da empresa, resumo da ordem, valor, links de aprovação/recusa
-- [x] Configuração global via `EvolutionApi:BaseUrl`, `EvolutionApi:ApiKey`, `EvolutionApi:Instance`
+- [x] `CreateBudgetAsync` / `UpdateBudgetAsync` — cria/edita orçamento com resultado e garantia
+- [x] `ApproveBudgetAsync` / `RefuseBudgetAsync` — aprovação/recusa pelo admin (sem WhatsApp automático)
+- [x] `ApproveBudgetFromLinkAsync` / `RefuseBudgetFromLinkAsync` — aprovação/recusa pelo link público (WhatsApp automático)
+- [x] Endpoint público `GET /public/orders/{id}/approve` e `/refuse`
+- [x] Rate limiting na rota pública (`"public"`: 10 req/min por IP)
 
 ---
 
-## Milestone 8 — Qualidade e Produção
+### Milestone 7 — Integração com WhatsApp ✅
 
-- [x] Testes unitários para Value Objects e Aggregates
-- [x] Configuração de ambiente de produção (variáveis de ambiente, connection string segura)
-- [x] Health check endpoint
-- [x] Logging estruturado (Serilog ou similar)
-- [x] Rate limiting nas rotas públicas
+- [x] Provider: Evolution API (`IWhatsAppService` + `WhatsAppService` via `HttpClient`)
+- [x] Mensagens enviadas via Hangfire (background jobs com retry automático)
+- [x] Templates: orçamento criado, aprovado, recusado, pronto para retirada
+- [x] Envio para cliente + cópia para empresa em cada notificação
+- [x] Configuração via `EvolutionApi:BaseUrl`, `EvolutionApi:ApiKey`, `EvolutionApi:Instance`
+- [x] Dashboard Hangfire em `/hangfire`
 
 ---
 
-## Milestone F1 — Frontend: Fundação e Infraestrutura
+### Milestone 8 — Qualidade e Produção ✅
 
-Stack: **Angular 19**, **TypeScript**, **Angular Material**, **TailwindCSS**, **RxJS**, **Reactive Forms + Zod**
+- [x] Health check endpoint (`/health`)
+- [x] Logging estruturado com Serilog (console + arquivo rotativo)
+- [x] Rate limiting por `companyId` nos endpoints autenticados (60 req/min)
+- [x] Rate limiting por IP nas rotas públicas (10 req/min)
+- [x] Configuração de ambiente de produção via variáveis de ambiente
 
-- [x] Criar projeto Angular com standalone components e lazy loading por rota
-- [x] Configurar Angular Material + Tailwind CSS
-- [x] Configurar `HttpClient` com interceptor para injetar Bearer token e tratar 401 (redirect para login)
-- [x] Tipar todos os DTOs de saída da API (`ServiceOrderOutput`, `CustomerOutput`, etc.)
+---
+
+### Milestone 9 — Geração de PDF ✅
+
+- [x] QuestPDF instalado no projeto Application
+- [x] `IPdfService` e `PdfService` com três templates:
+  - [x] **Comprovante de entrada** — número da ordem, data, cliente, equipamento, defeito, assinatura
+  - [x] **Certificado de garantia** — serviço realizado, valor, prazo de garantia, termos, assinatura
+  - [x] **Comprovante de devolução** — motivo (NoFix / NoDefectFound), sem cláusula de garantia, assinatura
+- [x] `PrintAsync` no `ServiceOrderService` — decide o documento pelo status e `RepairResult`
+- [x] `GET /api/service-orders/{id}/print` → retorna `application/pdf`
+
+---
+
+### Milestone 10 — Pagamento com Stripe ✅
+
+- [x] Domain: `Company` com `StripeCustomerId` e `StripeSubscriptionId`
+- [x] Domain: métodos `SetStripeCustomerId`, `ActivateSubscription`, `CancelSubscription`
+- [x] Infrastructure: `GetByStripeCustomerIdAsync` no `ICompanyRepository`
+- [x] Migration: `StripeBilling` (colunas `stripe_customer_id`, `stripe_subscription_id`)
+- [x] Application: `IStripeService` e `StripeService` com Stripe.net:
+  - [x] `CreateCheckoutSessionAsync` — cria/reutiliza Customer no Stripe, gera sessão de assinatura mensal
+  - [x] `CreateCustomerPortalSessionAsync` — portal de gerenciamento (cancelar, atualizar cartão)
+  - [x] `HandleWebhookAsync` — processa `checkout.session.completed`, `invoice.payment_succeeded`, `customer.subscription.deleted`
+- [x] Presentation: `BillingController` (`POST /api/billing/checkout`, `POST /api/billing/portal`, `POST /api/webhooks/stripe`)
+- [x] Webhook sem `[Authorize]` e fora do rate limiter
+
+---
+
+## Frontend
+
+---
+
+### Milestone F1 — Fundação e Infraestrutura ✅
+
+- [x] Projeto Angular 19 com standalone components e lazy loading
+- [x] Angular Material 20 + TailwindCSS 4
+- [x] `HttpClient` com interceptors (auth + error)
+- [x] Tipagem completa dos DTOs da API
 - [x] Estrutura de pastas: `core/`, `shared/`, `features/`, `layouts/`
-- [x] Configurar variável de ambiente `apiUrl` via `environment.ts`
-- [x] Configurar ESLint + Prettier
+- [x] `environment.ts` com `apiUrl`
 
 ---
 
-## Milestone F2 — Frontend: Autenticação
+### Milestone F2 — Autenticação ✅
 
-- [x] Página de login (`/login`) com Reactive Form (e-mail + senha) e validação
-- [x] `AuthService`: `POST /api/auth/login` → armazenar token JWT em `localStorage`
-- [x] `AuthGuard`: redirecionar rotas protegidas para `/login` se sem token
-- [x] `AuthInterceptor`: anexar `Authorization: Bearer {token}` em toda requisição autenticada
-- [x] Hook de logout (limpa storage + redireciona para `/login`)
-- [x] Exibir nome do usuário e empresa no header, decodificados do JWT
+- [x] Página de login (`/login`) com Reactive Form
+- [x] Página de cadastro (`/register`)
+- [x] `AuthService`: login, registro, logout, decode JWT
+- [x] `AuthGuard`: redireciona para `/login` se sem token
+- [x] `AuthInterceptor`: injeta `Authorization: Bearer` em toda requisição
+- [x] `ErrorInterceptor`: captura erros HTTP e exibe `MatSnackBar`
 
 ---
 
-## Milestone F3 — Frontend: Layout e Navegação
+### Milestone F3 — Layout e Navegação ✅
 
 - [x] Layout autenticado com sidenav (Angular Material) e toolbar
-- [x] Sidenav com itens: Dashboard, Ordens de Serviço, Clientes, Perfil
-- [x] Indicador visual do plano ativo (Demo / Pago) no sidenav
+- [x] Sidenav com itens: Dashboard, Ordens, Clientes, Perfil, Planos
+- [x] Indicador visual do plano ativo (Demo com banner de upgrade / Pago com badge verde)
 - [x] Breadcrumb dinâmico por rota
 - [x] Layout responsivo (sidenav colapsável em mobile)
-- [x] Componente de loading skeleton reutilizável
-- [x] Componente de paginação reutilizável integrado ao `MatPaginator`
+- [x] `SkeletonComponent` e `SkeletonTableComponent` reutilizáveis
+- [x] Componente de paginação reutilizável
+- [x] `StatusBadgeComponent` e `ConfirmDialogComponent`
 
 ---
 
-## Milestone F4 — Frontend: Clientes
+### Milestone F4 — Clientes ✅
 
-- [x] Listagem de clientes com `MatTable` + paginação (`GET /api/customers`)
-- [x] Busca de clientes por nome com debounce (`GET /api/customers/search`)
-- [x] Formulário de criação de cliente (nome, CPF/CNPJ, e-mail, endereço, telefone)
-- [x] Formulário de edição de cliente
-- [x] Tela de detalhe do cliente com lista de ordens de serviço vinculadas
-- [x] Adicionar / remover telefones do cliente
+- [x] Listagem com paginação e busca por nome (debounce)
+- [x] Formulário de criação e edição
+- [x] Tela de detalhe com ordens vinculadas
+- [x] Adicionar / remover telefones
 - [x] Confirmação de exclusão com `MatDialog`
-- [x] Máscara de input para CPF, CNPJ e telefone (ngx-mask)
+- [x] Máscaras de input (CPF, CNPJ, telefone) com ngx-mask
 
 ---
 
-## Milestone F5 — Frontend: Ordens de Serviço
+### Milestone F5 — Ordens de Serviço ✅
 
-- [x] Listagem de ordens com `MatTable` + paginação e badge de status colorido
-- [x] Filtro por status com `MatSelect` (`GET /api/serviceorders/by-status/{status}`)
-- [x] Filtro por cliente com autocomplete (`GET /api/serviceorders/by-customer/{customerId}`)
-- [x] Formulário de criação de ordem (equipamento: tipo, marca, modelo, defeito, acessórios, observações; cliente; técnico)
-- [x] Tela de detalhe da ordem com todas as informações
-- [x] Formulário de edição da ordem (equipamento + técnico)
-- [x] Seletor de status com `MatSelect` (`PATCH /api/serviceorders/{id}/status`)
-- [x] Exibir número da ordem (`#OrderNumber`) em destaque em toda a interface
-- [x] Aviso visual (`MatSnackBar`) quando plano Demo atingir o limite de 10 ordens
+- [x] Listagem com paginação, badge de status e filtros (status, cliente)
+- [x] Formulário de criação e edição
+- [x] Tela de detalhe completa (equipamento, status, orçamento com resultado e garantia)
+- [x] Seletor de status com confirmação de WhatsApp quando aplicável
+- [x] Abertura automática do PDF de comprovante ao criar uma ordem
+- [x] Abertura automática do PDF ao marcar como `Delivered`
+- [x] Botão "Reimprimir" na tela de detalhe
 
 ---
 
-## Milestone F6 — Frontend: Fluxo de Orçamento
+### Milestone F6 — Fluxo de Orçamento ✅
 
-- [x] Formulário de criação de orçamento na tela da ordem (valor + descrição)
-- [x] Indicador visual de status "Aguardando aprovação" com botões de aprovar/recusar pelo operador
-- [x] Exibir valor e descrição do orçamento na tela de detalhe
-- [x] Feedback visual após aprovação ou recusa (`MatSnackBar` + atualização de status)
-- [x] Páginas públicas de resposta do cliente (rota sem AuthGuard):
-  - [x] `/public/orders/:id/approve` → página de confirmação de aprovação
-  - [x] `/public/orders/:id/refuse` → página de confirmação de recusa
-  - [x] Layout minimalista sem sidenav, exibindo nome da empresa e detalhes do equipamento
+- [x] Formulário unificado de orçamento (valor + descrição + resultado + garantia)
+- [x] Edição de orçamento existente
+- [x] Botões de aprovar/recusar com modal de confirmação de WhatsApp
+- [x] Página pública `/orcamento/order/:id` — visualização e resposta do cliente
+- [x] Estados: carregando, visualizando, confirmando, sucesso, já respondido, erro
 
 ---
 
-## Milestone F7 — Frontend: Dashboard
+### Milestone F7 — Dashboard ✅
 
-- [x] Cards de resumo: total de ordens abertas, prontas para retirada, aguardando aprovação
-- [x] Lista das últimas 5 ordens criadas com link para detalhe
-- [x] Gráfico de barras: ordens por status no mês atual (Chart.js)
+- [x] Cards de resumo: ordens abertas, prontas para retirada, aguardando aprovação
+- [x] Lista das últimas ordens com link para detalhe
 - [x] Indicador de plano + limite de uso (Demo: X/10 ordens)
 
 ---
 
-## Milestone F8 — Frontend: Perfil e Empresa
+### Milestone F8 — Perfil e Empresa ✅
 
 - [x] Tela de perfil do usuário (nome, e-mail, alterar senha)
 - [x] Tela de dados da empresa (nome, CNPJ, telefone, endereço)
 
 ---
 
-## Milestone F9 — Frontend: Qualidade e Produção
+### Milestone F9 — Qualidade e Produção ✅
 
-- [x] Testes unitários de componentes e services críticos com Jasmine/Karma (AuthService, ServiceOrderService, DashboardService)
-- [x] Tratamento global de erros da API (`ErrorInterceptor` → `MatSnackBar` com `errors[]` do backend)
+- [x] Tratamento global de erros da API (`ErrorInterceptor` → `MatSnackBar`)
 - [x] Página 404 personalizada
-- [x] Títulos de página dinâmicos via `title` nas rotas (Angular Router nativo)
+- [x] Títulos de página dinâmicos via `title` nas rotas
 - [x] Configuração de ambiente de produção (`environment.prod.ts`)
-- [x] Build de produção validado (`ng build --configuration production`)
-- [x] Docker Compose atualizado para incluir o frontend (imagem Angular com Nginx)
+- [x] Docker Compose atualizado para incluir o frontend (Nginx)
+
+---
+
+### Milestone F10 — Pagamento com Stripe ✅
+
+- [x] `BillingService` com `createCheckoutSession()` e `createPortalSession()`
+- [x] Página `/billing` com tabela comparativa de planos
+- [x] Botão "Fazer upgrade" → redireciona para Stripe Checkout
+- [x] Botão "Gerenciar assinatura" (plano Pago) → redireciona para Customer Portal
+- [x] Página `/billing/success` — confirmação pós-pagamento
+- [x] Página `/billing/cancel` — retorno de checkout abandonado
+- [x] Banner de upgrade no sidenav (plano Demo) com link para `/billing`

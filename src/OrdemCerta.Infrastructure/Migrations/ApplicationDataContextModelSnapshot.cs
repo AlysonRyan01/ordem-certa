@@ -68,6 +68,16 @@ namespace OrdemCerta.Infrastructure.Migrations
                         .HasColumnType("character varying(200)")
                         .HasColumnName("address_street");
 
+                    b.Property<string>("StripeCustomerId")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("stripe_customer_id");
+
+                    b.Property<string>("StripeSubscriptionId")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("stripe_subscription_id");
+
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("updated_at");
@@ -138,6 +148,10 @@ namespace OrdemCerta.Infrastructure.Migrations
                     b.Property<int>("OrderNumber")
                         .HasColumnType("integer")
                         .HasColumnName("order_number");
+
+                    b.Property<int?>("RepairResult")
+                        .HasColumnType("integer")
+                        .HasColumnName("repair_result");
 
                     b.Property<int>("Status")
                         .HasColumnType("integer")
@@ -464,10 +478,33 @@ namespace OrdemCerta.Infrastructure.Migrations
                                 .HasForeignKey("ServiceOrderId");
                         });
 
+                    b.OwnsOne("OrdemCerta.Domain.ServiceOrders.ValueObjects.Warranty", "Warranty", b1 =>
+                        {
+                            b1.Property<Guid>("ServiceOrderId")
+                                .HasColumnType("uuid");
+
+                            b1.Property<int>("Duration")
+                                .HasColumnType("integer")
+                                .HasColumnName("warranty_duration");
+
+                            b1.Property<int>("Unit")
+                                .HasColumnType("integer")
+                                .HasColumnName("warranty_unit");
+
+                            b1.HasKey("ServiceOrderId");
+
+                            b1.ToTable("service_orders");
+
+                            b1.WithOwner()
+                                .HasForeignKey("ServiceOrderId");
+                        });
+
                     b.Navigation("Budget");
 
                     b.Navigation("Equipment")
                         .IsRequired();
+
+                    b.Navigation("Warranty");
                 });
 #pragma warning restore 612, 618
         }

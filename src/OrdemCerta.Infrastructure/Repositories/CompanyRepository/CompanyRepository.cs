@@ -38,6 +38,17 @@ public class CompanyRepository : ICompanyRepository
         return company;
     }
 
+    public async Task<Result<Company>> GetByStripeCustomerIdAsync(string stripeCustomerId, CancellationToken cancellationToken)
+    {
+        var company = await _context.Companies
+            .FirstOrDefaultAsync(c => c.StripeCustomerId == stripeCustomerId, cancellationToken);
+
+        if (company is null)
+            return "Empresa não encontrada";
+
+        return company;
+    }
+
     public async Task AddAsync(Company company, CancellationToken cancellationToken)
     {
         await _context.Companies.AddAsync(company, cancellationToken);

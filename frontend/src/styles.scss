@@ -1,51 +1,131 @@
-// Include theming for Angular Material with `mat.theme()`.
-// This Sass mixin will define CSS variables that are used for styling Angular Material
-// components according to the Material 3 design spec.
-// Learn more about theming and how to use it for your application's
-// custom components at https://material.angular.dev/guide/theming
 @use '@angular/material' as mat;
 
 html {
   @include mat.theme((
     color: (
-      primary: mat.$azure-palette,
-      tertiary: mat.$blue-palette,
+      primary: mat.$orange-palette,
+      tertiary: mat.$cyan-palette,
     ),
-    typography: Roboto,
+    typography: Outfit,
     density: 0,
   ));
 }
 
 body {
-  // Default the application to a light color theme. This can be changed to
-  // `dark` to enable the dark color theme, or to `light dark` to defer to the
-  // user's system settings.
   color-scheme: light;
-
-  // Set a default background, font and text colors for the application using
-  // Angular Material's system-level CSS variables. Learn more about these
-  // variables at https://material.angular.dev/guide/system-variables
-  background-color: var(--mat-sys-surface);
+  background-color: #F1F5F9;
   color: var(--mat-sys-on-surface);
-  font: var(--mat-sys-body-medium);
-
-  // Reset the user agent margin.
   margin: 0;
+  font-family: 'Outfit', sans-serif;
 }
-/* You can add global styles to this file, and also import other style files */
 
 html, body { height: 100%; }
-body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 
-// Fix: Tailwind preflight conflita com Angular Material MDC form fields
-// 1. Remove a borda direita do notch que o Tailwind injeta, causando a divisão visual
+// ─── Brand tokens ────────────────────────────────────────────────────────────
+:root {
+  --oc-sidebar:          #0F1629;
+  --oc-sidebar-border:   rgba(255, 255, 255, 0.06);
+  --oc-sidebar-hover:    rgba(255, 255, 255, 0.05);
+  --oc-active-bg:        rgba(251, 191, 36, 0.12);
+  --oc-active-text:      #FBBF24;
+  --oc-amber:            #F59E0B;
+  --oc-bg:               #F1F5F9;
+  --oc-surface:          #FFFFFF;
+  --oc-border:           #E2E8F0;
+  --oc-text:             #0F172A;
+  --oc-text-muted:       #64748B;
+  --font-mono:           'JetBrains Mono', monospace;
+}
+
+// ─── Tailwind/Material conflict fixes ────────────────────────────────────────
 .mdc-notched-outline__notch {
   border-right: none !important;
 }
 
-// 2. Restaura o box-sizing que o Tailwind sobrescreve, corrigindo o posicionamento do texto
 input.mat-mdc-input-element,
 textarea.mat-mdc-input-element {
   box-sizing: content-box;
 }
 
+// ─── Global table improvements ───────────────────────────────────────────────
+.mat-mdc-table {
+  background: transparent !important;
+}
+
+.mat-mdc-header-row {
+  background-color: #F8FAFC !important;
+  min-height: 42px !important;
+}
+
+.mat-mdc-header-cell {
+  font-size: 0.7rem !important;
+  font-weight: 700 !important;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #94A3B8 !important;
+  border-bottom-color: #E2E8F0 !important;
+}
+
+.mat-mdc-row {
+  min-height: 52px !important;
+  border-bottom-color: #F1F5F9 !important;
+  transition: background-color 0.1s ease;
+
+  &:hover {
+    background-color: #F8FAFC !important;
+  }
+
+  &:last-child {
+    border-bottom: none !important;
+  }
+}
+
+.mat-mdc-cell {
+  font-size: 0.875rem !important;
+  color: #334155 !important;
+}
+
+// ─── Paginator ───────────────────────────────────────────────────────────────
+.mat-mdc-paginator {
+  background: transparent !important;
+  font-size: 0.813rem !important;
+}
+
+// ─── Form field density ──────────────────────────────────────────────────────
+.mat-mdc-form-field {
+  width: 100%;
+}
+
+// ─── Snackbar ────────────────────────────────────────────────────────────────
+.snack-error .mdc-snackbar__surface {
+  background-color: #DC2626 !important;
+}
+
+// ─── Mono utility ────────────────────────────────────────────────────────────
+.font-mono {
+  font-family: var(--font-mono) !important;
+  letter-spacing: -0.02em;
+}
+
+// ─── Card pattern ────────────────────────────────────────────────────────────
+.oc-section-card {
+  background: var(--oc-surface);
+  border: 1px solid var(--oc-border);
+  border-radius: 0.75rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+}
+
+.oc-section-header {
+  padding: 0.875rem 1.25rem;
+  background-color: #F8FAFC;
+  border-bottom: 1px solid #F1F5F9;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: #475569;
+}
+
+// ─── Chips ───────────────────────────────────────────────────────────────────
+.mat-mdc-chip {
+  font-size: 0.8125rem !important;
+}

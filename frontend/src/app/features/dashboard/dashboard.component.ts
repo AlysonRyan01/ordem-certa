@@ -9,8 +9,20 @@ import { DashboardOutput } from '../../core/models/dashboard.model';
 import { DashboardService } from '../../core/services/dashboard.service';
 import { StatusBadgeComponent } from '../../shared/components/status-badge/status-badge.component';
 import { SkeletonComponent } from '../../shared/components/skeleton/skeleton.component';
-import { STATUS_META } from '../../core/models/service-order-status.helper';
+import { STATUS_META, StatusMeta } from '../../core/models/service-order-status.helper';
 import { ServiceOrderStatus } from '../../core/models/service-order.model';
+
+const STATUS_ORDER: ServiceOrderStatus[] = [
+  'Received', 'UnderAnalysis', 'BudgetPending', 'WaitingApproval',
+  'BudgetApproved', 'BudgetRefused', 'UnderRepair', 'ReadyForPickup',
+  'Delivered', 'Cancelled',
+];
+
+export interface StatusCount {
+  status: ServiceOrderStatus;
+  meta: StatusMeta;
+  count: number;
+}
 
 Chart.register(...registerables);
 
@@ -50,6 +62,15 @@ export class DashboardComponent implements OnInit {
 
   readonly data = signal<DashboardOutput | null>(null);
   readonly loading = signal(true);
+
+  allStatusCounts(d: DashboardOutput): StatusCount[] {
+    const countMap = new Map(d.ordersByStatus.map((s) => [s.status, s.count]));
+    return STATUS_ORDER.map((status) => ({
+      status,
+      meta: STATUS_META[status],
+      count: countMap.get(status) ?? 0,
+    }));
+  }
 
   private chart: Chart | null = null;
   private pendingData: DashboardOutput | null = null;

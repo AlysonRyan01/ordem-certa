@@ -10,6 +10,9 @@ export type ServiceOrderStatus =
   | 'Delivered'
   | 'Cancelled';
 
+export type RepairResult = 'CanBeRepaired' | 'NoFix' | 'NoDefectFound';
+export type WarrantyUnit = 'Days' | 'Months' | 'Years';
+
 export interface ServiceOrderOutput {
   id: string;
   companyId: string;
@@ -22,6 +25,9 @@ export interface ServiceOrderOutput {
   accessories?: string;
   observations?: string;
   status: ServiceOrderStatus;
+  repairResult?: RepairResult;
+  warrantyDuration?: number;
+  warrantyUnit?: WarrantyUnit;
   entryDate: string;
   technicianName?: string;
   budgetValue?: number;
@@ -57,4 +63,24 @@ export interface ChangeStatusInput {
 export interface CreateBudgetInput {
   value: number;
   description: string;
+  repairResult?: RepairResult;
+  warrantyDuration?: number;
+  warrantyUnit?: WarrantyUnit;
+}
+
+export interface UpdateBudgetInput {
+  value: number;
+  description: string;
+  repairResult?: RepairResult;
+  warrantyDuration?: number;
+  warrantyUnit?: WarrantyUnit;
+}
+
+export interface SetRepairResultInput {
+  repairResult: RepairResult;
+}
+
+export interface SetWarrantyInput {
+  duration: number;
+  unit: WarrantyUnit;
 }
