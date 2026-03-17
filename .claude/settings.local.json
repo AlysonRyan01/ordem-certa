@@ -20,7 +20,9 @@
       "Bash(ls:*)",
       "Bash(sudo chmod:*)",
       "Bash(npm cache:*)",
-      "Bash(~/.dotnet/tools/dotnet-ef migrations:*)"
+      "Bash(~/.dotnet/tools/dotnet-ef migrations:*)",
+      "Bash(find /c/Projetos/ordem-certa -type f \\\\\\(-name .env* -o -name appsettings*.json -o -name docker-compose*.yml \\\\\\))",
+      "Bash(2)"
     ]
   }
 }
