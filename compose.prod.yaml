@@ -52,7 +52,7 @@ services:
       context: ./frontend
       dockerfile: Dockerfile
     ports:
-      - "${FRONTEND_PORT:-3000}:4200"
+      - "${FRONTEND_PORT:-3000}:80"
     depends_on:
       ordemcerta.presentation:
         condition: service_started
