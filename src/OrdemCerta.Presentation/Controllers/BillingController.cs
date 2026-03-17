@@ -71,6 +71,9 @@ public class BillingController : ControllerBase
         var payload = await new StreamReader(Request.Body).ReadToEndAsync(cancellationToken);
         var signature = Request.Headers["Stripe-Signature"].ToString();
 
+        Console.WriteLine($"[WEBHOOK] Payload length: {payload.Length}");
+        Console.WriteLine($"[WEBHOOK] Signature present: {!string.IsNullOrEmpty(signature)}");
+
         var result = await _stripeService.HandleWebhookAsync(payload, signature, cancellationToken);
 
         if (result.IsFailure)
