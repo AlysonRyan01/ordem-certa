@@ -64,13 +64,15 @@ public class BillingController : ControllerBase
     }
 
     [HttpPost("/api/webhooks/stripe")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> Webhook(CancellationToken cancellationToken)
     {
-        var payload = await new StreamReader(Request.Body).ReadToEndAsync(cancellationToken);
+        string payload;
+        using (var reader = new StreamReader(Request.Body, leaveOpen: true))
+        {
+            payload = await reader.ReadToEndAsync(cancellationToken);
+        }
+        
         var signature = Request.Headers["Stripe-Signature"].ToString();
-
         var result = await _stripeService.HandleWebhookAsync(payload, signature, cancellationToken);
 
         if (result.IsFailure)
