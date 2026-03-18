@@ -36,6 +36,9 @@
       - EvolutionApi__BaseUrl=http://evolution-api:8080
       - EvolutionApi__ApiKey=${EVOLUTIONAPI_APIKEY:-dev-key}
       - EvolutionApi__Instance=${EVOLUTIONAPI_INSTANCE:-ordemcerta}
+      - Stripe__SecretKey=${STRIPE_SECRET_KEY}
+      - Stripe__WebhookSecret=${STRIPE_WEBHOOK_SECRET}
+      - Stripe__PriceId=${STRIPE_PRICE_ID}
     volumes:
       - ./src:/app/src
       - /app/src/OrdemCerta.Presentation/bin

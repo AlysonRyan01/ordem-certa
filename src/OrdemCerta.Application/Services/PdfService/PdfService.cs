@@ -9,6 +9,26 @@ namespace OrdemCerta.Application.Services.PdfService;
 
 public class PdfService : IPdfService
 {
+    // ── Brand tokens ───────────────────────────────────────────────────────────
+    private const string Navy        = "#0F1629";
+    private const string NavyMid     = "#1E2D47";
+    private const string Amber       = "#F59E0B";
+    private const string AmberLight  = "#FEF3C7";
+    private const string Green       = "#059669";
+    private const string GreenLight  = "#ECFDF5";
+    private const string Orange      = "#EA580C";
+    private const string OrangeLight = "#FFF7ED";
+    private const string TextDark    = "#1E293B";
+    private const string TextMuted   = "#64748B";
+    private const string BgLight     = "#F8FAFC";
+    private const string Border      = "#E2E8F0";
+    private const string White       = "#FFFFFF";
+    private const string White60     = "#FFFFFF99";
+    private const string White30     = "#FFFFFF4D";
+
+    // ══════════════════════════════════════════════════════════════════════════
+    // Entry Receipt
+    // ══════════════════════════════════════════════════════════════════════════
     public byte[] GenerateEntryReceipt(ServiceOrderOutput order, CustomerOutput customer, CompanyOutput company)
     {
         return Document.Create(container =>
@@ -16,134 +36,80 @@ public class PdfService : IPdfService
             container.Page(page =>
             {
                 page.Size(PageSizes.A4);
-                page.Margin(2, Unit.Centimetre);
-                page.DefaultTextStyle(x => x.FontSize(10).FontFamily("Arial"));
+                page.Margin(0);
+                page.DefaultTextStyle(x => x.FontSize(10).FontColor(TextDark));
 
                 page.Content().Column(col =>
                 {
-                    // Header
-                    col.Item().BorderBottom(1).BorderColor(Colors.Grey.Lighten1).PaddingBottom(10).Row(row =>
-                    {
-                        row.RelativeItem().Column(c =>
-                        {
-                            c.Item().Text(company.Name).Bold().FontSize(16);
-                            if (!string.IsNullOrEmpty(company.Street))
-                                c.Item().Text($"{company.Street}, {company.Number} — {company.City}/{company.State}").FontColor(Colors.Grey.Darken1);
-                            c.Item().Text(company.PhoneFormatted).FontColor(Colors.Grey.Darken1);
-                        });
-                        row.ConstantItem(120).AlignRight().Column(c =>
-                        {
-                            c.Item().Text("COMPROVANTE DE ENTRADA").Bold().FontSize(11);
-                            c.Item().Text($"Ordem #{order.OrderNumber}").Bold().FontSize(14).FontColor(Colors.Blue.Darken2);
-                            c.Item().Text($"Data: {order.EntryDate:dd/MM/yyyy}").FontColor(Colors.Grey.Darken1);
-                        });
-                    });
+                    Header(col, company, order, "COMPROVANTE DE ENTRADA", order.EntryDate.ToString("dd/MM/yyyy"), Amber);
 
-                    col.Item().PaddingTop(16).Column(section =>
+                    col.Item().Padding(32).Column(body =>
                     {
                         // Cliente
-                        section.Item().Text("DADOS DO CLIENTE").Bold().FontSize(9).FontColor(Colors.Grey.Darken2).LetterSpacing(1);
-                        section.Item().PaddingTop(4).Table(table =>
+                        SectionLabel(body, "DADOS DO CLIENTE");
+                        body.Item().PaddingTop(6).Table(t =>
                         {
-                            table.ColumnsDefinition(c =>
+                            t.ColumnsDefinition(c => { c.RelativeColumn(2); c.RelativeColumn(1); c.RelativeColumn(1); });
+                            DataCell(t, "Nome", customer.FullName);
+                            DataCell(t, "Documento", customer.Document?.Formatted ?? "—");
+                            DataCell(t, "Telefone", customer.Phones.FirstOrDefault()?.Formatted ?? "—");
+                        });
+
+                        body.Item().PaddingTop(24).Column(sec =>
+                        {
+                            SectionLabel(sec, "EQUIPAMENTO");
+                            sec.Item().PaddingTop(6).Table(t =>
                             {
-                                c.RelativeColumn(2);
-                                c.RelativeColumn(1);
-                                c.RelativeColumn(1);
+                                t.ColumnsDefinition(c => { c.RelativeColumn(); c.RelativeColumn(); c.RelativeColumn(); });
+                                DataCell(t, "Tipo", order.DeviceType);
+                                DataCell(t, "Marca", order.Brand);
+                                DataCell(t, "Modelo", order.Model);
                             });
 
-                            table.Cell().BorderBottom(0.5f).BorderColor(Colors.Grey.Lighten2).PaddingVertical(5).Column(c =>
+                            if (!string.IsNullOrEmpty(order.TechnicianName))
+                                sec.Item().PaddingTop(14).Column(c =>
+                                {
+                                    c.Item().Text("Técnico responsável").FontSize(8).FontColor(TextMuted);
+                                    c.Item().PaddingTop(2).Text(order.TechnicianName).Bold();
+                                });
+
+                            sec.Item().PaddingTop(14).Column(c =>
                             {
-                                c.Item().Text("Nome").FontSize(8).FontColor(Colors.Grey.Darken1);
-                                c.Item().Text(customer.FullName).Bold();
+                                c.Item().Text("Defeito relatado").FontSize(8).FontColor(TextMuted);
+                                c.Item().PaddingTop(4)
+                                    .BorderLeft(3).BorderColor(Amber)
+                                    .Background(BgLight)
+                                    .Padding(10)
+                                    .Text(order.ReportedDefect).FontSize(10);
                             });
-                            table.Cell().BorderBottom(0.5f).BorderColor(Colors.Grey.Lighten2).PaddingVertical(5).Column(c =>
-                            {
-                                c.Item().Text("Documento").FontSize(8).FontColor(Colors.Grey.Darken1);
-                                c.Item().Text(customer.Document?.Formatted ?? "—").Bold();
-                            });
-                            table.Cell().BorderBottom(0.5f).BorderColor(Colors.Grey.Lighten2).PaddingVertical(5).Column(c =>
-                            {
-                                c.Item().Text("Telefone").FontSize(8).FontColor(Colors.Grey.Darken1);
-                                c.Item().Text(customer.Phones.FirstOrDefault()?.Formatted ?? "—").Bold();
-                            });
+
+                            if (!string.IsNullOrEmpty(order.Accessories))
+                                sec.Item().PaddingTop(12).Column(c =>
+                                {
+                                    c.Item().Text("Acessórios").FontSize(8).FontColor(TextMuted);
+                                    c.Item().PaddingTop(2).Text(order.Accessories);
+                                });
+
+                            if (!string.IsNullOrEmpty(order.Observations))
+                                sec.Item().PaddingTop(12).Column(c =>
+                                {
+                                    c.Item().Text("Observações").FontSize(8).FontColor(TextMuted);
+                                    c.Item().PaddingTop(2).Text(order.Observations);
+                                });
                         });
+
+                        Signatures(body);
                     });
-
-                    col.Item().PaddingTop(16).Column(section =>
-                    {
-                        // Equipamento
-                        section.Item().Text("EQUIPAMENTO").Bold().FontSize(9).FontColor(Colors.Grey.Darken2).LetterSpacing(1);
-                        section.Item().PaddingTop(4).Table(table =>
-                        {
-                            table.ColumnsDefinition(c =>
-                            {
-                                c.RelativeColumn();
-                                c.RelativeColumn();
-                                c.RelativeColumn();
-                            });
-
-                            table.Cell().BorderBottom(0.5f).BorderColor(Colors.Grey.Lighten2).PaddingVertical(5).Column(c =>
-                            {
-                                c.Item().Text("Tipo").FontSize(8).FontColor(Colors.Grey.Darken1);
-                                c.Item().Text(order.DeviceType).Bold();
-                            });
-                            table.Cell().BorderBottom(0.5f).BorderColor(Colors.Grey.Lighten2).PaddingVertical(5).Column(c =>
-                            {
-                                c.Item().Text("Marca").FontSize(8).FontColor(Colors.Grey.Darken1);
-                                c.Item().Text(order.Brand).Bold();
-                            });
-                            table.Cell().BorderBottom(0.5f).BorderColor(Colors.Grey.Lighten2).PaddingVertical(5).Column(c =>
-                            {
-                                c.Item().Text("Modelo").FontSize(8).FontColor(Colors.Grey.Darken1);
-                                c.Item().Text(order.Model).Bold();
-                            });
-                        });
-
-                        section.Item().PaddingTop(8).Column(c =>
-                        {
-                            c.Item().Text("Defeito relatado").FontSize(8).FontColor(Colors.Grey.Darken1);
-                            c.Item().Background(Colors.Grey.Lighten4).Padding(8).Text(order.ReportedDefect);
-                        });
-
-                        if (!string.IsNullOrEmpty(order.Accessories))
-                            section.Item().PaddingTop(8).Column(c =>
-                            {
-                                c.Item().Text("Acessórios").FontSize(8).FontColor(Colors.Grey.Darken1);
-                                c.Item().Text(order.Accessories);
-                            });
-
-                        if (!string.IsNullOrEmpty(order.Observations))
-                            section.Item().PaddingTop(8).Column(c =>
-                            {
-                                c.Item().Text("Observações").FontSize(8).FontColor(Colors.Grey.Darken1);
-                                c.Item().Text(order.Observations);
-                            });
-                    });
-
-                    // Signature
-                    col.Item().PaddingTop(40).Row(row =>
-                    {
-                        row.RelativeItem().Column(c =>
-                        {
-                            c.Item().BorderBottom(0.5f).BorderColor(Colors.Black).PaddingBottom(4).Text(string.Empty);
-                            c.Item().PaddingTop(4).AlignCenter().Text("Assinatura do cliente").FontSize(9).FontColor(Colors.Grey.Darken1);
-                        });
-                        row.ConstantItem(40);
-                        row.RelativeItem().Column(c =>
-                        {
-                            c.Item().BorderBottom(0.5f).BorderColor(Colors.Black).PaddingBottom(4).Text(string.Empty);
-                            c.Item().PaddingTop(4).AlignCenter().Text("Assinatura do técnico").FontSize(9).FontColor(Colors.Grey.Darken1);
-                        });
-                    });
-
-                    col.Item().PaddingTop(8).AlignCenter()
-                        .Text($"Documento gerado em {DateTime.Now:dd/MM/yyyy HH:mm}").FontSize(8).FontColor(Colors.Grey.Lighten1);
                 });
+
+                Footer(page, order);
             });
         }).GeneratePdf();
     }
 
+    // ══════════════════════════════════════════════════════════════════════════
+    // Warranty Card
+    // ══════════════════════════════════════════════════════════════════════════
     public byte[] GenerateWarrantyCard(ServiceOrderOutput order, CustomerOutput customer, CompanyOutput company)
     {
         var warrantyText = order.WarrantyDuration.HasValue && !string.IsNullOrEmpty(order.WarrantyUnit)
@@ -155,167 +121,100 @@ public class PdfService : IPdfService
             container.Page(page =>
             {
                 page.Size(PageSizes.A4);
-                page.Margin(2, Unit.Centimetre);
-                page.DefaultTextStyle(x => x.FontSize(10).FontFamily("Arial"));
+                page.Margin(0);
+                page.DefaultTextStyle(x => x.FontSize(10).FontColor(TextDark));
 
                 page.Content().Column(col =>
                 {
-                    // Header
-                    col.Item().BorderBottom(1).BorderColor(Colors.Grey.Lighten1).PaddingBottom(10).Row(row =>
-                    {
-                        row.RelativeItem().Column(c =>
-                        {
-                            c.Item().Text(company.Name).Bold().FontSize(16);
-                            if (!string.IsNullOrEmpty(company.Street))
-                                c.Item().Text($"{company.Street}, {company.Number} — {company.City}/{company.State}").FontColor(Colors.Grey.Darken1);
-                            c.Item().Text(company.PhoneFormatted).FontColor(Colors.Grey.Darken1);
-                        });
-                        row.ConstantItem(120).AlignRight().Column(c =>
-                        {
-                            c.Item().Text("CERTIFICADO DE GARANTIA").Bold().FontSize(11);
-                            c.Item().Text($"Ordem #{order.OrderNumber}").Bold().FontSize(14).FontColor(Colors.Green.Darken2);
-                            c.Item().Text($"Data: {DateTime.Today:dd/MM/yyyy}").FontColor(Colors.Grey.Darken1);
-                        });
-                    });
+                    Header(col, company, order, "CERTIFICADO DE GARANTIA", DateTime.Today.ToString("dd/MM/yyyy"), Green);
 
-                    // Garantia destaque
-                    col.Item().PaddingTop(12).Background(Colors.Green.Lighten4).Border(0.5f).BorderColor(Colors.Green.Lighten2).Padding(12).Row(row =>
+                    col.Item().Padding(32).Column(body =>
                     {
-                        row.RelativeItem().Column(c =>
-                        {
-                            c.Item().Text("PRAZO DE GARANTIA").Bold().FontSize(9).FontColor(Colors.Green.Darken3).LetterSpacing(1);
-                            c.Item().Text(warrantyText).Bold().FontSize(22).FontColor(Colors.Green.Darken2);
-                        });
-                    });
+                        // Warranty highlight
+                        body.Item().Background(GreenLight)
+                            .BorderLeft(4).BorderColor(Green)
+                            .Padding(16).Row(row =>
+                            {
+                                row.RelativeItem().Column(c =>
+                                {
+                                    c.Item().Text("PRAZO DE GARANTIA").Bold().FontSize(8).FontColor(Green);
+                                    c.Item().PaddingTop(4).Text(warrantyText).Bold().FontSize(28).FontColor(Green);
+                                });
+                                row.AutoItem().AlignMiddle().AlignRight().Column(c =>
+                                {
+                                    c.Item().Text("Emitido em").FontSize(8).FontColor(TextMuted);
+                                    c.Item().Text(DateTime.Today.ToString("dd/MM/yyyy")).Bold().FontSize(11).FontColor(TextDark);
+                                });
+                            });
 
-                    col.Item().PaddingTop(16).Column(section =>
-                    {
                         // Cliente
-                        section.Item().Text("DADOS DO CLIENTE").Bold().FontSize(9).FontColor(Colors.Grey.Darken2).LetterSpacing(1);
-                        section.Item().PaddingTop(4).Table(table =>
+                        body.Item().PaddingTop(24).Column(sec =>
                         {
-                            table.ColumnsDefinition(c =>
+                            SectionLabel(sec, "DADOS DO CLIENTE");
+                            sec.Item().PaddingTop(6).Table(t =>
                             {
-                                c.RelativeColumn(2);
-                                c.RelativeColumn(1);
-                                c.RelativeColumn(1);
-                            });
-
-                            table.Cell().BorderBottom(0.5f).BorderColor(Colors.Grey.Lighten2).PaddingVertical(5).Column(c =>
-                            {
-                                c.Item().Text("Nome").FontSize(8).FontColor(Colors.Grey.Darken1);
-                                c.Item().Text(customer.FullName).Bold();
-                            });
-                            table.Cell().BorderBottom(0.5f).BorderColor(Colors.Grey.Lighten2).PaddingVertical(5).Column(c =>
-                            {
-                                c.Item().Text("Documento").FontSize(8).FontColor(Colors.Grey.Darken1);
-                                c.Item().Text(customer.Document?.Formatted ?? "—").Bold();
-                            });
-                            table.Cell().BorderBottom(0.5f).BorderColor(Colors.Grey.Lighten2).PaddingVertical(5).Column(c =>
-                            {
-                                c.Item().Text("Telefone").FontSize(8).FontColor(Colors.Grey.Darken1);
-                                c.Item().Text(customer.Phones.FirstOrDefault()?.Formatted ?? "—").Bold();
+                                t.ColumnsDefinition(c => { c.RelativeColumn(2); c.RelativeColumn(1); c.RelativeColumn(1); });
+                                DataCell(t, "Nome", customer.FullName);
+                                DataCell(t, "Documento", customer.Document?.Formatted ?? "—");
+                                DataCell(t, "Telefone", customer.Phones.FirstOrDefault()?.Formatted ?? "—");
                             });
                         });
-                    });
 
-                    col.Item().PaddingTop(16).Column(section =>
-                    {
                         // Equipamento
-                        section.Item().Text("EQUIPAMENTO").Bold().FontSize(9).FontColor(Colors.Grey.Darken2).LetterSpacing(1);
-                        section.Item().PaddingTop(4).Table(table =>
+                        body.Item().PaddingTop(24).Column(sec =>
                         {
-                            table.ColumnsDefinition(c =>
+                            SectionLabel(sec, "EQUIPAMENTO");
+                            sec.Item().PaddingTop(6).Table(t =>
                             {
-                                c.RelativeColumn();
-                                c.RelativeColumn();
-                                c.RelativeColumn();
-                            });
-
-                            table.Cell().BorderBottom(0.5f).BorderColor(Colors.Grey.Lighten2).PaddingVertical(5).Column(c =>
-                            {
-                                c.Item().Text("Tipo").FontSize(8).FontColor(Colors.Grey.Darken1);
-                                c.Item().Text(order.DeviceType).Bold();
-                            });
-                            table.Cell().BorderBottom(0.5f).BorderColor(Colors.Grey.Lighten2).PaddingVertical(5).Column(c =>
-                            {
-                                c.Item().Text("Marca").FontSize(8).FontColor(Colors.Grey.Darken1);
-                                c.Item().Text(order.Brand).Bold();
-                            });
-                            table.Cell().BorderBottom(0.5f).BorderColor(Colors.Grey.Lighten2).PaddingVertical(5).Column(c =>
-                            {
-                                c.Item().Text("Modelo").FontSize(8).FontColor(Colors.Grey.Darken1);
-                                c.Item().Text(order.Model).Bold();
+                                t.ColumnsDefinition(c => { c.RelativeColumn(); c.RelativeColumn(); c.RelativeColumn(); });
+                                DataCell(t, "Tipo", order.DeviceType);
+                                DataCell(t, "Marca", order.Brand);
+                                DataCell(t, "Modelo", order.Model);
                             });
                         });
-                    });
 
-                    col.Item().PaddingTop(16).Column(section =>
-                    {
                         // Serviço
-                        section.Item().Text("SERVIÇO REALIZADO").Bold().FontSize(9).FontColor(Colors.Grey.Darken2).LetterSpacing(1);
-                        section.Item().PaddingTop(4).Table(table =>
+                        body.Item().PaddingTop(24).Column(sec =>
                         {
-                            table.ColumnsDefinition(c =>
+                            SectionLabel(sec, "SERVIÇO REALIZADO");
+                            sec.Item().PaddingTop(6).Table(t =>
                             {
-                                c.RelativeColumn(3);
-                                c.RelativeColumn(1);
-                            });
-
-                            table.Cell().BorderBottom(0.5f).BorderColor(Colors.Grey.Lighten2).PaddingVertical(5).Column(c =>
-                            {
-                                c.Item().Text("Descrição").FontSize(8).FontColor(Colors.Grey.Darken1);
-                                c.Item().Text(order.BudgetDescription ?? "—").Bold();
-                            });
-                            table.Cell().BorderBottom(0.5f).BorderColor(Colors.Grey.Lighten2).PaddingVertical(5).Column(c =>
-                            {
-                                c.Item().Text("Valor").FontSize(8).FontColor(Colors.Grey.Darken1);
-                                c.Item().Text($"R$ {order.BudgetValue:N2}").Bold();
+                                t.ColumnsDefinition(c => { c.RelativeColumn(3); c.RelativeColumn(1); });
+                                DataCell(t, "Descrição", order.BudgetDescription ?? "—");
+                                DataCell(t, "Valor", $"R$ {order.BudgetValue:N2}");
                             });
                         });
-                    });
 
-                    // Termos
-                    col.Item().PaddingTop(16).Background(Colors.Grey.Lighten4).Padding(10).Column(c =>
-                    {
-                        c.Item().Text("TERMOS DA GARANTIA").Bold().FontSize(9).FontColor(Colors.Grey.Darken2).LetterSpacing(1);
-                        c.Item().PaddingTop(4).Text(
-                            $"A garantia de {warrantyText} cobre exclusivamente o defeito descrito acima e o serviço realizado. " +
-                            "Não cobre danos físicos, líquidos, mau uso ou defeitos não relacionados ao serviço executado. " +
-                            "Em caso de dúvidas, entre em contato com a empresa."
-                        ).FontSize(9).FontColor(Colors.Grey.Darken2);
-                    });
-
-                    // Signature
-                    col.Item().PaddingTop(40).Row(row =>
-                    {
-                        row.RelativeItem().Column(c =>
+                        // Termos
+                        body.Item().PaddingTop(24).Column(sec =>
                         {
-                            c.Item().BorderBottom(0.5f).BorderColor(Colors.Black).PaddingBottom(4).Text(string.Empty);
-                            c.Item().PaddingTop(4).AlignCenter().Text("Assinatura do cliente").FontSize(9).FontColor(Colors.Grey.Darken1);
+                            SectionLabel(sec, "TERMOS DA GARANTIA");
+                            sec.Item().PaddingTop(8).Background(BgLight).Padding(12)
+                                .Text($"A garantia de {warrantyText} cobre exclusivamente o defeito descrito acima e o serviço realizado. " +
+                                      "Não cobre danos físicos, líquidos, mau uso ou defeitos não relacionados ao serviço executado. " +
+                                      "Em caso de dúvidas, entre em contato com a empresa.")
+                                .FontSize(9).FontColor(TextMuted);
                         });
-                        row.ConstantItem(40);
-                        row.RelativeItem().Column(c =>
-                        {
-                            c.Item().BorderBottom(0.5f).BorderColor(Colors.Black).PaddingBottom(4).Text(string.Empty);
-                            c.Item().PaddingTop(4).AlignCenter().Text("Assinatura do técnico").FontSize(9).FontColor(Colors.Grey.Darken1);
-                        });
-                    });
 
-                    col.Item().PaddingTop(8).AlignCenter()
-                        .Text($"Documento gerado em {DateTime.Now:dd/MM/yyyy HH:mm}").FontSize(8).FontColor(Colors.Grey.Lighten1);
+                        Signatures(body);
+                    });
                 });
+
+                Footer(page, order);
             });
         }).GeneratePdf();
     }
 
+    // ══════════════════════════════════════════════════════════════════════════
+    // Return Receipt
+    // ══════════════════════════════════════════════════════════════════════════
     public byte[] GenerateReturnReceipt(ServiceOrderOutput order, CustomerOutput customer, CompanyOutput company)
     {
         var reason = order.RepairResult switch
         {
-            "NoFix" => "Sem conserto — equipamento não pôde ser reparado após avaliação técnica.",
+            "NoFix"         => "Sem conserto — equipamento não pôde ser reparado após avaliação técnica.",
             "NoDefectFound" => "Nenhum defeito detectado — o equipamento foi avaliado e não apresentou falha reproduzível.",
-            _ => "Devolução do equipamento.",
+            _               => "Devolução do equipamento.",
         };
 
         return Document.Create(container =>
@@ -323,127 +222,165 @@ public class PdfService : IPdfService
             container.Page(page =>
             {
                 page.Size(PageSizes.A4);
-                page.Margin(2, Unit.Centimetre);
-                page.DefaultTextStyle(x => x.FontSize(10).FontFamily("Arial"));
+                page.Margin(0);
+                page.DefaultTextStyle(x => x.FontSize(10).FontColor(TextDark));
 
                 page.Content().Column(col =>
                 {
-                    // Header
-                    col.Item().BorderBottom(1).BorderColor(Colors.Grey.Lighten1).PaddingBottom(10).Row(row =>
-                    {
-                        row.RelativeItem().Column(c =>
-                        {
-                            c.Item().Text(company.Name).Bold().FontSize(16);
-                            if (!string.IsNullOrEmpty(company.Street))
-                                c.Item().Text($"{company.Street}, {company.Number} — {company.City}/{company.State}").FontColor(Colors.Grey.Darken1);
-                            c.Item().Text(company.PhoneFormatted).FontColor(Colors.Grey.Darken1);
-                        });
-                        row.ConstantItem(120).AlignRight().Column(c =>
-                        {
-                            c.Item().Text("COMPROVANTE DE DEVOLUÇÃO").Bold().FontSize(11);
-                            c.Item().Text($"Ordem #{order.OrderNumber}").Bold().FontSize(14).FontColor(Colors.Orange.Darken2);
-                            c.Item().Text($"Data: {DateTime.Today:dd/MM/yyyy}").FontColor(Colors.Grey.Darken1);
-                        });
-                    });
+                    Header(col, company, order, "COMPROVANTE DE DEVOLUÇÃO", DateTime.Today.ToString("dd/MM/yyyy"), Orange);
 
-                    // Motivo destaque
-                    col.Item().PaddingTop(12).Background(Colors.Orange.Lighten4).Border(0.5f).BorderColor(Colors.Orange.Lighten2).Padding(12).Column(c =>
+                    col.Item().Padding(32).Column(body =>
                     {
-                        c.Item().Text("MOTIVO DA DEVOLUÇÃO").Bold().FontSize(9).FontColor(Colors.Orange.Darken3).LetterSpacing(1);
-                        c.Item().PaddingTop(4).Text(reason).FontSize(11).FontColor(Colors.Orange.Darken2);
-                        c.Item().PaddingTop(4).Text("Este documento não possui cláusula de garantia.").Italic().FontSize(9).FontColor(Colors.Grey.Darken2);
-                    });
+                        // Reason highlight
+                        body.Item().Background(OrangeLight)
+                            .BorderLeft(4).BorderColor(Orange)
+                            .Padding(16).Column(c =>
+                            {
+                                c.Item().Text("MOTIVO DA DEVOLUÇÃO").Bold().FontSize(8).FontColor(Orange);
+                                c.Item().PaddingTop(6).Text(reason).FontSize(11).FontColor(TextDark).Bold();
+                                c.Item().PaddingTop(6).Text("Este documento não possui cláusula de garantia.")
+                                    .Italic().FontSize(9).FontColor(TextMuted);
+                            });
 
-                    col.Item().PaddingTop(16).Column(section =>
-                    {
                         // Cliente
-                        section.Item().Text("DADOS DO CLIENTE").Bold().FontSize(9).FontColor(Colors.Grey.Darken2).LetterSpacing(1);
-                        section.Item().PaddingTop(4).Table(table =>
+                        body.Item().PaddingTop(24).Column(sec =>
                         {
-                            table.ColumnsDefinition(c =>
+                            SectionLabel(sec, "DADOS DO CLIENTE");
+                            sec.Item().PaddingTop(6).Table(t =>
                             {
-                                c.RelativeColumn(2);
-                                c.RelativeColumn(1);
-                                c.RelativeColumn(1);
-                            });
-
-                            table.Cell().BorderBottom(0.5f).BorderColor(Colors.Grey.Lighten2).PaddingVertical(5).Column(c =>
-                            {
-                                c.Item().Text("Nome").FontSize(8).FontColor(Colors.Grey.Darken1);
-                                c.Item().Text(customer.FullName).Bold();
-                            });
-                            table.Cell().BorderBottom(0.5f).BorderColor(Colors.Grey.Lighten2).PaddingVertical(5).Column(c =>
-                            {
-                                c.Item().Text("Documento").FontSize(8).FontColor(Colors.Grey.Darken1);
-                                c.Item().Text(customer.Document?.Formatted ?? "—").Bold();
-                            });
-                            table.Cell().BorderBottom(0.5f).BorderColor(Colors.Grey.Lighten2).PaddingVertical(5).Column(c =>
-                            {
-                                c.Item().Text("Telefone").FontSize(8).FontColor(Colors.Grey.Darken1);
-                                c.Item().Text(customer.Phones.FirstOrDefault()?.Formatted ?? "—").Bold();
+                                t.ColumnsDefinition(c => { c.RelativeColumn(2); c.RelativeColumn(1); c.RelativeColumn(1); });
+                                DataCell(t, "Nome", customer.FullName);
+                                DataCell(t, "Documento", customer.Document?.Formatted ?? "—");
+                                DataCell(t, "Telefone", customer.Phones.FirstOrDefault()?.Formatted ?? "—");
                             });
                         });
-                    });
 
-                    col.Item().PaddingTop(16).Column(section =>
-                    {
                         // Equipamento
-                        section.Item().Text("EQUIPAMENTO").Bold().FontSize(9).FontColor(Colors.Grey.Darken2).LetterSpacing(1);
-                        section.Item().PaddingTop(4).Table(table =>
+                        body.Item().PaddingTop(24).Column(sec =>
                         {
-                            table.ColumnsDefinition(c =>
+                            SectionLabel(sec, "EQUIPAMENTO");
+                            sec.Item().PaddingTop(6).Table(t =>
                             {
-                                c.RelativeColumn();
-                                c.RelativeColumn();
-                                c.RelativeColumn();
+                                t.ColumnsDefinition(c => { c.RelativeColumn(); c.RelativeColumn(); c.RelativeColumn(); });
+                                DataCell(t, "Tipo", order.DeviceType);
+                                DataCell(t, "Marca", order.Brand);
+                                DataCell(t, "Modelo", order.Model);
                             });
 
-                            table.Cell().BorderBottom(0.5f).BorderColor(Colors.Grey.Lighten2).PaddingVertical(5).Column(c =>
-                            {
-                                c.Item().Text("Tipo").FontSize(8).FontColor(Colors.Grey.Darken1);
-                                c.Item().Text(order.DeviceType).Bold();
-                            });
-                            table.Cell().BorderBottom(0.5f).BorderColor(Colors.Grey.Lighten2).PaddingVertical(5).Column(c =>
-                            {
-                                c.Item().Text("Marca").FontSize(8).FontColor(Colors.Grey.Darken1);
-                                c.Item().Text(order.Brand).Bold();
-                            });
-                            table.Cell().BorderBottom(0.5f).BorderColor(Colors.Grey.Lighten2).PaddingVertical(5).Column(c =>
-                            {
-                                c.Item().Text("Modelo").FontSize(8).FontColor(Colors.Grey.Darken1);
-                                c.Item().Text(order.Model).Bold();
-                            });
+                            if (!string.IsNullOrEmpty(order.Observations))
+                                sec.Item().PaddingTop(12).Column(c =>
+                                {
+                                    c.Item().Text("Observações").FontSize(8).FontColor(TextMuted);
+                                    c.Item().PaddingTop(2).Text(order.Observations);
+                                });
                         });
 
-                        if (!string.IsNullOrEmpty(order.Observations))
-                            section.Item().PaddingTop(8).Column(c =>
-                            {
-                                c.Item().Text("Observações").FontSize(8).FontColor(Colors.Grey.Darken1);
-                                c.Item().Text(order.Observations);
-                            });
+                        Signatures(body);
                     });
-
-                    // Signature
-                    col.Item().PaddingTop(40).Row(row =>
-                    {
-                        row.RelativeItem().Column(c =>
-                        {
-                            c.Item().BorderBottom(0.5f).BorderColor(Colors.Black).PaddingBottom(4).Text(string.Empty);
-                            c.Item().PaddingTop(4).AlignCenter().Text("Assinatura do cliente").FontSize(9).FontColor(Colors.Grey.Darken1);
-                        });
-                        row.ConstantItem(40);
-                        row.RelativeItem().Column(c =>
-                        {
-                            c.Item().BorderBottom(0.5f).BorderColor(Colors.Black).PaddingBottom(4).Text(string.Empty);
-                            c.Item().PaddingTop(4).AlignCenter().Text("Assinatura do técnico").FontSize(9).FontColor(Colors.Grey.Darken1);
-                        });
-                    });
-
-                    col.Item().PaddingTop(8).AlignCenter()
-                        .Text($"Documento gerado em {DateTime.Now:dd/MM/yyyy HH:mm}").FontSize(8).FontColor(Colors.Grey.Lighten1);
                 });
+
+                Footer(page, order);
             });
         }).GeneratePdf();
+    }
+
+    // ══════════════════════════════════════════════════════════════════════════
+    // Shared helpers
+    // ══════════════════════════════════════════════════════════════════════════
+
+    private static void Header(
+        ColumnDescriptor col,
+        CompanyOutput company,
+        ServiceOrderOutput order,
+        string docType,
+        string date,
+        string accentColor)
+    {
+        col.Item().Background(Navy).PaddingHorizontal(32).PaddingVertical(24).Row(row =>
+        {
+            // Company info
+            row.RelativeItem().Column(c =>
+            {
+                c.Item().Text(company.Name).Bold().FontSize(20).FontColor(White);
+                if (!string.IsNullOrEmpty(company.Street))
+                    c.Item().PaddingTop(4).Text($"{company.Street}, {company.Number}  ·  {company.City}/{company.State}")
+                        .FontSize(9).FontColor(White60);
+                c.Item().PaddingTop(2).Text(company.PhoneFormatted).FontSize(9).FontColor(White60);
+            });
+
+            // Doc type + order number
+            row.AutoItem().AlignRight().Column(c =>
+            {
+                c.Item().AlignRight()
+                    .Background(accentColor)
+                    .PaddingHorizontal(10).PaddingVertical(4)
+                    .Text(docType).Bold().FontSize(7.5f).FontColor(Navy);
+                c.Item().AlignRight().PaddingTop(8)
+                    .Text($"#{order.OrderNumber}").Bold().FontSize(24).FontColor(accentColor);
+                c.Item().AlignRight().PaddingTop(2)
+                    .Text(date).FontSize(9).FontColor(White30);
+            });
+        });
+
+        // Thin amber separator line
+        col.Item().Height(2).Background(accentColor);
+    }
+
+    private static void SectionLabel(ColumnDescriptor col, string title)
+    {
+        col.Item().Row(row =>
+        {
+            row.ConstantItem(3).Background(Amber);
+            row.RelativeItem().PaddingLeft(8)
+                .Text(title).Bold().FontSize(8).FontColor(TextMuted);
+        });
+        col.Item().Height(1).Background(Border);
+    }
+
+    private static void DataCell(TableDescriptor table, string label, string value)
+    {
+        table.Cell()
+            .BorderBottom(0.5f).BorderColor(Border)
+            .PaddingVertical(10).PaddingRight(8)
+            .Column(c =>
+            {
+                c.Item().Text(label).FontSize(8).FontColor(TextMuted);
+                c.Item().PaddingTop(2).Text(value).Bold().FontSize(10.5f).FontColor(TextDark);
+            });
+    }
+
+    private static void Signatures(ColumnDescriptor col)
+    {
+        col.Item().PaddingTop(56).Row(row =>
+        {
+            row.RelativeItem().Column(c =>
+            {
+                c.Item().BorderBottom(0.5f).BorderColor(TextMuted).Height(28).Text(string.Empty);
+                c.Item().PaddingTop(5).AlignCenter().Text("Assinatura do cliente").FontSize(8.5f).FontColor(TextMuted);
+            });
+            row.ConstantItem(52);
+            row.RelativeItem().Column(c =>
+            {
+                c.Item().BorderBottom(0.5f).BorderColor(TextMuted).Height(28).Text(string.Empty);
+                c.Item().PaddingTop(5).AlignCenter().Text("Assinatura do técnico").FontSize(8.5f).FontColor(TextMuted);
+            });
+        });
+    }
+
+    private static void Footer(PageDescriptor page, ServiceOrderOutput order)
+    {
+        page.Footer()
+            .Background(Navy)
+            .PaddingHorizontal(32).PaddingVertical(10)
+            .Row(row =>
+            {
+                row.RelativeItem()
+                    .Text($"Documento gerado em {DateTime.Now:dd/MM/yyyy HH:mm}")
+                    .FontSize(8).FontColor(White30);
+                row.AutoItem()
+                    .Text($"OrdemCerta  ·  Ordem #{order.OrderNumber}")
+                    .FontSize(8).FontColor(White60);
+            });
     }
 
     private static string FormatWarranty(int duration, string unit) => unit switch

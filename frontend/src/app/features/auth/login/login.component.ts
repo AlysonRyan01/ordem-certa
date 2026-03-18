@@ -43,7 +43,7 @@ export class LoginComponent {
 
     this.loading.set(true);
     this.auth.login(this.form.getRawValue() as { email: string; password: string }).subscribe({
-      next: () => this.router.navigate(['/']),
+      next: () => this.router.navigate(['/dashboard']),
       error: () => this.loading.set(false),
     });
   }

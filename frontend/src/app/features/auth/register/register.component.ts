@@ -40,6 +40,7 @@ function passwordMatchValidator(group: AbstractControl): ValidationErrors | null
     MatButtonModule,
     MatProgressSpinnerModule,
     MatDividerModule,
+    MatIconModule,
     NgxMaskDirective,
   ],
   providers: [provideNgxMask()],
@@ -80,7 +81,7 @@ export class RegisterComponent {
         password: v.password!,
       })
       .subscribe({
-        next: () => this.router.navigate(['/']),
+        next: () => this.router.navigate(['/dashboard']),
         error: () => this.loading.set(false),
       });
   }

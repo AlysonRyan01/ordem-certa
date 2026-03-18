@@ -1,7 +1,10 @@
 using System.Text;
+using System.Text.Json.Serialization;
+using System.Threading.RateLimiting;
 using FluentValidation;
 using Hangfire;
 using Hangfire.PostgreSql;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.OpenApi;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
@@ -27,10 +30,50 @@ namespace OrdemCerta.Presentation.Extensions;
 
 public static class BuilderExtensions
 {
+    public static void AddApi(this IServiceCollection services)
+    {
+        services.AddControllers()
+            .AddJsonOptions(options =>
+                options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
+
+        services.Configure<RouteOptions>(options => options.LowercaseUrls = true);
+        services.AddEndpointsApiExplorer();
+    }
+
     public static void AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
     {
         AddDatabase(services, configuration);
         AddRepositories(services);
+        AddHealthChecks(services, configuration);
+    }
+
+    public static void AddRateLimiting(this IServiceCollection services)
+    {
+        services.AddRateLimiter(options =>
+        {
+            options.AddFixedWindowLimiter("public", limiter =>
+            {
+                limiter.PermitLimit = 10;
+                limiter.Window = TimeSpan.FromMinutes(1);
+                limiter.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
+                limiter.QueueLimit = 0;
+            });
+
+            options.AddPolicy("per-company", httpContext =>
+                RateLimitPartition.GetFixedWindowLimiter(
+                    partitionKey: httpContext.User.FindFirst("companyId")?.Value
+                                  ?? httpContext.Connection.RemoteIpAddress?.ToString()
+                                  ?? "anonymous",
+                    factory: _ => new FixedWindowRateLimiterOptions
+                    {
+                        PermitLimit = 60,
+                        Window = TimeSpan.FromMinutes(1),
+                        QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
+                        QueueLimit = 0,
+                    }));
+
+            options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+        });
     }
     
     public static void AddServices(this IServiceCollection services)
@@ -79,6 +122,15 @@ public static class BuilderExtensions
                 }
             });
         });
+    }
+
+    private static void AddHealthChecks(IServiceCollection services, IConfiguration configuration)
+    {
+        services.AddHealthChecks()
+            .AddNpgSql(
+                configuration.GetConnectionString("DefaultConnection")!,
+                name: "postgresql",
+                tags: ["db", "ready"]);
     }
 
     private static void AddDatabase(IServiceCollection services, IConfiguration configuration)

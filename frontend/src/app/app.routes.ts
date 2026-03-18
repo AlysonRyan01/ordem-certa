@@ -3,6 +3,13 @@ import { authGuard } from './core/guards/auth.guard';
 
 export const routes: Routes = [
   {
+    path: '',
+    pathMatch: 'full',
+    title: 'OrdemCerta — Gestão de Ordens de Serviço via WhatsApp',
+    loadComponent: () =>
+      import('./features/landing/landing.component').then((m) => m.LandingComponent),
+  },
+  {
     path: 'login',
     title: 'Login — OrdemCerta',
     loadComponent: () =>

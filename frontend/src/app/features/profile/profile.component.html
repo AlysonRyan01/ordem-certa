@@ -106,7 +106,9 @@
               @if (requestingCode()) {
                 <mat-spinner diameter="18" />
               } @else {
-                <ng-container><mat-icon>send</mat-icon> Enviar código por WhatsApp</ng-container>
+                <span class="flex items-center gap-1">
+                  <mat-icon>chat</mat-icon> Enviar código por WhatsApp
+                </span>
               }
             </button>
           </div>

@@ -1,0 +1,66 @@
+:host {
+  display: block;
+  background: #050B18;
+  color: #F8FAFC;
+  font-family: 'Outfit', sans-serif;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px) rotate(-0.5deg); }
+  50% { transform: translateY(-18px) rotate(0.5deg); }
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(28px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes glowPulse {
+  0%, 100% { opacity: 0.35; transform: scale(1); }
+  50% { opacity: 0.6; transform: scale(1.08); }
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+.phone-float { animation: float 5s ease-in-out infinite; }
+
+.fade-up   { animation: fadeUp 0.65s 0.05s ease-out both; }
+.fade-up-1 { animation: fadeUp 0.65s 0.15s ease-out both; }
+.fade-up-2 { animation: fadeUp 0.65s 0.28s ease-out both; }
+.fade-up-3 { animation: fadeUp 0.65s 0.42s ease-out both; }
+
+.glow-pulse { animation: glowPulse 4s ease-in-out infinite; }
+.glow-pulse-delay { animation: glowPulse 4s 2s ease-in-out infinite; }
+
+.grid-pattern {
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.022) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.022) 1px, transparent 1px);
+  background-size: 52px 52px;
+}
+
+.gradient-text-green {
+  background: linear-gradient(135deg, #25D366 0%, #128C7E 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.gradient-text-amber {
+  background: linear-gradient(135deg, #F59E0B 0%, #F97316 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.wa-in  { background: #1F2C34; border-radius: 0 12px 12px 12px; }
+.wa-out { background: #005C4B; border-radius: 12px 0 12px 12px; }
+
+.pain-card:hover { transform: translateY(-2px); }
+.pain-card { transition: transform 0.2s ease, border-color 0.2s ease; }
+
+.feature-card:hover { transform: translateY(-2px); }
+.feature-card { transition: transform 0.2s ease, border-color 0.2s ease; }

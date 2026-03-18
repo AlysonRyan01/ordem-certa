@@ -20,6 +20,7 @@ import { SkeletonTableComponent } from '../../../shared/components/skeleton/skel
 @Component({
   selector: 'app-customer-list',
   standalone: true,
+  host: { class: 'flex flex-col flex-1 min-h-0' },
   imports: [
     ReactiveFormsModule,
     MatTableModule,

@@ -22,7 +22,8 @@
       "Bash(npm cache:*)",
       "Bash(~/.dotnet/tools/dotnet-ef migrations:*)",
       "Bash(find /c/Projetos/ordem-certa -type f \\\\\\(-name .env* -o -name appsettings*.json -o -name docker-compose*.yml \\\\\\))",
-      "Bash(2)"
+      "Bash(2)",
+      "Bash(npx ng:*)"
     ]
   }
 }

@@ -1,16 +1,16 @@
-<div class="flex items-center justify-between mb-6">
+<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6 flex-shrink-0">
   <div>
     <h2 class="text-2xl font-bold text-slate-900 tracking-tight">Ordens de Serviço</h2>
     <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider mt-0.5">Acompanhe e gerencie todas as ordens</p>
   </div>
-  <button mat-flat-button (click)="navigateTo(['/orders', 'new'])">
+  <button mat-flat-button class="sm:self-auto self-start" (click)="navigateTo(['/orders', 'new'])">
     <mat-icon>add</mat-icon>
     Nova Ordem
   </button>
 </div>
 
-<div class="bg-white border border-slate-200 rounded-xl shadow-sm">
-  <div class="px-4 pt-4 pb-1 border-b border-slate-100">
+<div class="bg-white border border-slate-200 rounded-xl shadow-sm flex flex-col flex-1 min-h-0">
+  <div class="px-4 pt-4 pb-1 border-b border-slate-100 flex-shrink-0">
     <mat-form-field appearance="outline" class="w-56">
       <mat-label>Filtrar por status</mat-label>
       <mat-select [formControl]="statusFilter">
@@ -21,7 +21,7 @@
       </mat-select>
     </mat-form-field>
   </div>
-  <div class="overflow-hidden rounded-b-xl">
+  <div class="overflow-x-auto overflow-y-auto flex-1 min-h-0">
 
   @if (loading()) {
     <div class="p-4">
@@ -73,13 +73,13 @@
         <th mat-header-cell *matHeaderCellDef class="w-36"></th>
         <td mat-cell *matCellDef="let o" (click)="$event.stopPropagation()">
           <button mat-icon-button matTooltip="Ver detalhe" (click)="navigateTo(['/orders', o.id])">
-            <mat-icon>visibility</mat-icon>
+            <mat-icon class="!text-slate-400">visibility</mat-icon>
           </button>
           <button mat-icon-button matTooltip="Editar" (click)="navigateTo(['/orders', o.id, 'edit'])">
-            <mat-icon>edit</mat-icon>
+            <mat-icon class="!text-slate-500">edit</mat-icon>
           </button>
-          <button mat-icon-button matTooltip="Excluir" color="warn" (click)="confirmDelete(o)">
-            <mat-icon>delete</mat-icon>
+          <button mat-icon-button matTooltip="Excluir" (click)="confirmDelete(o)">
+            <mat-icon class="!text-red-300">delete</mat-icon>
           </button>
         </td>
       </ng-container>
@@ -98,14 +98,14 @@
       </tr>
     </table>
 
-    <div class="border-t border-slate-100">
-      <app-pagination
-        [total]="total()"
-        [page]="page()"
-        [pageSize]="pageSize()"
-        (pageChange)="onPageChange($event)"
-      />
-    </div>
   }
+  </div>
+  <div class="border-t border-slate-100 flex-shrink-0">
+    <app-pagination
+      [total]="total()"
+      [page]="page()"
+      [pageSize]="pageSize()"
+      (pageChange)="onPageChange($event)"
+    />
   </div>
 </div>

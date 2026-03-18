@@ -1,6 +1,6 @@
 @if (loading()) {
   <div class="flex flex-col gap-6">
-    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+    <div class="grid grid-cols-2 sm:grid-cols-3 gap-4">
       <app-skeleton height="5.5rem" />
       <app-skeleton height="5.5rem" />
       <app-skeleton height="5.5rem" />
@@ -12,7 +12,7 @@
   <div class="flex flex-col gap-5 flex-1 min-h-0">
 
     <!-- Todos os status -->
-    <div class="grid grid-cols-3 gap-3 flex-shrink-0">
+    <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 flex-shrink-0">
       @for (s of allStatusCounts(d); track s.status; let last = $last) {
         <a [class.col-start-2]="last"
           [routerLink]="['/orders']"

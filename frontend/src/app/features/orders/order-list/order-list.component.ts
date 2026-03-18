@@ -22,6 +22,7 @@ import { StatusBadgeComponent } from '../../../shared/components/status-badge/st
 @Component({
   selector: 'app-order-list',
   standalone: true,
+  host: { class: 'flex flex-col flex-1 min-h-0' },
   imports: [
     DatePipe,
     ReactiveFormsModule,

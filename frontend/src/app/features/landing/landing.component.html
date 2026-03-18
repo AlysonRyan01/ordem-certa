@@ -1,0 +1,384 @@
+<!-- ═══════════════════════════════════════════════════════ NAVBAR -->
+<nav class="sticky top-0 z-50 border-b border-white/5 backdrop-blur-md bg-[#050B18]/90">
+  <div class="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
+    <div class="flex items-center gap-2.5">
+      <div class="w-8 h-8 rounded-lg bg-amber-400 flex items-center justify-center flex-shrink-0">
+        <mat-icon class="!text-[17px] text-[#0F1629]">build_circle</mat-icon>
+      </div>
+      <span class="font-bold text-base text-white tracking-tight">OrdemCerta</span>
+    </div>
+    <div class="flex items-center gap-3">
+      <a routerLink="/login"
+         class="text-sm font-medium text-slate-400 hover:text-white transition-colors no-underline hidden sm:block">
+        Entrar
+      </a>
+      <a routerLink="/register"
+         class="text-sm font-bold bg-amber-400 hover:bg-amber-300 text-[#0F1629] px-4 py-2 rounded-lg transition-colors no-underline">
+        Criar conta grátis
+      </a>
+    </div>
+  </div>
+</nav>
+
+<!-- ═══════════════════════════════════════════════════════ HERO -->
+<section class="relative min-h-[calc(100vh-64px)] flex items-center grid-pattern overflow-hidden">
+  <!-- Ambient glows -->
+  <div class="absolute inset-0 pointer-events-none overflow-hidden">
+    <div class="absolute top-1/3 right-1/3 w-[500px] h-[500px] rounded-full bg-[#25D366]/7 blur-[120px] glow-pulse"></div>
+    <div class="absolute bottom-1/4 left-1/5 w-[400px] h-[400px] rounded-full bg-amber-500/5 blur-[100px] glow-pulse-delay"></div>
+  </div>
+
+  <div class="relative max-w-6xl mx-auto px-6 py-20 w-full grid lg:grid-cols-2 gap-16 items-center">
+
+    <!-- Copy -->
+    <div class="flex flex-col gap-6">
+      <span class="fade-up inline-flex items-center gap-2 bg-[#25D366]/10 border border-[#25D366]/20 text-[#25D366] text-xs font-bold px-3.5 py-1.5 rounded-full self-start tracking-wide uppercase">
+        <span class="w-1.5 h-1.5 rounded-full bg-[#25D366] animate-pulse"></span>
+        WhatsApp integrado nativamente
+      </span>
+
+      <h1 class="fade-up-1 text-[clamp(2.75rem,7vw,5rem)] font-extrabold leading-[1.04] tracking-tight text-white">
+        Chega de ligar<br>para saber se o<br>
+        cliente <span class="gradient-text-green">aprovou.</span>
+      </h1>
+
+      <p class="fade-up-2 text-lg text-slate-400 leading-relaxed max-w-lg">
+        Com o OrdemCerta, o cliente recebe o orçamento pelo
+        <strong class="text-white font-semibold">WhatsApp</strong>,
+        aprova com um clique e você é notificado na hora.
+        <span class="text-white font-medium">Sem ligação. Sem enrolação.</span>
+      </p>
+
+      <div class="fade-up-3 flex flex-col sm:flex-row gap-3">
+        <a routerLink="/register"
+           class="inline-flex items-center justify-center gap-2 bg-amber-400 hover:bg-amber-300 text-[#0F1629] font-bold text-base px-7 py-3.5 rounded-xl transition-all duration-200 no-underline hover:shadow-lg hover:shadow-amber-500/25 hover:-translate-y-0.5">
+          Começar grátis agora
+          <mat-icon class="!text-base">arrow_forward</mat-icon>
+        </a>
+        <a routerLink="/login"
+           class="inline-flex items-center justify-center border border-white/10 hover:border-white/25 text-slate-300 hover:text-white font-medium text-base px-7 py-3.5 rounded-xl transition-all duration-200 no-underline">
+          Já tenho conta
+        </a>
+      </div>
+
+      <p class="fade-up-3 text-xs text-slate-600 flex items-center gap-1.5">
+        <mat-icon class="!text-sm text-slate-600">check_circle</mat-icon>
+        Sem cartão de crédito — plano gratuito para começar
+      </p>
+    </div>
+
+    <!-- Phone mockup -->
+    <div class="flex items-center justify-center lg:justify-end">
+      <div class="phone-float relative">
+        <div class="relative w-[17rem] bg-[#111B21] rounded-[2.75rem] p-3 shadow-[0_50px_120px_rgba(0,0,0,0.7)] border border-white/8">
+
+          <!-- Notch -->
+          <div class="w-28 h-6 bg-[#0A0F18] rounded-full mx-auto mb-2 flex items-center justify-center gap-2">
+            <div class="w-1.5 h-1.5 rounded-full bg-[#1c1c1e]"></div>
+            <div class="w-8 h-1.5 rounded-full bg-[#1c1c1e]"></div>
+          </div>
+
+          <!-- Screen -->
+          <div class="bg-[#0B141A] rounded-[2.25rem] overflow-hidden">
+
+            <!-- Status bar -->
+            <div class="bg-[#0B141A] px-5 pt-2 pb-0.5 flex items-center justify-between">
+              <span class="text-white text-[9px] font-semibold">9:41</span>
+              <div class="flex items-center gap-1.5">
+                <div class="flex gap-px items-end">
+                  <div class="w-px h-1 bg-white/50 rounded-sm"></div>
+                  <div class="w-px h-1.5 bg-white/60 rounded-sm"></div>
+                  <div class="w-px h-2 bg-white/80 rounded-sm"></div>
+                  <div class="w-px h-2.5 bg-white rounded-sm"></div>
+                </div>
+                <mat-icon class="!text-[9px] text-white/50 !w-2.5 !h-2.5 !leading-none">wifi</mat-icon>
+                <div class="w-4.5 h-2.5 border border-white/40 rounded-[3px] flex items-center px-0.5">
+                  <div class="h-full w-3/4 bg-white/80 rounded-sm"></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- WA Header -->
+            <div class="bg-[#202C33] px-3.5 py-3 flex items-center gap-2.5">
+              <div class="w-9 h-9 rounded-full bg-gradient-to-br from-[#25D366] to-[#128C7E] flex items-center justify-center flex-shrink-0 text-white text-[11px] font-bold">OC</div>
+              <div class="flex-1 min-w-0">
+                <p class="text-white text-[11px] font-semibold leading-tight">OrdemCerta</p>
+                <p class="text-[9px] flex items-center gap-1 text-[#25D366]">
+                  <span class="w-1.5 h-1.5 rounded-full bg-[#25D366] inline-block"></span>
+                  online
+                </p>
+              </div>
+              <div class="flex gap-2.5">
+                <mat-icon class="!text-[13px] text-white/30">videocam</mat-icon>
+                <mat-icon class="!text-[13px] text-white/30">call</mat-icon>
+                <mat-icon class="!text-[13px] text-white/30">more_vert</mat-icon>
+              </div>
+            </div>
+
+            <!-- Chat -->
+            <div class="bg-[#0B141A] p-3 flex flex-col gap-2.5" style="min-height: 260px">
+
+              <div class="wa-in p-2.5 max-w-[90%]">
+                <p class="text-[10.5px] text-[#E9EDEF] leading-relaxed">Olá, <strong>João</strong>! 👋</p>
+                <p class="text-[10.5px] text-[#E9EDEF] leading-relaxed mt-0.5">Seu orçamento para o <strong>iPhone 12 Pro</strong> está pronto:</p>
+                <p class="text-[13px] font-extrabold text-[#25D366] mt-1.5">R$ 280,00</p>
+                <div class="mt-2 border-t border-white/8 pt-2 flex items-center gap-1 text-[#25D366]">
+                  <mat-icon class="!text-[10px]">open_in_new</mat-icon>
+                  <span class="text-[9.5px] font-bold">Ver detalhes e aprovar →</span>
+                </div>
+                <p class="text-[8px] text-[#8696A0] text-right mt-1">14:32 ✓✓</p>
+              </div>
+
+              <div class="wa-out p-2.5 max-w-[72%] self-end">
+                <p class="text-[10.5px] text-[#E9EDEF]">Aprovado! Pode fazer 👍</p>
+                <p class="text-[8px] text-[#8696A0] text-right mt-0.5">14:34 ✓✓</p>
+              </div>
+
+              <div class="wa-in p-2.5 max-w-[90%]">
+                <p class="text-[10.5px] text-[#E9EDEF] leading-relaxed">
+                  Ótimo! Sua ordem está <strong>em andamento</strong> ✅
+                </p>
+                <p class="text-[9.5px] text-[#8696A0] mt-0.5 leading-relaxed">
+                  Você será notificado quando ficar pronto para retirada.
+                </p>
+                <p class="text-[8px] text-[#8696A0] text-right mt-1">14:34 ✓✓</p>
+              </div>
+            </div>
+
+            <!-- Input bar -->
+            <div class="bg-[#1F2C34] px-3 py-2 flex items-center gap-2">
+              <mat-icon class="!text-[13px] text-[#8696A0]">sentiment_satisfied</mat-icon>
+              <div class="flex-1 bg-[#2A3942] rounded-full px-3 py-1.5">
+                <p class="text-[9px] text-[#8696A0]">Mensagem</p>
+              </div>
+              <div class="w-7 h-7 rounded-full bg-[#25D366] flex items-center justify-center flex-shrink-0">
+                <mat-icon class="!text-[11px] text-white">mic</mat-icon>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Phone glow -->
+        <div class="absolute -inset-10 bg-[#25D366]/8 blur-[70px] rounded-full -z-10 glow-pulse"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════ PAIN -->
+<section class="py-24 border-t border-white/5">
+  <div class="max-w-6xl mx-auto px-6">
+    <div class="text-center mb-14">
+      <p class="text-amber-400 font-bold text-xs tracking-widest uppercase mb-3">A realidade de quem trabalha com manutenção</p>
+      <h2 class="text-3xl lg:text-[2.75rem] font-extrabold text-white leading-tight">Você se identifica com isso?</h2>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+      <div class="pain-card bg-[#0D1625] border border-white/6 rounded-2xl p-7 hover:border-red-500/25">
+        <div class="w-12 h-12 rounded-xl bg-red-500/10 flex items-center justify-center mb-5">
+          <mat-icon class="!text-2xl text-red-400">phone_missed</mat-icon>
+        </div>
+        <h3 class="font-bold text-white text-base mb-2">Liga 3 vezes, ele não atende</h3>
+        <p class="text-sm text-slate-500 leading-relaxed">O orçamento fica parado esperando aprovação enquanto outros serviços se acumulam na bancada.</p>
+      </div>
+
+      <div class="pain-card bg-[#0D1625] border border-white/6 rounded-2xl p-7 hover:border-orange-500/25">
+        <div class="w-12 h-12 rounded-xl bg-orange-500/10 flex items-center justify-center mb-5">
+          <mat-icon class="!text-2xl text-orange-400">description</mat-icon>
+        </div>
+        <h3 class="font-bold text-white text-base mb-2">OS no caderno ou no papel</h3>
+        <p class="text-sm text-slate-500 leading-relaxed">Sem histórico. Sem rastreamento. Se o papel sumir ou o caderno molhar, perdeu tudo.</p>
+      </div>
+
+      <div class="pain-card bg-[#0D1625] border border-white/6 rounded-2xl p-7 hover:border-yellow-500/25">
+        <div class="w-12 h-12 rounded-xl bg-yellow-500/10 flex items-center justify-center mb-5">
+          <mat-icon class="!text-2xl text-yellow-400">schedule</mat-icon>
+        </div>
+        <h3 class="font-bold text-white text-base mb-2">30 minutos/dia em ligações</h3>
+        <p class="text-sm text-slate-500 leading-relaxed">
+          São <strong class="text-white">180 horas por ano</strong> gastas em ligações de aprovação — horas que poderiam estar na bancada.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════ WHATSAPP FEATURE -->
+<section class="py-24 relative overflow-hidden border-t border-white/5">
+  <div class="absolute inset-0 pointer-events-none">
+    <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[400px] bg-[#25D366]/5 blur-[130px] rounded-full"></div>
+  </div>
+
+  <div class="relative max-w-6xl mx-auto px-6">
+    <div class="text-center mb-14">
+      <div class="inline-flex items-center gap-2 bg-[#25D366]/10 border border-[#25D366]/20 text-[#25D366] text-xs font-bold px-4 py-2 rounded-full mb-5 tracking-wide uppercase">
+        <mat-icon class="!text-sm">chat</mat-icon>
+        Como funciona a aprovação via WhatsApp
+      </div>
+      <h2 class="text-3xl lg:text-[2.75rem] font-extrabold text-white leading-tight mb-4">
+        O cliente aprova em <span class="gradient-text-green">segundos.</span><br>
+        Você fatura mais rápido.
+      </h2>
+      <p class="text-slate-400 max-w-lg mx-auto leading-relaxed">
+        Nada de app extra. Nada de portal complicado. O cliente já usa WhatsApp — só clica no link.
+      </p>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      @for (step of steps; track step.n) {
+        <div class="flex flex-col gap-4">
+          <div class="flex items-center gap-3">
+            <div class="w-11 h-11 rounded-xl bg-[#25D366]/12 border border-[#25D366]/20 flex items-center justify-center flex-shrink-0">
+              <span class="text-[#25D366] font-extrabold text-sm">{{ step.n }}</span>
+            </div>
+            @if (step.n < 4) {
+              <div class="h-px flex-1 bg-gradient-to-r from-[#25D366]/15 to-transparent hidden lg:block"></div>
+            }
+          </div>
+          <div>
+            <h4 class="font-bold text-white text-sm mb-1.5">{{ step.title }}</h4>
+            <p class="text-xs text-slate-500 leading-relaxed">{{ step.desc }}</p>
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════ FEATURES -->
+<section class="py-24 border-t border-white/5">
+  <div class="max-w-6xl mx-auto px-6">
+    <div class="text-center mb-14">
+      <h2 class="text-3xl lg:text-[2.75rem] font-extrabold text-white mb-3">Tudo que sua assistência precisa</h2>
+      <p class="text-slate-400 max-w-md mx-auto">Uma plataforma completa, sem complexidade desnecessária.</p>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      @for (f of features; track f.icon) {
+        <div class="feature-card bg-[#0D1625] border border-white/6 rounded-2xl p-6 flex gap-4"
+             [class.hover:border-amber-500]="!f.green"
+             [class.hover:border-green-500]="f.green">
+          <div class="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
+               [class]="f.green ? 'bg-[#25D366]/10' : 'bg-amber-400/10'">
+            <mat-icon class="!text-lg" [class]="f.green ? 'text-[#25D366]' : 'text-amber-400'">{{ f.icon }}</mat-icon>
+          </div>
+          <div>
+            <h4 class="font-bold text-white text-sm mb-1.5">{{ f.title }}</h4>
+            <p class="text-xs text-slate-500 leading-relaxed">{{ f.desc }}</p>
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════ PRICING -->
+<section class="py-24 border-t border-white/5">
+  <div class="max-w-4xl mx-auto px-6">
+    <div class="text-center mb-14">
+      <h2 class="text-3xl lg:text-[2.75rem] font-extrabold text-white mb-3">Preço transparente, sem surpresa</h2>
+      <p class="text-slate-400">Comece grátis. Escale quando precisar.</p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
+
+      <!-- Demo -->
+      <div class="bg-[#0D1625] border border-white/8 rounded-2xl p-8 flex flex-col">
+        <p class="text-slate-500 font-bold text-xs uppercase tracking-widest mb-5">Demo</p>
+        <p class="text-5xl font-extrabold text-white mb-1">Grátis</p>
+        <p class="text-slate-500 text-sm mb-8">Para testar e começar</p>
+        <ul class="flex flex-col gap-3 mb-8">
+          <li class="flex items-center gap-2.5 text-sm text-slate-300">
+            <mat-icon class="!text-sm text-slate-600">check</mat-icon> Até 10 ordens de serviço
+          </li>
+          <li class="flex items-center gap-2.5 text-sm text-slate-300">
+            <mat-icon class="!text-sm text-slate-600">check</mat-icon> Clientes ilimitados
+          </li>
+          <li class="flex items-center gap-2.5 text-sm text-slate-300">
+            <mat-icon class="!text-sm text-slate-600">check</mat-icon> Geração de PDF
+          </li>
+          <li class="flex items-center gap-2.5 text-sm text-slate-300">
+            <mat-icon class="!text-sm text-slate-600">check</mat-icon> Notificações via WhatsApp
+          </li>
+          <li class="flex items-center gap-2.5 text-sm text-slate-500 opacity-50">
+            <mat-icon class="!text-sm text-slate-700">close</mat-icon>
+            <span class="line-through">Ordens ilimitadas</span>
+          </li>
+        </ul>
+        <a routerLink="/register"
+           class="block text-center border border-white/10 hover:border-white/25 text-slate-300 hover:text-white font-semibold text-sm py-3.5 rounded-xl transition-all no-underline">
+          Começar grátis
+        </a>
+      </div>
+
+      <!-- Pago -->
+      <div class="relative bg-gradient-to-br from-amber-500/8 via-amber-400/5 to-transparent border border-amber-500/25 rounded-2xl p-8 flex flex-col overflow-hidden">
+        <div class="absolute top-5 right-5 bg-amber-400 text-[#0F1629] text-[10px] font-extrabold px-3 py-1 rounded-full uppercase tracking-wider">
+          Recomendado
+        </div>
+        <p class="text-amber-400 font-bold text-xs uppercase tracking-widest mb-5">Pago</p>
+        <div class="mb-1">
+          <span class="text-5xl font-extrabold text-white">R$ 49</span>
+          <span class="text-slate-400 text-sm ml-1">/mês</span>
+        </div>
+        <p class="text-slate-500 text-sm mb-8">Cancele quando quiser. Sem fidelidade.</p>
+        <ul class="flex flex-col gap-3 mb-8">
+          <li class="flex items-center gap-2.5 text-sm text-slate-200">
+            <mat-icon class="!text-sm text-amber-400">check</mat-icon> Ordens de serviço ilimitadas
+          </li>
+          <li class="flex items-center gap-2.5 text-sm text-slate-200">
+            <mat-icon class="!text-sm text-amber-400">check</mat-icon> Clientes ilimitados
+          </li>
+          <li class="flex items-center gap-2.5 text-sm text-slate-200">
+            <mat-icon class="!text-sm text-amber-400">check</mat-icon> Geração de PDF
+          </li>
+          <li class="flex items-center gap-2.5 text-sm text-slate-200">
+            <mat-icon class="!text-sm text-amber-400">check</mat-icon> Notificações via WhatsApp
+          </li>
+          <li class="flex items-center gap-2.5 text-sm text-slate-200">
+            <mat-icon class="!text-sm text-amber-400">check</mat-icon> Suporte prioritário
+          </li>
+        </ul>
+        <a routerLink="/register"
+           class="block text-center bg-amber-400 hover:bg-amber-300 text-[#0F1629] font-bold text-sm py-3.5 rounded-xl transition-all no-underline hover:shadow-lg hover:shadow-amber-500/20">
+          Fazer upgrade
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════ CTA -->
+<section class="py-28 border-t border-white/5">
+  <div class="max-w-3xl mx-auto px-6 text-center">
+    <h2 class="text-[clamp(2rem,5vw,3.5rem)] font-extrabold text-white leading-tight mb-5">
+      Pronto para modernizar<br>sua assistência técnica?
+    </h2>
+    <p class="text-slate-400 text-lg mb-10 max-w-md mx-auto leading-relaxed">
+      Comece hoje mesmo. Sem cartão de crédito. Sem burocracia.
+    </p>
+    <a routerLink="/register"
+       class="inline-flex items-center gap-2.5 bg-amber-400 hover:bg-amber-300 text-[#0F1629] font-extrabold text-lg px-9 py-4 rounded-2xl transition-all duration-200 no-underline hover:shadow-2xl hover:shadow-amber-500/25 hover:-translate-y-1">
+      Criar minha conta grátis
+      <mat-icon>arrow_forward</mat-icon>
+    </a>
+    <p class="text-slate-700 text-sm mt-5">Leva menos de 2 minutos para configurar</p>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════ FOOTER -->
+<footer class="border-t border-white/5 py-8">
+  <div class="max-w-6xl mx-auto px-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+    <div class="flex items-center gap-2.5">
+      <div class="w-7 h-7 rounded-lg bg-amber-400 flex items-center justify-center flex-shrink-0">
+        <mat-icon class="!text-sm text-[#0F1629]">build_circle</mat-icon>
+      </div>
+      <span class="font-bold text-sm text-white">OrdemCerta</span>
+    </div>
+    <p class="text-slate-700 text-xs">© 2025 OrdemCerta. Todos os direitos reservados.</p>
+    <div class="flex gap-5">
+      <a routerLink="/login" class="text-xs text-slate-700 hover:text-slate-400 transition-colors no-underline">Entrar</a>
+      <a routerLink="/register" class="text-xs text-slate-700 hover:text-slate-400 transition-colors no-underline">Criar conta</a>
+    </div>
+  </div>
+</footer>
