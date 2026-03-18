@@ -31,7 +31,7 @@ services:
       - App__BaseUrl=${APP_BASEURL:-http://localhost:5001}
       - Jwt__SecretKey=${JWT_SECRET}
       - Jwt__ExpirationHours=${JWT_EXPIRATION_HOURS:-24}
-      - EvolutionApi__BaseUrl=http://evolution-api:8080
+      - EvolutionApi__BaseUrl={EVOLUTIONAPI_BASEURL}
       - EvolutionApi__ApiKey=${EVOLUTIONAPI_APIKEY}
       - EvolutionApi__Instance=${EVOLUTIONAPI_INSTANCE:-ordemcerta}
       - Cors__PolicyName=${ORDEMCERTA_CORS_POLICYNAME:-DefaultPolicy}
