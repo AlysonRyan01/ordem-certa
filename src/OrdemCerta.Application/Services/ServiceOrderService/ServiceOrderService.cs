@@ -171,6 +171,15 @@ public class ServiceOrderService : IServiceOrderService
         return orderResult.Value!.ToOutput();
     }
 
+    public async Task<Result<ServiceOrderOutput>> GetPublicByIdAsync(Guid id, CancellationToken cancellationToken)
+    {
+        var orderResult = await _serviceOrderRepository.GetByIdPublicAsync(id, cancellationToken);
+        if (orderResult.IsFailure)
+            return Result<ServiceOrderOutput>.Failure(orderResult.Errors);
+
+        return orderResult.Value!.ToOutput();
+    }
+
     public async Task<Result<List<ServiceOrderOutput>>> GetPagedAsync(GetPagedInput input, CancellationToken cancellationToken)
     {
         var orders = await _serviceOrderRepository.GetPagedAsync(input.Page, input.PageSize, cancellationToken);
@@ -359,7 +368,7 @@ public class ServiceOrderService : IServiceOrderService
 
     public async Task<Result<ServiceOrderOutput>> ApproveBudgetFromLinkAsync(Guid id, CancellationToken cancellationToken)
     {
-        var orderResult = await _serviceOrderRepository.GetByIdAsync(id, cancellationToken);
+        var orderResult = await _serviceOrderRepository.GetByIdPublicAsync(id, cancellationToken);
         if (orderResult.IsFailure)
             return Result<ServiceOrderOutput>.Failure(orderResult.Errors);
 
@@ -416,7 +425,7 @@ public class ServiceOrderService : IServiceOrderService
 
     public async Task<Result<ServiceOrderOutput>> RefuseBudgetFromLinkAsync(Guid id, CancellationToken cancellationToken)
     {
-        var orderResult = await _serviceOrderRepository.GetByIdAsync(id, cancellationToken);
+        var orderResult = await _serviceOrderRepository.GetByIdPublicAsync(id, cancellationToken);
         if (orderResult.IsFailure)
             return Result<ServiceOrderOutput>.Failure(orderResult.Errors);
 

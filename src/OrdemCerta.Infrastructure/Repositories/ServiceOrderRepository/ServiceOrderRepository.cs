@@ -30,6 +30,18 @@ public class ServiceOrderRepository : IServiceOrderRepository
         return order;
     }
 
+    public async Task<Result<ServiceOrder>> GetByIdPublicAsync(Guid id, CancellationToken cancellationToken)
+    {
+        var order = await _context.ServiceOrders
+            .AsNoTracking()
+            .FirstOrDefaultAsync(o => o.Id == id, cancellationToken);
+
+        if (order is null)
+            return "Ordem de serviço não encontrada";
+
+        return order;
+    }
+
     public async Task<List<ServiceOrder>> GetPagedAsync(int page, int pageSize, CancellationToken cancellationToken)
     {
         if (page <= 0) page = 1;

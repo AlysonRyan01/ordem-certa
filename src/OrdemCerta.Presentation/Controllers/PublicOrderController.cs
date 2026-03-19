@@ -23,7 +23,7 @@ public class PublicOrderController : ControllerBase
         [FromRoute] Guid id,
         CancellationToken cancellationToken)
     {
-        var result = await _serviceOrderService.GetByIdAsync(id, cancellationToken);
+        var result = await _serviceOrderService.GetPublicByIdAsync(id, cancellationToken);
 
         if (result.IsFailure)
             return BadRequest(new { errors = result.Errors });

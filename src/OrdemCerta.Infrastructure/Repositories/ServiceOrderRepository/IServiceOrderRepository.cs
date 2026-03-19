@@ -7,6 +7,7 @@ namespace OrdemCerta.Infrastructure.Repositories.ServiceOrderRepository;
 public interface IServiceOrderRepository
 {
     Task<Result<ServiceOrder>> GetByIdAsync(Guid id, CancellationToken cancellationToken);
+    Task<Result<ServiceOrder>> GetByIdPublicAsync(Guid id, CancellationToken cancellationToken);
     Task<List<ServiceOrder>> GetPagedAsync(int page, int pageSize, CancellationToken cancellationToken);
     Task<List<ServiceOrder>> GetByStatusAsync(ServiceOrderStatus status, int page, int pageSize, CancellationToken cancellationToken);
     Task<List<ServiceOrder>> GetByCustomerAsync(Guid customerId, int page, int pageSize, CancellationToken cancellationToken);
