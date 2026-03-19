@@ -622,7 +622,7 @@ public class ServiceOrderService : IServiceOrderService
 
             _ =>
                 ("✅ *Equipamento pronto para retirada!*",
-                 $"O *{device}* da ordem *#{order.OrderNumber}* foi consertado e está pronto para retirada."),
+                 $"O *{device}* da ordem *#{order.OrderNumber}* está pronto para retirada."),
         };
 
         var message = $"""
