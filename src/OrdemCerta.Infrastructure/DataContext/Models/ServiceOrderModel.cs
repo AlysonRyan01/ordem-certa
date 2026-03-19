@@ -63,6 +63,9 @@ public class ServiceOrderModel : IEntityTypeConfiguration<ServiceOrder>
             .HasColumnName("status")
             .IsRequired();
 
+        builder.Property(o => o.BudgetStatus)
+            .HasColumnName("budget_status");
+
         builder.Property(o => o.RepairResult)
             .HasColumnName("repair_result");
 

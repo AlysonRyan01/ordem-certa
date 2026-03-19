@@ -14,7 +14,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { RepairResult, ServiceOrderOutput, ServiceOrderStatus, WarrantyUnit } from '../../../core/models/service-order.model';
-import { ALL_REPAIR_RESULTS, ALL_STATUSES, REPAIR_RESULT_META } from '../../../core/models/service-order-status.helper';
+import { ALL_REPAIR_RESULTS, REPAIR_RESULT_META } from '../../../core/models/service-order-status.helper';
 import { ServiceOrderService } from '../../../core/services/service-order.service';
 import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialog/confirm-dialog.component';
 import { SkeletonComponent } from '../../../shared/components/skeleton/skeleton.component';
@@ -54,12 +54,10 @@ export class OrderDetailComponent implements OnInit {
   readonly changingStatus = signal(false);
   readonly editingBudget = signal(false);
 
-  readonly statusControl = new FormControl<ServiceOrderStatus | null>(null);
-
   readonly createBudgetForm = new FormGroup({
     value: new FormControl<number | null>(null, [Validators.required, Validators.min(0.01)]),
     description: new FormControl('', Validators.required),
-    repairResult: new FormControl<RepairResult | null>(null),
+    repairResult: new FormControl<RepairResult | null>(null, Validators.required),
     warrantyDuration: new FormControl<number | null>(null, Validators.min(1)),
     warrantyUnit: new FormControl<WarrantyUnit | null>(null),
   });
@@ -67,12 +65,11 @@ export class OrderDetailComponent implements OnInit {
   readonly editBudgetForm = new FormGroup({
     value: new FormControl<number | null>(null, [Validators.required, Validators.min(0.01)]),
     description: new FormControl('', Validators.required),
-    repairResult: new FormControl<RepairResult | null>(null),
+    repairResult: new FormControl<RepairResult | null>(null, Validators.required),
     warrantyDuration: new FormControl<number | null>(null, Validators.min(1)),
     warrantyUnit: new FormControl<WarrantyUnit | null>(null),
   });
 
-  readonly allStatuses = ALL_STATUSES;
   readonly allRepairResults = ALL_REPAIR_RESULTS;
   readonly repairResultMeta = REPAIR_RESULT_META;
 
@@ -83,17 +80,21 @@ export class OrderDetailComponent implements OnInit {
   ];
 
   readonly canEditBudget = computed(() => {
-    const status = this.order()?.status;
-    return status !== 'BudgetApproved' && status !== 'Delivered' && status !== 'Cancelled';
+    const order = this.order();
+    return order?.budgetStatus !== 'Approved' && order?.status !== 'Delivered' && order?.status !== 'Cancelled';
+  });
+
+  readonly canRollback = computed(() => {
+    const s = this.order()?.status;
+    return s === 'BudgetPending' || s === 'UnderRepair' || s === 'ReadyForPickup';
   });
 
   get id(): string { return this.route.snapshot.paramMap.get('id')!; }
 
   ngOnInit(): void { this.load(); }
 
-  applyStatus(): void {
-    const status = this.statusControl.value;
-    if (!status || this.changingStatus()) return;
+  changeStatusTo(status: ServiceOrderStatus): void {
+    if (this.changingStatus()) return;
     this.changingStatus.set(true);
 
     this.orderService.changeStatus(this.id, { status }).subscribe({
@@ -118,6 +119,32 @@ export class OrderDetailComponent implements OnInit {
     });
   }
 
+  rollback(): void {
+    if (this.changingStatus()) return;
+    this.changingStatus.set(true);
+    this.orderService.rollback(this.id).subscribe({
+      next: (updated) => {
+        this.setOrder(updated);
+        this.snackBar.open('Etapa desfeita.', 'Fechar', { duration: 3000 });
+        this.changingStatus.set(false);
+      },
+      error: () => this.changingStatus.set(false),
+    });
+  }
+
+  confirmCancel(): void {
+    const ref = this.dialog.open(ConfirmDialogComponent, {
+      data: {
+        title: 'Cancelar ordem',
+        message: 'Deseja cancelar esta ordem de serviço?',
+        confirmLabel: 'Cancelar ordem',
+      },
+    });
+    ref.afterClosed().subscribe((confirmed) => {
+      if (confirmed) this.changeStatusTo('Cancelled');
+    });
+  }
+
   createBudget(): void {
     if (this.createBudgetForm.invalid) return;
     const raw = this.createBudgetForm.getRawValue();
@@ -125,7 +152,7 @@ export class OrderDetailComponent implements OnInit {
     this.orderService.createBudget(this.id, {
       value: raw.value!,
       description: raw.description!,
-      repairResult: raw.repairResult ?? undefined,
+      repairResult: raw.repairResult!,
       warrantyDuration: raw.warrantyDuration ?? undefined,
       warrantyUnit: raw.warrantyUnit ?? undefined,
     }).subscribe({
@@ -167,7 +194,7 @@ export class OrderDetailComponent implements OnInit {
     this.orderService.updateBudget(this.id, {
       value: raw.value!,
       description: raw.description!,
-      repairResult: raw.repairResult ?? undefined,
+      repairResult: raw.repairResult!,
       warrantyDuration: raw.warrantyDuration ?? undefined,
       warrantyUnit: raw.warrantyUnit ?? undefined,
     }).subscribe({
@@ -246,7 +273,6 @@ export class OrderDetailComponent implements OnInit {
 
   private setOrder(o: ServiceOrderOutput): void {
     this.order.set(o);
-    this.statusControl.setValue(o.status);
   }
 
   private load(): void {

@@ -64,6 +64,10 @@ export class ServiceOrderService {
     return this.http.patch<ServiceOrderOutput>(`${this.base}/${id}/status`, input);
   }
 
+  rollback(id: string): Observable<ServiceOrderOutput> {
+    return this.http.post<ServiceOrderOutput>(`${this.base}/${id}/rollback`, {});
+  }
+
   createBudget(id: string, input: CreateBudgetInput): Observable<ServiceOrderOutput> {
     return this.http.post<ServiceOrderOutput>(`${this.base}/${id}/budget`, input);
   }

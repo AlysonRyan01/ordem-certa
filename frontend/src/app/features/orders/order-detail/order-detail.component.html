@@ -75,25 +75,64 @@
       </div>
     </div>
 
-    <!-- Change status -->
-    <div class="oc-section-card">
-      <div class="oc-section-header">Alterar Status</div>
-      <div class="px-5 py-5">
-        <div class="flex gap-3 items-start">
-          <mat-form-field appearance="outline" class="flex-1">
-            <mat-label>Novo status</mat-label>
-            <mat-select [formControl]="statusControl">
-              @for (s of allStatuses; track s.value) {
-                <mat-option [value]="s.value">{{ s.label }}</mat-option>
-              }
-            </mat-select>
-          </mat-form-field>
-          <button mat-flat-button class="mt-1" (click)="applyStatus()" [disabled]="changingStatus()">
-            @if (changingStatus()) { <mat-spinner diameter="20" /> } @else { Aplicar }
-          </button>
+    <!-- Workflow -->
+    @if (o.status !== 'Delivered' && o.status !== 'Cancelled') {
+      <div class="oc-section-card">
+        <div class="oc-section-header">Próxima etapa</div>
+        <div class="px-5 py-5 flex flex-wrap gap-3 items-center">
+
+          @if (o.status === 'UnderAnalysis' && !o.budgetValue) {
+            <p class="text-sm text-slate-500 flex-1">Adicione um orçamento abaixo para enviar ao cliente.</p>
+          }
+
+          @if (o.status === 'BudgetPending' && (o.repairResult === 'NoFix' || o.repairResult === 'NoDefectFound')) {
+            <button mat-flat-button (click)="changeStatusTo('ReadyForPickup')" [disabled]="changingStatus()">
+              @if (changingStatus()) { <mat-spinner diameter="20" /> } @else { <span class="flex items-center gap-1"><mat-icon>check_circle</mat-icon> Marcar pronto para retirada</span> }
+            </button>
+          }
+
+          @if (o.status === 'BudgetPending' && o.repairResult !== 'NoFix' && o.repairResult !== 'NoDefectFound') {
+            @if (o.budgetStatus === 'Waiting' || o.budgetStatus === 'Entered') {
+              <p class="text-sm text-slate-500 mr-2">Aguardando resposta do cliente sobre o orçamento.</p>
+              <button mat-flat-button class="!bg-emerald-600 !text-white" (click)="approveBudget()" [disabled]="changingStatus()">
+                <span class="flex items-center gap-1"><mat-icon>thumb_up</mat-icon> Aprovar</span>
+              </button>
+              <button mat-flat-button class="!bg-red-50 !text-red-700 border border-red-200" (click)="refuseBudget()" [disabled]="changingStatus()">
+                <span class="flex items-center gap-1"><mat-icon>thumb_down</mat-icon> Recusar</span>
+              </button>
+            }
+            @if (o.budgetStatus === 'Disapproved') {
+              <button mat-flat-button (click)="changeStatusTo('ReadyForPickup')" [disabled]="changingStatus()">
+                @if (changingStatus()) { <mat-spinner diameter="20" /> } @else { <span class="flex items-center gap-1"><mat-icon>check_circle</mat-icon> Marcar pronto para retirada</span> }
+              </button>
+            }
+            @if (o.budgetStatus === 'Approved') {
+              <button mat-flat-button (click)="changeStatusTo('UnderRepair')" [disabled]="changingStatus()">
+                @if (changingStatus()) { <mat-spinner diameter="20" /> } @else { <span class="flex items-center gap-1"><mat-icon>build</mat-icon> Marcar em conserto</span> }
+              </button>
+            }
+          }
+
+          @if (o.status === 'UnderRepair') {
+            <button mat-flat-button (click)="changeStatusTo('ReadyForPickup')" [disabled]="changingStatus()">
+              @if (changingStatus()) { <mat-spinner diameter="20" /> } @else { <span class="flex items-center gap-1"><mat-icon>check_circle</mat-icon> Marcar pronto para retirada</span> }
+            </button>
+          }
+
+          @if (o.status === 'ReadyForPickup') {
+            <button mat-flat-button (click)="changeStatusTo('Delivered')" [disabled]="changingStatus()">
+              @if (changingStatus()) { <mat-spinner diameter="20" /> } @else { <span class="flex items-center gap-1"><mat-icon>done_all</mat-icon> Marcar como entregue</span> }
+            </button>
+          }
+
+          @if (canRollback()) {
+            <button mat-stroked-button class="ml-auto" (click)="rollback()" [disabled]="changingStatus()">
+              <span class="flex items-center gap-1"><mat-icon>undo</mat-icon> Desfazer etapa</span>
+            </button>
+          }
         </div>
       </div>
-    </div>
+    }
 
     <!-- Budget -->
     <div class="oc-section-card">
@@ -128,6 +167,23 @@
                      :                               (o.warrantyDuration === 1 ? 'ano'  : 'anos') }}
                   </span>
                 }
+                @if (o.budgetStatus) {
+                  <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold"
+                        [class]="{
+                          'bg-yellow-50 text-yellow-700': o.budgetStatus === 'Waiting' || o.budgetStatus === 'Entered',
+                          'bg-emerald-50 text-emerald-700': o.budgetStatus === 'Approved',
+                          'bg-red-50 text-red-700': o.budgetStatus === 'Disapproved'
+                        }">
+                    <mat-icon class="!text-sm !w-3.5 !h-3.5">
+                      {{ o.budgetStatus === 'Approved' ? 'check_circle'
+                       : o.budgetStatus === 'Disapproved' ? 'cancel'
+                       : 'hourglass_empty' }}
+                    </mat-icon>
+                    {{ o.budgetStatus === 'Approved' ? 'Aprovado'
+                     : o.budgetStatus === 'Disapproved' ? 'Recusado'
+                     : 'Aguardando cliente' }}
+                  </span>
+                }
               </div>
             </div>
             @if (o.budgetDescription) {
@@ -137,23 +193,13 @@
             }
           </div>
 
-          <div class="px-5 py-4 flex gap-3 flex-wrap items-center">
-            @if (o.status === 'WaitingApproval') {
-              <button mat-flat-button (click)="approveBudget()"
-                      class="flex-1 !bg-emerald-600 !text-white hover:!bg-emerald-700">
-                <mat-icon>thumb_up</mat-icon> Aprovar
+          @if (canEditBudget()) {
+            <div class="px-5 py-4">
+              <button mat-stroked-button (click)="startEditBudget()">
+                <mat-icon>edit</mat-icon> Editar orçamento
               </button>
-              <button mat-flat-button (click)="refuseBudget()"
-                      class="flex-1 !bg-red-50 !text-red-700 hover:!bg-red-100 border border-red-200">
-                <mat-icon>thumb_down</mat-icon> Recusar
-              </button>
-            }
-            @if (canEditBudget()) {
-              <button mat-stroked-button (click)="startEditBudget()" class="ml-auto">
-                <mat-icon>edit</mat-icon> Editar
-              </button>
-            }
-          </div>
+            </div>
+          }
 
         } @else {
           <!-- Edit form -->
@@ -174,11 +220,13 @@
                 <mat-form-field appearance="outline" class="flex-1">
                   <mat-label>Resultado do diagnóstico</mat-label>
                   <mat-select formControlName="repairResult">
-                    <mat-option [value]="null">— Não informado —</mat-option>
                     @for (r of allRepairResults; track r.value) {
                       <mat-option [value]="r.value">{{ r.label }}</mat-option>
                     }
                   </mat-select>
+                  @if (editBudgetForm.get('repairResult')?.hasError('required')) {
+                    <mat-error>Campo obrigatório.</mat-error>
+                  }
                 </mat-form-field>
               </div>
               <div class="flex gap-4 flex-wrap mb-5">
@@ -233,11 +281,13 @@
               <mat-form-field appearance="outline" class="flex-1">
                 <mat-label>Resultado do diagnóstico</mat-label>
                 <mat-select formControlName="repairResult">
-                  <mat-option [value]="null">— Não informado —</mat-option>
                   @for (r of allRepairResults; track r.value) {
                     <mat-option [value]="r.value">{{ r.label }}</mat-option>
                   }
                 </mat-select>
+                @if (createBudgetForm.get('repairResult')?.hasError('required')) {
+                  <mat-error>Campo obrigatório.</mat-error>
+                }
               </mat-form-field>
             </div>
             <div class="flex gap-4 flex-wrap mb-5">
@@ -264,10 +314,15 @@
 
     </div>
 
-    <div>
+    <div class="flex items-center justify-between">
       <a mat-button routerLink="/orders">
         <mat-icon>arrow_back</mat-icon> Voltar para ordens
       </a>
+      @if (o.status !== 'Delivered' && o.status !== 'Cancelled') {
+        <button mat-stroked-button color="warn" (click)="confirmCancel()" [disabled]="changingStatus()">
+          <mat-icon>cancel</mat-icon> Cancelar ordem
+        </button>
+      }
     </div>
   </div>
 }

@@ -13,11 +13,8 @@ public class DashboardService : IDashboardService
 {
     private static readonly ServiceOrderStatus[] OpenStatuses =
     [
-        ServiceOrderStatus.Received,
         ServiceOrderStatus.UnderAnalysis,
         ServiceOrderStatus.BudgetPending,
-        ServiceOrderStatus.WaitingApproval,
-        ServiceOrderStatus.BudgetApproved,
         ServiceOrderStatus.UnderRepair,
         ServiceOrderStatus.ReadyForPickup,
     ];
@@ -46,7 +43,7 @@ public class DashboardService : IDashboardService
 
         var openOrders = await _orderRepository.CountByStatusesAsync(OpenStatuses, cancellationToken);
         var readyForPickup = await _orderRepository.CountByStatusesAsync([ServiceOrderStatus.ReadyForPickup], cancellationToken);
-        var waitingApproval = await _orderRepository.CountByStatusesAsync([ServiceOrderStatus.WaitingApproval], cancellationToken);
+        var waitingApproval = await _orderRepository.CountByBudgetStatusAsync(ServiceOrderRepairStatus.Waiting, cancellationToken);
         var totalOrders = await _orderRepository.CountAsync(cancellationToken);
         var recentOrders = await _orderRepository.GetRecentAsync(5, cancellationToken);
         var countsByStatus = await _orderRepository.GetCountsByStatusThisMonthAsync(cancellationToken);

@@ -30,7 +30,7 @@ export class BudgetViewComponent implements OnInit {
     this.orderService.getPublicById(this.id).subscribe({
       next: (o) => {
         this.order.set(o);
-        if (o.status !== 'WaitingApproval') {
+        if (o.budgetStatus !== 'Waiting' && o.budgetStatus !== 'Entered') {
           this.state.set('already-answered');
         } else {
           this.state.set('view');

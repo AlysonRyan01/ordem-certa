@@ -1,14 +1,12 @@
 export type ServiceOrderStatus =
-  | 'Received'
   | 'UnderAnalysis'
   | 'BudgetPending'
-  | 'WaitingApproval'
-  | 'BudgetApproved'
-  | 'BudgetRefused'
   | 'UnderRepair'
   | 'ReadyForPickup'
   | 'Delivered'
   | 'Cancelled';
+
+export type ServiceOrderRepairStatus = 'Entered' | 'Approved' | 'Disapproved' | 'Waiting';
 
 export type RepairResult = 'CanBeRepaired' | 'NoFix' | 'NoDefectFound';
 export type WarrantyUnit = 'Days' | 'Months' | 'Years';
@@ -25,6 +23,7 @@ export interface ServiceOrderOutput {
   accessories?: string;
   observations?: string;
   status: ServiceOrderStatus;
+  budgetStatus?: ServiceOrderRepairStatus;
   repairResult?: RepairResult;
   warrantyDuration?: number;
   warrantyUnit?: WarrantyUnit;
@@ -63,7 +62,7 @@ export interface ChangeStatusInput {
 export interface CreateBudgetInput {
   value: number;
   description: string;
-  repairResult?: RepairResult;
+  repairResult: RepairResult;
   warrantyDuration?: number;
   warrantyUnit?: WarrantyUnit;
 }

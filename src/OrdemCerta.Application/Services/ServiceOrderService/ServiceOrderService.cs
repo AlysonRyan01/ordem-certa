@@ -217,6 +217,23 @@ public class ServiceOrderService : IServiceOrderService
         return order.ToOutput();
     }
 
+    public async Task<Result<ServiceOrderOutput>> RollbackAsync(Guid id, CancellationToken cancellationToken)
+    {
+        var orderResult = await _serviceOrderRepository.GetByIdAsync(id, cancellationToken);
+        if (orderResult.IsFailure)
+            return Result<ServiceOrderOutput>.Failure(orderResult.Errors);
+
+        var order = orderResult.Value!;
+        var rollbackResult = order.Rollback();
+        if (rollbackResult.IsFailure)
+            return Result<ServiceOrderOutput>.Failure(rollbackResult.Errors);
+
+        await _serviceOrderRepository.UpdateAsync(order, cancellationToken);
+        await _unitOfWork.CommitAsync(cancellationToken);
+
+        return order.ToOutput();
+    }
+
     public async Task<Result<ServiceOrderOutput>> SetWarrantyAsync(Guid id, SetWarrantyInput input, CancellationToken cancellationToken)
     {
         var validationResult = await _setWarrantyValidator.ValidateAsync(input, cancellationToken);
@@ -488,6 +505,13 @@ public class ServiceOrderService : IServiceOrderService
         if (order.Budget is null)
             return "A ordem não possui orçamento.";
 
+        var markResult = order.MarkBudgetAsWaiting();
+        if (markResult.IsFailure)
+            return markResult;
+
+        await _serviceOrderRepository.UpdateAsync(order, cancellationToken);
+        await _unitOfWork.CommitAsync(cancellationToken);
+
         var customerResult = await _customerRepository.GetByIdAsync(order.CustomerId, cancellationToken);
         if (customerResult.IsFailure || !customerResult.Value!.Phones.Any())
             return Result.Success();
@@ -685,7 +709,9 @@ public class ServiceOrderService : IServiceOrderService
         var pdf = order.Status == ServiceOrderStatus.Delivered
             ? order.RepairResult is RepairResult.NoFix or RepairResult.NoDefectFound
                 ? _pdfService.GenerateReturnReceipt(orderOutput, customerOutput, companyOutput)
-                : _pdfService.GenerateWarrantyCard(orderOutput, customerOutput, companyOutput)
+                : order.BudgetStatus == ServiceOrderRepairStatus.Approved
+                    ? _pdfService.GenerateWarrantyCard(orderOutput, customerOutput, companyOutput)
+                    : _pdfService.GenerateReturnReceipt(orderOutput, customerOutput, companyOutput)
             : _pdfService.GenerateEntryReceipt(orderOutput, customerOutput, companyOutput);
 
         return pdf;

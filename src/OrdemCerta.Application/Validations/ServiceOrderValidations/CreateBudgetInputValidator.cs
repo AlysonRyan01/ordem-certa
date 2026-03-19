@@ -15,8 +15,7 @@ public class CreateBudgetInputValidator : AbstractValidator<CreateBudgetInput>
             .MaximumLength(500).WithMessage("A descrição deve ter no máximo 500 caracteres");
 
         RuleFor(x => x.RepairResult)
-            .IsInEnum().When(x => x.RepairResult.HasValue)
-            .WithMessage("Resultado do diagnóstico inválido.");
+            .IsInEnum().WithMessage("Resultado do diagnóstico inválido.");
 
         RuleFor(x => x.WarrantyDuration)
             .GreaterThan(0).When(x => x.WarrantyDuration.HasValue)

@@ -12,6 +12,7 @@ public record ServiceOrderOutput(
     string? Accessories,
     string? Observations,
     string Status,
+    string? BudgetStatus,
     string? RepairResult,
     int? WarrantyDuration,
     string? WarrantyUnit,

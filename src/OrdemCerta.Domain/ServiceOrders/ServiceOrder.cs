@@ -11,6 +11,7 @@ public class ServiceOrder : AggregateRoot
     public int OrderNumber { get; private set; }
     public EquipmentInfo Equipment { get; private set; } = null!;
     public ServiceOrderStatus Status { get; private set; }
+    public ServiceOrderRepairStatus? BudgetStatus { get; private set; }
     public RepairResult? RepairResult { get; private set; }
     public Warranty? Warranty { get; private set; }
     public DateTime EntryDate { get; private set; }
@@ -26,7 +27,7 @@ public class ServiceOrder : AggregateRoot
         CustomerId = customerId;
         OrderNumber = orderNumber;
         Equipment = equipment;
-        Status = ServiceOrderStatus.Received;
+        Status = ServiceOrderStatus.UnderAnalysis;
         EntryDate = DateTime.UtcNow;
         TechnicianName = technicianName;
     }
@@ -69,45 +70,91 @@ public class ServiceOrder : AggregateRoot
         return Result.Success();
     }
 
-    public Result CreateBudget(Budget budget, RepairResult? repairResult = null, Warranty? warranty = null)
+    public Result CreateBudget(Budget budget, RepairResult repairResult, Warranty? warranty = null)
     {
         Budget = budget;
-        Status = ServiceOrderStatus.WaitingApproval;
-        if (repairResult.HasValue) RepairResult = repairResult;
+        Status = ServiceOrderStatus.BudgetPending;
+        BudgetStatus = ServiceOrderRepairStatus.Entered;
+        RepairResult = repairResult;
         if (warranty is not null) Warranty = warranty;
         return Result.Success();
     }
 
-    public Result UpdateBudget(Budget budget, RepairResult? repairResult = null, Warranty? warranty = null)
+    public Result UpdateBudget(Budget budget, RepairResult repairResult, Warranty? warranty = null)
     {
-        if (Status == ServiceOrderStatus.BudgetApproved)
+        if (BudgetStatus == ServiceOrderRepairStatus.Approved)
             return "Não é possível alterar o orçamento após aprovação.";
 
         if (Status == ServiceOrderStatus.Delivered || Status == ServiceOrderStatus.Cancelled)
             return "Não é possível alterar o orçamento de uma ordem finalizada.";
 
         Budget = budget;
-        Status = ServiceOrderStatus.WaitingApproval;
-        if (repairResult.HasValue) RepairResult = repairResult;
+        BudgetStatus = ServiceOrderRepairStatus.Entered;
+        RepairResult = repairResult;
         if (warranty is not null) Warranty = warranty;
+        return Result.Success();
+    }
+
+    public Result MarkBudgetAsWaiting()
+    {
+        if (Budget is null)
+            return "A ordem não possui orçamento.";
+
+        if (BudgetStatus is ServiceOrderRepairStatus.Approved or ServiceOrderRepairStatus.Disapproved)
+            return "O orçamento já foi respondido pelo cliente.";
+
+        BudgetStatus = ServiceOrderRepairStatus.Waiting;
         return Result.Success();
     }
 
     public Result ApproveBudget()
     {
-        if (Status != ServiceOrderStatus.WaitingApproval)
-            return "A ordem não está aguardando aprovação";
+        if (BudgetStatus is null or ServiceOrderRepairStatus.Approved or ServiceOrderRepairStatus.Disapproved)
+            return "O orçamento não está disponível para aprovação.";
 
-        Status = ServiceOrderStatus.BudgetApproved;
+        BudgetStatus = ServiceOrderRepairStatus.Approved;
         return Result.Success();
     }
 
     public Result RefuseBudget()
     {
-        if (Status != ServiceOrderStatus.WaitingApproval)
-            return "A ordem não está aguardando aprovação";
+        if (BudgetStatus is null or ServiceOrderRepairStatus.Approved or ServiceOrderRepairStatus.Disapproved)
+            return "O orçamento não está disponível para recusa.";
 
-        Status = ServiceOrderStatus.BudgetRefused;
+        BudgetStatus = ServiceOrderRepairStatus.Disapproved;
         return Result.Success();
+    }
+
+    public Result Rollback()
+    {
+        switch (Status)
+        {
+            case ServiceOrderStatus.BudgetPending:
+                if (BudgetStatus is ServiceOrderRepairStatus.Approved or ServiceOrderRepairStatus.Disapproved)
+                {
+                    BudgetStatus = ServiceOrderRepairStatus.Entered;
+                    return Result.Success();
+                }
+                Status = ServiceOrderStatus.UnderAnalysis;
+                Budget = null;
+                BudgetStatus = null;
+                RepairResult = null;
+                Warranty = null;
+                return Result.Success();
+
+            case ServiceOrderStatus.UnderRepair:
+                Status = ServiceOrderStatus.BudgetPending;
+                return Result.Success();
+
+            case ServiceOrderStatus.ReadyForPickup:
+                Status = RepairResult is Enums.RepairResult.NoFix or Enums.RepairResult.NoDefectFound
+                      || BudgetStatus == ServiceOrderRepairStatus.Disapproved
+                    ? ServiceOrderStatus.BudgetPending
+                    : ServiceOrderStatus.UnderRepair;
+                return Result.Success();
+
+            default:
+                return "Não é possível desfazer esta etapa.";
+        }
     }
 }

@@ -103,6 +103,21 @@ public class ServiceOrderController : ControllerBase
         return Ok(result.Value);
     }
 
+    [HttpPost("{id:guid}/rollback")]
+    [ProducesResponseType(typeof(ServiceOrderOutput), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> Rollback(
+        [FromRoute] Guid id,
+        CancellationToken cancellationToken)
+    {
+        var result = await _serviceOrderService.RollbackAsync(id, cancellationToken);
+
+        if (result.IsFailure)
+            return BadRequest(new { errors = result.Errors });
+
+        return Ok(result.Value);
+    }
+
     [HttpPatch("{id:guid}/status")]
     [ProducesResponseType(typeof(ServiceOrderOutput), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]

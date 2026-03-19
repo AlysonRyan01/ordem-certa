@@ -16,6 +16,7 @@ public interface IServiceOrderService
     Task<Result<List<ServiceOrderOutput>>> GetByStatusAsync(ServiceOrderStatus status, GetPagedInput input, CancellationToken cancellationToken);
     Task<Result<List<ServiceOrderOutput>>> GetByCustomerAsync(Guid customerId, GetPagedInput input, CancellationToken cancellationToken);
     Task<Result<ServiceOrderOutput>> ChangeStatusAsync(Guid id, ChangeStatusInput input, CancellationToken cancellationToken);
+    Task<Result<ServiceOrderOutput>> RollbackAsync(Guid id, CancellationToken cancellationToken);
     Task<Result<ServiceOrderOutput>> SetRepairResultAsync(Guid id, SetRepairResultInput input, CancellationToken cancellationToken);
     Task<Result<ServiceOrderOutput>> SetWarrantyAsync(Guid id, SetWarrantyInput input, CancellationToken cancellationToken);
     Task<Result<ServiceOrderOutput>> CreateBudgetAsync(Guid id, CreateBudgetInput input, CancellationToken cancellationToken);

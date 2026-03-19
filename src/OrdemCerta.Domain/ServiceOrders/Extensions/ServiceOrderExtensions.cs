@@ -18,6 +18,7 @@ public static class ServiceOrderExtensions
             order.Equipment.Accessories,
             order.Equipment.Observations,
             order.Status.ToString(),
+            order.BudgetStatus?.ToString(),
             order.RepairResult?.ToString(),
             order.Warranty?.Duration,
             order.Warranty?.Unit.ToString(),

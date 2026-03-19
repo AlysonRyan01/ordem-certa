@@ -5,6 +5,6 @@ namespace OrdemCerta.Application.Inputs.ServiceOrderInputs;
 public record CreateBudgetInput(
     decimal Value,
     string Description,
-    RepairResult? RepairResult = null,
+    RepairResult RepairResult,
     int? WarrantyDuration = null,
     WarrantyUnit? WarrantyUnit = null);

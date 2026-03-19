@@ -101,6 +101,13 @@ public class ServiceOrderRepository : IServiceOrderRepository
             .CountAsync(o => o.CompanyId == _currentCompany.CompanyId && statuses.Contains(o.Status), cancellationToken);
     }
 
+    public async Task<int> CountByBudgetStatusAsync(ServiceOrderRepairStatus budgetStatus, CancellationToken cancellationToken)
+    {
+        return await _context.ServiceOrders
+            .AsNoTracking()
+            .CountAsync(o => o.CompanyId == _currentCompany.CompanyId && o.BudgetStatus == budgetStatus, cancellationToken);
+    }
+
     public async Task<List<ServiceOrder>> GetRecentAsync(int count, CancellationToken cancellationToken)
     {
         return await _context.ServiceOrders
