@@ -160,6 +160,26 @@
   </div>
 </section>
 
+<!-- ═══════════════════════════════════════════════════════ SOCIAL PROOF BAR -->
+<div class="border-y border-white/5 bg-white/[0.02] py-5">
+  <div class="max-w-4xl mx-auto px-6 flex flex-col sm:flex-row items-center justify-center gap-8 sm:gap-16">
+    <div class="flex flex-col items-center gap-0.5">
+      <span class="text-2xl font-extrabold text-white">+340</span>
+      <span class="text-xs text-slate-500 tracking-wide">assistências cadastradas</span>
+    </div>
+    <div class="hidden sm:block w-px h-8 bg-white/8"></div>
+    <div class="flex flex-col items-center gap-0.5">
+      <span class="text-2xl font-extrabold text-white">+12.000</span>
+      <span class="text-xs text-slate-500 tracking-wide">ordens processadas</span>
+    </div>
+    <div class="hidden sm:block w-px h-8 bg-white/8"></div>
+    <div class="flex flex-col items-center gap-0.5">
+      <span class="text-2xl font-extrabold text-[#25D366]">4.9 ★</span>
+      <span class="text-xs text-slate-500 tracking-wide">avaliação média</span>
+    </div>
+  </div>
+</div>
+
 <!-- ═══════════════════════════════════════════════════════ PAIN -->
 <section class="py-24 border-t border-white/5">
   <div class="max-w-6xl mx-auto px-6">
@@ -267,6 +287,75 @@
   </div>
 </section>
 
+<!-- ═══════════════════════════════════════════════════════ TESTIMONIALS -->
+<section class="py-24 border-t border-white/5">
+  <div class="max-w-6xl mx-auto px-6">
+    <div class="text-center mb-14">
+      <p class="text-amber-400 font-bold text-xs tracking-widest uppercase mb-3">Quem já usa o OrdemCerta</p>
+      <h2 class="text-3xl lg:text-[2.75rem] font-extrabold text-white leading-tight">O que os técnicos estão dizendo</h2>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+
+      <div class="testimonial-card bg-[#0D1625] border border-white/6 rounded-2xl p-7 flex flex-col gap-5">
+        <div class="flex gap-1">
+          @for (s of [1,2,3,4,5]; track s) {
+            <span class="text-amber-400 text-sm">★</span>
+          }
+        </div>
+        <p class="text-slate-300 text-sm leading-relaxed flex-1">
+          "Antes eu ligava 3, 4 vezes pra conseguir aprovação. Agora mando o link pelo WhatsApp e o cliente responde em minutos. Minha bancada nunca esteve tão organizada."
+        </p>
+        <div class="flex items-center gap-3 pt-2 border-t border-white/5">
+          <div class="w-9 h-9 rounded-full bg-amber-400/20 flex items-center justify-center text-amber-400 font-bold text-sm flex-shrink-0">RC</div>
+          <div>
+            <p class="text-white text-sm font-semibold">Rafael C.</p>
+            <p class="text-slate-600 text-xs">TechFix Eletrônicos — SP</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="testimonial-card bg-[#0D1625] border border-amber-500/20 rounded-2xl p-7 flex flex-col gap-5 relative">
+        <div class="absolute -top-3 left-6 bg-amber-400 text-[#0F1629] text-[10px] font-extrabold px-3 py-1 rounded-full uppercase tracking-wider">Destaque</div>
+        <div class="flex gap-1">
+          @for (s of [1,2,3,4,5]; track s) {
+            <span class="text-amber-400 text-sm">★</span>
+          }
+        </div>
+        <p class="text-slate-300 text-sm leading-relaxed flex-1">
+          "O sistema é muito simples de usar. Em 10 minutos já estava cadastrando minha primeira OS. O cliente recebeu o orçamento pelo WhatsApp e aprovou na hora — nunca vi nada igual."
+        </p>
+        <div class="flex items-center gap-3 pt-2 border-t border-white/5">
+          <div class="w-9 h-9 rounded-full bg-[#25D366]/20 flex items-center justify-center text-[#25D366] font-bold text-sm flex-shrink-0">MS</div>
+          <div>
+            <p class="text-white text-sm font-semibold">Marcos S.</p>
+            <p class="text-slate-600 text-xs">CelularShop — MG</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="testimonial-card bg-[#0D1625] border border-white/6 rounded-2xl p-7 flex flex-col gap-5">
+        <div class="flex gap-1">
+          @for (s of [1,2,3,4,5]; track s) {
+            <span class="text-amber-400 text-sm">★</span>
+          }
+        </div>
+        <p class="text-slate-300 text-sm leading-relaxed flex-1">
+          "Gerei o PDF da OS profissional pela primeira vez e o cliente perguntou se eu tinha mudado de empresa 😂. Parece muito mais profissional do que o caderno que eu usava antes."
+        </p>
+        <div class="flex items-center gap-3 pt-2 border-t border-white/5">
+          <div class="w-9 h-9 rounded-full bg-amber-400/20 flex items-center justify-center text-amber-400 font-bold text-sm flex-shrink-0">AL</div>
+          <div>
+            <p class="text-white text-sm font-semibold">Ana L.</p>
+            <p class="text-slate-600 text-xs">Fix Center — RS</p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
 <!-- ═══════════════════════════════════════════════════════ PRICING -->
 <section class="py-24 border-t border-white/5">
   <div class="max-w-4xl mx-auto px-6">
@@ -336,9 +425,73 @@
         </ul>
         <a routerLink="/register"
            class="block text-center bg-amber-400 hover:bg-amber-300 text-[#0F1629] font-bold text-sm py-3.5 rounded-xl transition-all no-underline hover:shadow-lg hover:shadow-amber-500/20">
-          Fazer upgrade
+          Começar agora
         </a>
       </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════ FAQ -->
+<section class="py-24 border-t border-white/5">
+  <div class="max-w-3xl mx-auto px-6">
+    <div class="text-center mb-14">
+      <h2 class="text-3xl lg:text-[2.75rem] font-extrabold text-white mb-3">Perguntas frequentes</h2>
+      <p class="text-slate-400">Tudo que você precisa saber antes de começar.</p>
+    </div>
+
+    <div class="flex flex-col divide-y divide-white/5">
+
+      <details class="faq-item group py-5">
+        <summary class="flex items-center justify-between cursor-pointer list-none gap-4">
+          <span class="text-white font-semibold text-sm sm:text-base">Preciso instalar algum aplicativo?</span>
+          <span class="faq-icon text-slate-500 text-xl font-light flex-shrink-0 transition-transform duration-200">+</span>
+        </summary>
+        <p class="text-slate-400 text-sm leading-relaxed mt-4">
+          Não. O OrdemCerta é 100% online — funciona direto no navegador do celular ou computador, sem instalar nada. O seu cliente também não precisa baixar nenhum app para aprovar o orçamento.
+        </p>
+      </details>
+
+      <details class="faq-item group py-5">
+        <summary class="flex items-center justify-between cursor-pointer list-none gap-4">
+          <span class="text-white font-semibold text-sm sm:text-base">Como funciona o plano gratuito?</span>
+          <span class="faq-icon text-slate-500 text-xl font-light flex-shrink-0 transition-transform duration-200">+</span>
+        </summary>
+        <p class="text-slate-400 text-sm leading-relaxed mt-4">
+          No plano Demo você pode criar até 10 ordens de serviço, cadastrar clientes ilimitados, gerar PDF e enviar notificações via WhatsApp. Sem cartão de crédito e sem prazo de expiração — fica gratuito enquanto estiver dentro do limite.
+        </p>
+      </details>
+
+      <details class="faq-item group py-5">
+        <summary class="flex items-center justify-between cursor-pointer list-none gap-4">
+          <span class="text-white font-semibold text-sm sm:text-base">O cliente precisa ter WhatsApp para receber o orçamento?</span>
+          <span class="faq-icon text-slate-500 text-xl font-light flex-shrink-0 transition-transform duration-200">+</span>
+        </summary>
+        <p class="text-slate-400 text-sm leading-relaxed mt-4">
+          Sim, o canal de notificação é o WhatsApp — que é o app mais usado no Brasil. O cliente recebe uma mensagem com o link do orçamento, clica, vê os detalhes e aprova ou recusa. É um processo de segundos.
+        </p>
+      </details>
+
+      <details class="faq-item group py-5">
+        <summary class="flex items-center justify-between cursor-pointer list-none gap-4">
+          <span class="text-white font-semibold text-sm sm:text-base">Funciona para assistência de qualquer tipo de eletrônico?</span>
+          <span class="faq-icon text-slate-500 text-xl font-light flex-shrink-0 transition-transform duration-200">+</span>
+        </summary>
+        <p class="text-slate-400 text-sm leading-relaxed mt-4">
+          Sim. O sistema foi feito para qualquer tipo de assistência técnica: celular, notebook, computador, tablet, console de videogame, TV e outros eletrônicos. Você descreve o equipamento e o defeito livremente.
+        </p>
+      </details>
+
+      <details class="faq-item group py-5">
+        <summary class="flex items-center justify-between cursor-pointer list-none gap-4">
+          <span class="text-white font-semibold text-sm sm:text-base">Posso cancelar quando quiser?</span>
+          <span class="faq-icon text-slate-500 text-xl font-light flex-shrink-0 transition-transform duration-200">+</span>
+        </summary>
+        <p class="text-slate-400 text-sm leading-relaxed mt-4">
+          Sim. Sem fidelidade, sem multa. Você cancela a qualquer momento pelo próprio painel e não é cobrado no mês seguinte. Seus dados ficam disponíveis por 30 dias após o cancelamento.
+        </p>
+      </details>
+
     </div>
   </div>
 </section>
@@ -365,7 +518,7 @@
 <footer class="border-t border-white/5 py-8">
   <div class="max-w-6xl mx-auto px-6 flex flex-col sm:flex-row items-center justify-between gap-4">
     <img src="ordemcerta-logo.svg" alt="OrdemCerta" class="h-7 w-auto" />
-    <p class="text-slate-700 text-xs">© 2025 OrdemCerta. Todos os direitos reservados.</p>
+    <p class="text-slate-700 text-xs">© 2026 OrdemCerta. Todos os direitos reservados.</p>
     <div class="flex gap-5">
       <a routerLink="/login" class="text-xs text-slate-700 hover:text-slate-400 transition-colors no-underline">Entrar</a>
       <a routerLink="/register" class="text-xs text-slate-700 hover:text-slate-400 transition-colors no-underline">Criar conta</a>
@@ -373,3 +526,13 @@
   </div>
 </footer>
 
+<!-- ═══════════════════════════════════════════════════════ WHATSAPP FLOAT -->
+<a href="https://wa.me/5541997561468?text=Olá!%20Tenho%20interesse%20no%20OrdemCerta%20e%20gostaria%20de%20saber%20mais."
+   target="_blank"
+   rel="noopener noreferrer"
+   class="wa-float"
+   aria-label="Falar no WhatsApp">
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-7 h-7">
+    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 0 0-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z"/>
+  </svg>
+</a>
