@@ -26,7 +26,8 @@
       "Bash(npx ng:*)",
       "Skill(update-config)",
       "Bash(dotnet tool:*)",
-      "Bash(\"$USERPROFILE/.dotnet/tools/dotnet-ef\" migrations:*)"
+      "Bash(\"$USERPROFILE/.dotnet/tools/dotnet-ef\" migrations:*)",
+      "Bash(xargs basename:*)"
     ]
   }
 }

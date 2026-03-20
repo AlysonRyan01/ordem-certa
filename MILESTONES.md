@@ -127,7 +127,96 @@
 
 ---
 
+### Milestone 11 — Contexto de Vendas
+
+- [ ] **Domain:** Enum `SaleStatus` (Completed, Cancelled, Returned)
+- [ ] **Domain:** Enum `SalePaymentMethod` (Cash, Debit, Credit, Pix, Other)
+- [ ] **Domain:** `SaleItem` — owned entity (ProductName, Quantity, UnitPrice, Subtotal calculado)
+- [ ] **Domain:** `CompanySaleSequence` — numeração sequencial independente por empresa
+- [ ] **Domain:** Aggregate `Sale` com métodos: `Create`, `AddItem`, `RemoveItem`, `UpdateItem`, `UpdateNotes`, `UpdatePaymentMethod`, `SetWarranty`, `ClearWarranty`, `Cancel`, `Return`
+- [ ] **Domain:** `SaleOutput` + `SaleItemOutput` (records) e `SaleExtensions.ToOutput()`
+- [ ] **Infrastructure:** `ISaleRepository` + `SaleRepository` com `GetByIdTrackedAsync` (necessário para `OwnsMany`)
+- [ ] **Infrastructure:** `ICompanySaleSequenceRepository` + `CompanySaleSequenceRepository`
+- [ ] **Infrastructure:** `SaleModel` — tabela `sales` + `OwnsOne(Warranty)` + `OwnsMany(Items → sale_items)`
+- [ ] **Infrastructure:** `CompanySaleSequenceModel` — tabela `company_sale_sequences`
+- [ ] **Application:** Inputs: `CreateSaleInput`, `UpdateSaleInput`, `AddSaleItemInput`, `UpdateSaleItemInput`
+- [ ] **Application:** Validators para cada input (cross-field warranty: duração + unidade juntos ou nenhum)
+- [ ] **Application:** `ISaleService` + `SaleService` (CRUD + itens + cancel + return)
+- [ ] **Presentation:** `SaleController` com 12 endpoints (CRUD, itens, filtros, cancel, return)
+- [ ] **Migration:** `SalesMap` gerando tabelas `sales`, `sale_items`, `company_sale_sequences`
+- [ ] **PDF:** Templates de venda via QuestPDF:
+  - [ ] **Comprovante de venda** — número, data, cliente (se houver), itens, total, forma de pagamento
+  - [ ] **Certificado de garantia** — produto(s), valor, prazo de garantia, termos, assinatura
+- [ ] **Application:** `PrintSaleAsync` no `SaleService` — decide o documento pelo contexto (com ou sem garantia)
+- [ ] **Presentation:** `GET /api/sales/{id}/print` → retorna `application/pdf`
+
+**Endpoints planejados:**
+
+| Verbo | Rota | Ação |
+|---|---|---|
+| POST | `/api/sales` | Criar venda |
+| GET | `/api/sales` | Listagem paginada |
+| GET | `/api/sales/{id}` | Detalhe |
+| GET | `/api/sales/by-status/{status}` | Filtrar por status |
+| GET | `/api/sales/by-customer/{customerId}` | Filtrar por cliente |
+| PUT | `/api/sales/{id}` | Atualizar (pagamento, notas, garantia) |
+| DELETE | `/api/sales/{id}` | Excluir |
+| POST | `/api/sales/{id}/items` | Adicionar item |
+| PUT | `/api/sales/{id}/items/{itemId}` | Atualizar item |
+| DELETE | `/api/sales/{id}/items/{itemId}` | Remover item |
+| POST | `/api/sales/{id}/cancel` | Cancelar |
+| POST | `/api/sales/{id}/return` | Registrar devolução |
+
+**Decisões de design:**
+- `Warranty` VO reutilizado de `ServiceOrders` (sem cópia)
+- `TotalValue` armazenado e recalculado no domínio a cada mutação de item
+- `CustomerId` nullable — venda de balcão sem cliente cadastrado é válida
+- Mutations de item em endpoints dedicados (evita substituição acidental da lista no `PUT`)
+
+---
+
 ## Frontend
+
+---
+
+### Milestone F11 — Vendas (Frontend)
+
+- [ ] **Models:** `sale.model.ts` — interfaces `SaleOutput`, `SaleItemOutput`, `CreateSaleInput`, `UpdateSaleInput`; type aliases `SaleStatus`, `SalePaymentMethod`, `SaleWarrantyUnit`
+- [ ] **Helpers:** `sale-status.helper.ts` — `SALE_STATUS_META`, `ALL_SALE_STATUSES`, `saleStatusMeta()`
+- [ ] **Helpers:** `sale-payment-method.helper.ts` — `PAYMENT_METHOD_META`, `ALL_PAYMENT_METHODS`, `paymentMethodLabel()`
+- [ ] **Shared:** `SaleStatusBadgeComponent` — badge dedicado para `SaleStatus` (separado do `StatusBadgeComponent` existente que é tipado para `ServiceOrderStatus`)
+- [ ] **Service:** `sale.service.ts` — `getPaged`, `getByStatus`, `getByCustomer`, `getById`, `create`, `update`, `delete`, `print` (blob → nova aba)
+- [ ] **Routes:** `sales.routes.ts` — `''` (lista), `new` (form), `:id` (detalhe), `:id/edit` (form)
+- [ ] **app.routes.ts:** adicionar rota `sales` com `loadChildren` dentro do layout autenticado (após `customers`)
+- [ ] **main-layout:** adicionar item "Vendas" com ícone `point_of_sale` no `navItems`
+- [ ] **SaleListComponent** — tabela paginada, filtro por status, badge, colunas: número, status, pagamento, total, data, ações
+- [ ] **SaleFormComponent** — criar/editar; `FormArray` de itens com add/remove; total calculado em tempo real via `computed()`; toggle de garantia; autocomplete de cliente
+- [ ] **SaleDetailComponent** — detalhe completo; tabela de itens com rodapé de total; ações Cancelar/Devolver com `ConfirmDialog`; botão Reimprimir; botão Editar (só se `Completed`)
+
+**Decisões de design:**
+- `computedTotal` no formulário é apenas visual — o total canônico vem do backend
+- Item rows: botão remover desabilitado (não oculto) quando há apenas 1 item
+- Warranty toggle: ao desativar, reseta `warrantyDuration` e `warrantyUnit` para null
+- Editar venda só disponível quando `status === 'Completed'`
+- Cancel e Return sempre via `ConfirmDialogComponent`
+
+**Arquivos novos (13):**
+```
+core/models/sale.model.ts
+core/models/sale-status.helper.ts
+core/models/sale-payment-method.helper.ts
+core/services/sale.service.ts
+shared/components/sale-status-badge/sale-status-badge.component.ts
+features/sales/sales.routes.ts
+features/sales/sale-list/sale-list.component.ts
+features/sales/sale-list/sale-list.component.html
+features/sales/sale-form/sale-form.component.ts
+features/sales/sale-form/sale-form.component.html
+features/sales/sale-detail/sale-detail.component.ts
+features/sales/sale-detail/sale-detail.component.html
+```
+
+**Arquivos modificados (2):** `app.routes.ts`, `main-layout.component.ts`
 
 ---
 

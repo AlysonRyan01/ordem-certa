@@ -1,0 +1,152 @@
+@if (loading()) {
+  <div class="flex flex-col gap-4 max-w-3xl">
+    <app-skeleton height="2.5rem" width="35%" />
+    <app-skeleton height="14rem" />
+    <app-skeleton height="10rem" />
+  </div>
+} @else {
+
+  <div class="max-w-3xl">
+
+    <!-- Header -->
+    <div class="mb-6">
+      <h2 class="text-2xl font-bold text-slate-900 tracking-tight">
+        {{ isEdit() ? 'Editar Venda' : 'Nova Venda' }}
+      </h2>
+      <p class="text-sm text-slate-400 mt-0.5">
+        {{ isEdit() ? 'Atualize os dados da venda.' : 'Preencha os dados para registrar uma nova venda.' }}
+      </p>
+    </div>
+
+    <form [formGroup]="form" (ngSubmit)="save()" class="flex flex-col gap-6">
+
+      <!-- Dados principais -->
+      <div class="bg-white border border-slate-200 rounded-xl shadow-sm p-6 flex flex-col gap-4">
+        <h3 class="text-sm font-semibold text-slate-500 uppercase tracking-wider">Dados da Venda</h3>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <mat-form-field appearance="outline">
+            <mat-label>Nome do Cliente</mat-label>
+            <input matInput formControlName="customerName" placeholder="Ex.: João Silva" />
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Forma de Pagamento</mat-label>
+            <mat-select formControlName="paymentMethod">
+              @for (m of allPaymentMethods; track m.value) {
+                <mat-option [value]="m.value">{{ m.label }}</mat-option>
+              }
+            </mat-select>
+            @if (form.get('paymentMethod')!.hasError('required') && form.get('paymentMethod')!.touched) {
+              <mat-error>Obrigatório.</mat-error>
+            }
+          </mat-form-field>
+        </div>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Descrição</mat-label>
+          <input matInput formControlName="description" placeholder="Breve descrição da venda" />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Observações</mat-label>
+          <textarea matInput formControlName="notes" rows="3" placeholder="Informações adicionais..."></textarea>
+        </mat-form-field>
+      </div>
+
+      <!-- Garantia -->
+      <div class="bg-white border border-slate-200 rounded-xl shadow-sm p-6 flex flex-col gap-4">
+        <h3 class="text-sm font-semibold text-slate-500 uppercase tracking-wider">Garantia (opcional)</h3>
+
+        <div class="grid grid-cols-2 gap-4">
+          <mat-form-field appearance="outline">
+            <mat-label>Prazo</mat-label>
+            <input matInput formControlName="warrantyDuration" inputmode="numeric" placeholder="Ex.: 90" />
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Unidade</mat-label>
+            <mat-select formControlName="warrantyUnit">
+              @for (u of warrantyUnits; track u.value) {
+                <mat-option [value]="u.value">{{ u.label }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+        </div>
+      </div>
+
+      <!-- Itens (só no modo criação) -->
+      @if (!isEdit()) {
+        <div class="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
+          <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
+            <h3 class="text-sm font-semibold text-slate-500 uppercase tracking-wider">Itens</h3>
+            <button type="button" mat-stroked-button (click)="addItem()">
+              <mat-icon>add</mat-icon>
+              Adicionar Item
+            </button>
+          </div>
+
+          <div class="p-6 flex flex-col gap-4" formArrayName="items">
+            @for (ctrl of itemsArray.controls; track $index) {
+              <div class="flex gap-3 items-start" [formGroupName]="$index">
+                <div class="flex-1 grid grid-cols-1 sm:grid-cols-5 gap-3">
+                  <mat-form-field appearance="outline" class="sm:col-span-3">
+                    <mat-label>Descrição do item</mat-label>
+                    <input matInput formControlName="description" />
+                    @if (itemsArray.at($index).get('description')!.hasError('required') &&
+                         itemsArray.at($index).get('description')!.touched) {
+                      <mat-error>Obrigatório.</mat-error>
+                    }
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline">
+                    <mat-label>Qtd.</mat-label>
+                    <input matInput formControlName="quantity" inputmode="numeric" />
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline">
+                    <mat-label>Preço Unit.</mat-label>
+                    <input matInput formControlName="unitPrice" inputmode="decimal" />
+                  </mat-form-field>
+                </div>
+
+                <div class="flex flex-col items-end gap-1 pt-3 min-w-[80px]">
+                  <span class="text-xs text-slate-400">Total</span>
+                  <span class="text-sm font-semibold text-slate-800 whitespace-nowrap">
+                    {{ formatCurrency(itemTotal(itemsArray.at($index))) }}
+                  </span>
+                  @if (itemsArray.length > 1) {
+                    <button type="button" mat-icon-button color="warn"
+                      (click)="removeItem($index)"
+                      matTooltip="Remover item">
+                      <mat-icon>delete</mat-icon>
+                    </button>
+                  }
+                </div>
+              </div>
+            }
+
+            <div class="flex justify-end pt-2 border-t border-slate-100">
+              <span class="text-base font-bold text-slate-900">
+                Total: {{ formatCurrency(grandTotal()) }}
+              </span>
+            </div>
+          </div>
+        </div>
+      }
+
+      <!-- Ações -->
+      <div class="flex gap-3 justify-end">
+        <button type="button" mat-stroked-button (click)="cancel()">Cancelar</button>
+        <button type="submit" mat-flat-button [disabled]="form.invalid || saving()">
+          @if (saving()) {
+            <mat-spinner diameter="18" />
+          } @else {
+            {{ isEdit() ? 'Salvar alterações' : 'Criar venda' }}
+          }
+        </button>
+      </div>
+
+    </form>
+  </div>
+}

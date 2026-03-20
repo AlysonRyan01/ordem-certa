@@ -11,17 +11,21 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using OrdemCerta.Application.Abstractions;
 using OrdemCerta.Domain.Companies.Interfaces;
+using OrdemCerta.Application.Services.AdminService;
 using OrdemCerta.Application.Services.AuthService;
 using OrdemCerta.Application.Services.CompanyService;
 using OrdemCerta.Application.Services.CustomerService;
 using OrdemCerta.Application.Services.DashboardService;
 using OrdemCerta.Application.Services.PdfService;
+using OrdemCerta.Application.Services.SaleService;
 using OrdemCerta.Application.Services.ServiceOrderService;
 using OrdemCerta.Application.Services.StripeService;
 using OrdemCerta.Infrastructure.DataContext.Context;
 using OrdemCerta.Infrastructure.DataContext.Uow;
+using OrdemCerta.Infrastructure.Repositories.AdminRepository;
 using OrdemCerta.Infrastructure.Repositories.CompanyRepository;
 using OrdemCerta.Infrastructure.Repositories.CustomerRepository;
+using OrdemCerta.Infrastructure.Repositories.SaleRepository;
 using OrdemCerta.Infrastructure.Repositories.ServiceOrderRepository;
 using OrdemCerta.Application.Security;
 using OrdemCerta.Application.WhatsApp;
@@ -85,9 +89,11 @@ public static class BuilderExtensions
         services.AddScoped<ICustomerService, CustomerService>();
         services.AddScoped<IAuthService, AuthService>();
         services.AddScoped<IServiceOrderService, ServiceOrderService>();
+        services.AddScoped<ISaleService, SaleService>();
         services.AddScoped<IPdfService, PdfService>();
         services.AddScoped<IStripeService, StripeService>();
         services.AddScoped<IDashboardService, DashboardService>();
+        services.AddScoped<IAdminService, AdminService>();
         services.AddMemoryCache();
 
         services.AddValidatorsFromAssemblyContaining<CustomerService>();
@@ -165,6 +171,9 @@ public static class BuilderExtensions
         services.AddScoped<ICustomerRepository, CustomerRepository>();
         services.AddScoped<IServiceOrderRepository, ServiceOrderRepository>();
         services.AddScoped<ICompanyOrderSequenceRepository, CompanyOrderSequenceRepository>();
+        services.AddScoped<ISaleRepository, SaleRepository>();
+        services.AddScoped<ICompanySaleSequenceRepository, CompanySaleSequenceRepository>();
+        services.AddScoped<IAdminRepository, AdminRepository>();
     }
 
     public static void AddAuth(this IServiceCollection services, IConfiguration configuration)
@@ -191,7 +200,10 @@ public static class BuilderExtensions
                 };
             });
 
-        services.AddAuthorization();
+        services.AddAuthorization(options =>
+        {
+            options.AddPolicy("Admin", policy => policy.RequireRole("admin"));
+        });
     }
 
     public static void AddMediatr(this IServiceCollection services)

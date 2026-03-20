@@ -1,0 +1,360 @@
+<div class="admin-shell">
+  <div class="grid-bg"></div>
+
+  <header class="admin-header">
+    <div class="header-brand">
+      <span class="brand-icon">⚙</span>
+      <div>
+        <span class="brand-name">OrdemCerta</span>
+        <span class="brand-tag">Admin</span>
+      </div>
+    </div>
+    <nav class="header-nav">
+      <button mat-button class="nav-btn active" (click)="goToCompanies()">
+        <mat-icon>business</mat-icon>
+        Empresas
+      </button>
+      <button mat-button class="nav-btn logout-btn" (click)="logout()">
+        <mat-icon>logout</mat-icon>
+        Sair
+      </button>
+    </nav>
+  </header>
+
+  <main class="admin-main">
+    <div class="page-header">
+      <div class="page-title-group">
+        <p class="page-eyebrow">Visão Geral</p>
+        <h1 class="page-title">Dashboard</h1>
+      </div>
+    </div>
+
+    @if (loading()) {
+      <div class="stats-grid">
+        @for (i of [1,2,3,4,5]; track i) {
+          <div class="stat-card skeleton-card">
+            <div class="skeleton-icon"></div>
+            <div class="skeleton-number"></div>
+            <div class="skeleton-label"></div>
+          </div>
+        }
+      </div>
+    } @else if (stats()) {
+      <div class="stats-grid" style="animation: gridIn 0.5s cubic-bezier(0.16,1,0.3,1) both">
+        <div class="stat-card" style="animation-delay:0ms">
+          <div class="stat-icon-wrap accent-blue">
+            <mat-icon>corporate_fare</mat-icon>
+          </div>
+          <span class="stat-number">{{ stats()!.totalCompanies }}</span>
+          <span class="stat-label">Total de Empresas</span>
+          <div class="stat-bar" style="--fill: 100%"></div>
+        </div>
+
+        <div class="stat-card" style="animation-delay:60ms">
+          <div class="stat-icon-wrap accent-green">
+            <mat-icon>verified</mat-icon>
+          </div>
+          <span class="stat-number">{{ stats()!.paidCompanies }}</span>
+          <span class="stat-label">Plano Pago</span>
+          <div class="stat-bar accent-green-bar"
+            [style]="'--fill: ' + (stats()!.totalCompanies ? (stats()!.paidCompanies / stats()!.totalCompanies * 100) : 0) + '%'">
+          </div>
+        </div>
+
+        <div class="stat-card" style="animation-delay:120ms">
+          <div class="stat-icon-wrap accent-orange">
+            <mat-icon>hourglass_empty</mat-icon>
+          </div>
+          <span class="stat-number">{{ stats()!.demoCompanies }}</span>
+          <span class="stat-label">Plano Demo</span>
+          <div class="stat-bar accent-orange-bar"
+            [style]="'--fill: ' + (stats()!.totalCompanies ? (stats()!.demoCompanies / stats()!.totalCompanies * 100) : 0) + '%'">
+          </div>
+        </div>
+
+        <div class="stat-card" style="animation-delay:180ms">
+          <div class="stat-icon-wrap accent-cyan">
+            <mat-icon>trending_up</mat-icon>
+          </div>
+          <span class="stat-number">{{ stats()!.newLast30Days }}</span>
+          <span class="stat-label">Novas (30 dias)</span>
+          <div class="stat-bar"></div>
+        </div>
+
+        <div class="stat-card" style="animation-delay:240ms">
+          <div class="stat-icon-wrap accent-purple">
+            <mat-icon>receipt_long</mat-icon>
+          </div>
+          <span class="stat-number">{{ stats()!.totalServiceOrders }}</span>
+          <span class="stat-label">Total de Ordens</span>
+          <div class="stat-bar accent-purple-bar" style="--fill: 100%"></div>
+        </div>
+      </div>
+
+      <div class="quick-actions">
+        <button mat-flat-button class="action-btn" (click)="goToCompanies()">
+          <mat-icon>business</mat-icon>
+          Ver todas as empresas
+        </button>
+      </div>
+    }
+  </main>
+</div>
+
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500;600&display=swap');
+
+  :host { display: block; font-family: 'DM Sans', sans-serif; }
+
+  .admin-shell {
+    min-height: 100vh;
+    background: #090c10;
+    color: #e8eaf0;
+    position: relative;
+    overflow-x: hidden;
+  }
+
+  .grid-bg {
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(0, 212, 255, 0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0, 212, 255, 0.03) 1px, transparent 1px);
+    background-size: 48px 48px;
+    pointer-events: none;
+  }
+
+  /* Header */
+  .admin-header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 2rem;
+    height: 60px;
+    background: rgba(9, 12, 16, 0.9);
+    border-bottom: 1px solid rgba(0, 212, 255, 0.1);
+    backdrop-filter: blur(12px);
+  }
+
+  .header-brand {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .brand-icon {
+    font-size: 1.2rem;
+    filter: hue-rotate(180deg) saturate(2);
+  }
+
+  .brand-name {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: #e8eaf0;
+    letter-spacing: 0.05em;
+  }
+
+  .brand-tag {
+    display: inline-block;
+    margin-left: 0.5rem;
+    padding: 0.1rem 0.4rem;
+    font-size: 0.65rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #00d4ff;
+    background: rgba(0, 212, 255, 0.1);
+    border: 1px solid rgba(0, 212, 255, 0.2);
+    border-radius: 2px;
+  }
+
+  .header-nav {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+  }
+
+  .nav-btn {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.85rem;
+    color: rgba(255,255,255,0.5) !important;
+    border-radius: 4px;
+    transition: color 0.2s, background 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+  }
+
+  .nav-btn.active, .nav-btn:hover {
+    color: #e8eaf0 !important;
+    background: rgba(255,255,255,0.05) !important;
+  }
+
+  .logout-btn:hover {
+    color: #ff6b6b !important;
+    background: rgba(255, 107, 107, 0.08) !important;
+  }
+
+  /* Main */
+  .admin-main {
+    position: relative;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2.5rem 2rem;
+  }
+
+  .page-header {
+    margin-bottom: 2rem;
+  }
+
+  .page-eyebrow {
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: #00d4ff;
+    margin: 0 0 0.25rem;
+  }
+
+  .page-title {
+    font-family: 'DM Mono', monospace;
+    font-size: 2rem;
+    font-weight: 500;
+    color: #e8eaf0;
+    margin: 0;
+    letter-spacing: -0.02em;
+  }
+
+  /* Stats Grid */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+  }
+
+  @keyframes gridIn {
+    from { opacity: 0; transform: translateY(12px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .stat-card {
+    position: relative;
+    padding: 1.5rem;
+    background: #0d1117;
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 4px;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    overflow: hidden;
+    transition: border-color 0.2s, transform 0.2s;
+    animation: gridIn 0.5s cubic-bezier(0.16,1,0.3,1) both;
+  }
+
+  .stat-card:hover {
+    border-color: rgba(0, 212, 255, 0.2);
+    transform: translateY(-2px);
+  }
+
+  .stat-icon-wrap {
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    background: rgba(0, 212, 255, 0.08);
+    color: #00d4ff;
+    margin-bottom: 0.25rem;
+  }
+
+  .stat-icon-wrap.accent-green { background: rgba(0, 230, 118, 0.08); color: #00e676; }
+  .stat-icon-wrap.accent-orange { background: rgba(255, 167, 38, 0.08); color: #ffa726; }
+  .stat-icon-wrap.accent-cyan { background: rgba(0, 212, 255, 0.08); color: #00d4ff; }
+  .stat-icon-wrap.accent-purple { background: rgba(171, 71, 188, 0.08); color: #ab47bc; }
+  .stat-icon-wrap.accent-blue { background: rgba(66, 165, 245, 0.08); color: #42a5f5; }
+
+  .stat-number {
+    font-family: 'DM Mono', monospace;
+    font-size: 2.25rem;
+    font-weight: 500;
+    color: #e8eaf0;
+    line-height: 1;
+    letter-spacing: -0.03em;
+  }
+
+  .stat-label {
+    font-size: 0.78rem;
+    color: rgba(255,255,255,0.45);
+    font-weight: 500;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+  }
+
+  .stat-bar {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: 2px;
+    width: var(--fill, 60%);
+    background: rgba(0, 212, 255, 0.4);
+    border-radius: 0 2px 2px 0;
+    transition: width 1s cubic-bezier(0.16,1,0.3,1);
+  }
+
+  .stat-bar.accent-green-bar { background: rgba(0, 230, 118, 0.5); }
+  .stat-bar.accent-orange-bar { background: rgba(255, 167, 38, 0.5); }
+  .stat-bar.accent-purple-bar { background: rgba(171, 71, 188, 0.5); }
+
+  /* Skeleton */
+  .skeleton-card {
+    pointer-events: none;
+  }
+
+  .skeleton-icon, .skeleton-number, .skeleton-label {
+    border-radius: 3px;
+    background: linear-gradient(90deg, rgba(255,255,255,0.04) 25%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0.04) 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+  }
+
+  .skeleton-icon { width: 36px; height: 36px; }
+  .skeleton-number { width: 60%; height: 36px; margin-top: 0.25rem; }
+  .skeleton-label { width: 80%; height: 12px; }
+
+  @keyframes shimmer {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+  }
+
+  /* Quick actions */
+  .quick-actions {
+    display: flex;
+    gap: 1rem;
+  }
+
+  .action-btn {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.875rem;
+    font-weight: 600;
+    background: rgba(0, 212, 255, 0.1) !important;
+    color: #00d4ff !important;
+    border: 1px solid rgba(0, 212, 255, 0.2);
+    border-radius: 4px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: background 0.2s, border-color 0.2s;
+  }
+
+  .action-btn:hover {
+    background: rgba(0, 212, 255, 0.18) !important;
+    border-color: rgba(0, 212, 255, 0.4);
+  }
+</style>

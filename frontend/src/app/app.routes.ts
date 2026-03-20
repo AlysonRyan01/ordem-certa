@@ -52,6 +52,12 @@ export const routes: Routes = [
           import('./features/customers/customers.routes').then((m) => m.customersRoutes),
       },
       {
+        path: 'sales',
+        data: { breadcrumb: 'Vendas' },
+        loadChildren: () =>
+          import('./features/sales/sales.routes').then((m) => m.salesRoutes),
+      },
+      {
         path: 'profile',
         title: 'Perfil — OrdemCerta',
         data: { breadcrumb: 'Perfil' },
@@ -86,6 +92,11 @@ export const routes: Routes = [
       import('./features/public/budget-view/budget-view.component').then(
         (m) => m.BudgetViewComponent
       ),
+  },
+  {
+    path: 'admin',
+    loadChildren: () =>
+      import('./features/admin/admin.routes').then((m) => m.adminRoutes),
   },
   {
     path: '**',

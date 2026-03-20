@@ -4,6 +4,7 @@ using System.Text;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using OrdemCerta.Application.Abstractions;
+using OrdemCerta.Domain.Admin;
 using OrdemCerta.Domain.Companies;
 
 namespace OrdemCerta.Application.Security;
@@ -34,6 +35,32 @@ public class JwtTokenGenerator : IJwtTokenGenerator
             new Claim(JwtRegisteredClaimNames.Email, company.Email),
             new Claim(JwtRegisteredClaimNames.Name, company.Name.Value),
             new Claim("companyId", company.Id.ToString()),
+        };
+
+        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_secretKey));
+        var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+
+        var tokenDescriptor = new JwtSecurityToken(
+            issuer: _issuer,
+            audience: _audience,
+            claims: claims,
+            expires: expiresAt,
+            signingCredentials: credentials);
+
+        var token = new JwtSecurityTokenHandler().WriteToken(tokenDescriptor);
+
+        return (token, expiresAt);
+    }
+
+    public (string token, DateTime expiresAt) GenerateForAdmin(AdminUser admin)
+    {
+        var expiresAt = DateTime.UtcNow.AddHours(_expirationHours);
+
+        var claims = new[]
+        {
+            new Claim(JwtRegisteredClaimNames.Sub, admin.Id.ToString()),
+            new Claim(JwtRegisteredClaimNames.Email, admin.Email),
+            new Claim("role", "admin"),
         };
 
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_secretKey));

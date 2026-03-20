@@ -1,7 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { RouterLink } from '@angular/router';
-import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
+import { ActivatedRouteSnapshot, RouterLink } from '@angular/router';
+import { NavigationEnd, Router } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { filter, map, startWith } from 'rxjs';
 
@@ -33,25 +33,21 @@ export interface Breadcrumb {
 })
 export class BreadcrumbComponent {
   private readonly router = inject(Router);
-  private readonly route = inject(ActivatedRoute);
 
   readonly crumbs = toSignal(
     this.router.events.pipe(
       filter((e) => e instanceof NavigationEnd),
       startWith(null),
-      map(() => this.buildCrumbs(this.route.root))
+      map(() => this.buildCrumbs(this.router.routerState.snapshot.root))
     ),
     { initialValue: [] as Breadcrumb[] }
   );
 
-  private buildCrumbs(route: ActivatedRoute, url = '', crumbs: Breadcrumb[] = []): Breadcrumb[] {
-    const { children } = route;
-
-    for (const child of children) {
-      if (!child.snapshot) continue;
-      const segments = child.snapshot.url.map((s) => s.path);
+  private buildCrumbs(route: ActivatedRouteSnapshot, url = '', crumbs: Breadcrumb[] = []): Breadcrumb[] {
+    for (const child of route.children) {
+      const segments = child.url.map((s) => s.path);
       const path = segments.length ? `${url}/${segments.join('/')}` : url;
-      const label = child.snapshot.data['breadcrumb'];
+      const label = child.data['breadcrumb'];
 
       if (label) crumbs.push({ label, url: path });
 

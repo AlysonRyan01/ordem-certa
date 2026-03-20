@@ -1,0 +1,328 @@
+<div class="admin-shell">
+  <div class="grid-bg"></div>
+
+  <header class="admin-header">
+    <div class="header-brand">
+      <span class="brand-icon">⚙</span>
+      <div>
+        <span class="brand-name">OrdemCerta</span>
+        <span class="brand-tag">Admin</span>
+      </div>
+    </div>
+    <nav class="header-nav">
+      <button mat-button class="nav-btn" (click)="goToDashboard()">
+        <mat-icon>dashboard</mat-icon>
+        Dashboard
+      </button>
+      <button mat-button class="nav-btn active">
+        <mat-icon>business</mat-icon>
+        Empresas
+      </button>
+      <button mat-button class="nav-btn logout-btn" (click)="logout()">
+        <mat-icon>logout</mat-icon>
+        Sair
+      </button>
+    </nav>
+  </header>
+
+  <main class="admin-main">
+    <div class="page-header">
+      <div class="page-title-group">
+        <p class="page-eyebrow">Gerenciamento</p>
+        <h1 class="page-title">Empresas</h1>
+      </div>
+      <mat-form-field appearance="outline" class="search-field">
+        <mat-label>Buscar empresa...</mat-label>
+        <mat-icon matPrefix>search</mat-icon>
+        <input matInput [formControl]="searchControl" />
+      </mat-form-field>
+    </div>
+
+    @if (loading()) {
+      <div class="skeleton-table">
+        <div class="skeleton-header"></div>
+        @for (i of [1,2,3,4,5,6,7,8]; track i) {
+          <div class="skeleton-row"></div>
+        }
+      </div>
+    } @else {
+      <div class="table-container">
+        <table mat-table [dataSource]="filtered()" class="admin-table">
+
+          <ng-container matColumnDef="name">
+            <th mat-header-cell *matHeaderCellDef>Nome</th>
+            <td mat-cell *matCellDef="let c">
+              <div class="company-name-cell">
+                <div class="company-avatar">{{ c.name.charAt(0).toUpperCase() }}</div>
+                <span>{{ c.name }}</span>
+              </div>
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="email">
+            <th mat-header-cell *matHeaderCellDef>E-mail</th>
+            <td mat-cell *matCellDef="let c" class="mono-cell">{{ c.email }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="plan">
+            <th mat-header-cell *matHeaderCellDef>Plano</th>
+            <td mat-cell *matCellDef="let c">
+              @if (c.plan === 'Paid') {
+                <span class="plan-badge paid">Pago</span>
+              } @else {
+                <span class="plan-badge demo">Demo</span>
+              }
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="subscription">
+            <th mat-header-cell *matHeaderCellDef>Assinatura</th>
+            <td mat-cell *matCellDef="let c">
+              @if (c.hasActiveSubscription) {
+                <mat-icon class="icon-active">check_circle</mat-icon>
+              } @else {
+                <mat-icon class="icon-inactive">cancel</mat-icon>
+              }
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="orders">
+            <th mat-header-cell *matHeaderCellDef>Ordens</th>
+            <td mat-cell *matCellDef="let c" class="mono-cell">{{ c.serviceOrderCount }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="createdAt">
+            <th mat-header-cell *matHeaderCellDef>Cadastro</th>
+            <td mat-cell *matCellDef="let c" class="mono-cell date-cell">
+              {{ c.createdAt | date:'dd/MM/yyyy' }}
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+        </table>
+
+        @if (filtered().length === 0) {
+          <div class="empty-state">
+            <mat-icon>business_off</mat-icon>
+            <p>Nenhuma empresa encontrada.</p>
+          </div>
+        }
+      </div>
+
+      <app-pagination
+        [total]="companies().length"
+        [page]="page()"
+        [pageSize]="pageSize()"
+        (pageChange)="onPageChange($event)"
+      />
+    }
+  </main>
+</div>
+
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500;600&display=swap');
+
+  :host { display: block; font-family: 'DM Sans', sans-serif; }
+
+  .admin-shell {
+    min-height: 100vh;
+    background: #090c10;
+    color: #e8eaf0;
+    position: relative;
+    overflow-x: hidden;
+  }
+
+  .grid-bg {
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(0, 212, 255, 0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0, 212, 255, 0.03) 1px, transparent 1px);
+    background-size: 48px 48px;
+    pointer-events: none;
+  }
+
+  .admin-header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 2rem;
+    height: 60px;
+    background: rgba(9, 12, 16, 0.9);
+    border-bottom: 1px solid rgba(0, 212, 255, 0.1);
+    backdrop-filter: blur(12px);
+  }
+
+  .header-brand { display: flex; align-items: center; gap: 0.75rem; }
+  .brand-icon { font-size: 1.2rem; filter: hue-rotate(180deg) saturate(2); }
+  .brand-name { font-family: 'DM Mono', monospace; font-size: 0.95rem; font-weight: 500; color: #e8eaf0; letter-spacing: 0.05em; }
+  .brand-tag {
+    display: inline-block; margin-left: 0.5rem; padding: 0.1rem 0.4rem;
+    font-size: 0.65rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase;
+    color: #00d4ff; background: rgba(0,212,255,0.1); border: 1px solid rgba(0,212,255,0.2); border-radius: 2px;
+  }
+
+  .header-nav { display: flex; align-items: center; gap: 0.25rem; }
+  .nav-btn { font-family: 'DM Sans', sans-serif; font-size: 0.85rem; color: rgba(255,255,255,0.5) !important; border-radius: 4px; }
+  .nav-btn.active, .nav-btn:hover { color: #e8eaf0 !important; background: rgba(255,255,255,0.05) !important; }
+  .logout-btn:hover { color: #ff6b6b !important; background: rgba(255,107,107,0.08) !important; }
+
+  .admin-main {
+    position: relative;
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 2.5rem 2rem;
+  }
+
+  .page-header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    margin-bottom: 1.5rem;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  .page-eyebrow { font-size: 0.75rem; font-weight: 600; letter-spacing: 0.15em; text-transform: uppercase; color: #00d4ff; margin: 0 0 0.25rem; }
+  .page-title { font-family: 'DM Mono', monospace; font-size: 2rem; font-weight: 500; color: #e8eaf0; margin: 0; letter-spacing: -0.02em; }
+
+  .search-field {
+    min-width: 280px;
+    --mdc-outlined-text-field-outline-color: rgba(255,255,255,0.1);
+    --mdc-outlined-text-field-hover-outline-color: rgba(0,212,255,0.4);
+    --mdc-outlined-text-field-focus-outline-color: #00d4ff;
+    --mdc-outlined-text-field-label-text-color: rgba(255,255,255,0.4);
+    --mdc-outlined-text-field-input-text-color: #e8eaf0;
+    --mdc-outlined-text-field-container-shape: 4px;
+  }
+
+  .table-container {
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 4px;
+    overflow: hidden;
+    animation: fadeIn 0.4s ease both;
+  }
+
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+  .admin-table {
+    width: 100%;
+    background: #0d1117 !important;
+    --mat-table-background-color: #0d1117;
+    --mat-table-header-headline-color: rgba(255,255,255,0.4);
+    --mat-table-row-item-label-text-color: #e8eaf0;
+  }
+
+  ::ng-deep .admin-table .mat-mdc-header-row {
+    background: rgba(0,212,255,0.04) !important;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+  }
+
+  ::ng-deep .admin-table .mat-mdc-header-cell {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.35) !important;
+    border-bottom: none;
+  }
+
+  ::ng-deep .admin-table .mat-mdc-row {
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    transition: background 0.15s;
+  }
+
+  ::ng-deep .admin-table .mat-mdc-row:hover {
+    background: rgba(0,212,255,0.03) !important;
+  }
+
+  ::ng-deep .admin-table .mat-mdc-cell {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.875rem;
+    color: #c8cad4;
+    border-bottom: none;
+    padding: 0.75rem 1rem;
+  }
+
+  .company-name-cell {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .company-avatar {
+    width: 30px;
+    height: 30px;
+    border-radius: 4px;
+    background: rgba(0,212,255,0.1);
+    border: 1px solid rgba(0,212,255,0.15);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: #00d4ff;
+    flex-shrink: 0;
+  }
+
+  .mono-cell { font-family: 'DM Mono', monospace; font-size: 0.82rem; }
+  .date-cell { color: rgba(255,255,255,0.4) !important; }
+
+  .plan-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.2rem 0.6rem;
+    border-radius: 2px;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .plan-badge.paid { background: rgba(0,230,118,0.1); color: #00e676; border: 1px solid rgba(0,230,118,0.2); }
+  .plan-badge.demo { background: rgba(255,167,38,0.1); color: #ffa726; border: 1px solid rgba(255,167,38,0.2); }
+
+  .icon-active { color: #00e676; font-size: 1.1rem; vertical-align: middle; }
+  .icon-inactive { color: rgba(255,255,255,0.2); font-size: 1.1rem; vertical-align: middle; }
+
+  .empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 4rem;
+    color: rgba(255,255,255,0.2);
+    gap: 0.75rem;
+  }
+
+  .empty-state mat-icon { font-size: 2.5rem; width: 2.5rem; height: 2.5rem; }
+  .empty-state p { margin: 0; font-size: 0.9rem; }
+
+  /* Skeleton */
+  .skeleton-table { border: 1px solid rgba(255,255,255,0.06); border-radius: 4px; overflow: hidden; }
+
+  .skeleton-header {
+    height: 48px;
+    background: rgba(0,212,255,0.04);
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+  }
+
+  .skeleton-row {
+    height: 56px;
+    border-bottom: 1px solid rgba(255,255,255,0.03);
+    background: linear-gradient(90deg, rgba(255,255,255,0.02) 25%, rgba(255,255,255,0.04) 50%, rgba(255,255,255,0.02) 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+  }
+
+  @keyframes shimmer {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+  }
+</style>

@@ -1,7 +1,9 @@
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using OrdemCerta.Domain.Admin;
 using OrdemCerta.Domain.Companies;
 using OrdemCerta.Domain.Customers;
+using OrdemCerta.Domain.Sales;
 using OrdemCerta.Domain.ServiceOrders;
 using OrdemCerta.Shared;
 
@@ -21,6 +23,9 @@ public class ApplicationDataContext : DbContext
     public DbSet<Customer> Customers => Set<Customer>();
     public DbSet<ServiceOrder> ServiceOrders => Set<ServiceOrder>();
     public DbSet<CompanyOrderSequence> CompanyOrderSequences => Set<CompanyOrderSequence>();
+    public DbSet<Sale> Sales => Set<Sale>();
+    public DbSet<CompanySaleSequence> CompanySaleSequences => Set<CompanySaleSequence>();
+    public DbSet<AdminUser> AdminUsers => Set<AdminUser>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -30,6 +35,16 @@ public class ApplicationDataContext : DbContext
 
     public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {
+        var now = DateTime.UtcNow;
+
+        foreach (var entry in ChangeTracker.Entries<Entity>())
+        {
+            if (entry.State == EntityState.Added)
+                entry.Entity.CreatedAt = now;
+            else if (entry.State == EntityState.Modified)
+                entry.Entity.UpdatedAt = now;
+        }
+
         if (_mediator != null)
         {
             var domainEvents = ChangeTracker.Entries<AggregateRoot>()

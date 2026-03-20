@@ -51,6 +51,7 @@ export class MainLayoutComponent implements OnInit {
   readonly navItems = [
     { label: 'Dashboard', icon: 'dashboard', route: '/dashboard' },
     { label: 'Ordens de Serviço', icon: 'build', route: '/orders' },
+    { label: 'Vendas', icon: 'shopping_cart', route: '/sales' },
     { label: 'Clientes', icon: 'people', route: '/customers' },
     { label: 'Perfil', icon: 'person', route: '/profile' },
     { label: 'Planos', icon: 'workspace_premium', route: '/billing' },

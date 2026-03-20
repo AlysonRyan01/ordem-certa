@@ -47,6 +47,18 @@ textarea.mat-mdc-input-element {
   box-sizing: content-box;
 }
 
+// Tailwind v4 applies border-style: solid globally — this makes the <legend>
+// inside Angular Material outline form fields render as a visible box.
+// Only target legend (not fieldset, which draws the actual outline border).
+.mat-mdc-form-field legend {
+  padding: 0 !important;
+  visibility: hidden !important;
+  max-width: 0 !important;
+  height: 0 !important;
+  overflow: hidden !important;
+  white-space: nowrap !important;
+}
+
 // ─── Global table improvements ───────────────────────────────────────────────
 .mat-mdc-table {
   background: transparent !important;

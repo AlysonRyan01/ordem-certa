@@ -22,6 +22,35 @@ namespace OrdemCerta.Infrastructure.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("OrdemCerta.Domain.Admin.AdminUser", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("email");
+
+                    b.Property<string>("PasswordHash")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("password_hash");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Email")
+                        .IsUnique();
+
+                    b.ToTable("admin_users", (string)null);
+                });
+
             modelBuilder.Entity("OrdemCerta.Domain.Companies.Company", b =>
                 {
                     b.Property<Guid>("Id")
@@ -106,6 +135,89 @@ namespace OrdemCerta.Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("customers", (string)null);
+                });
+
+            modelBuilder.Entity("OrdemCerta.Domain.Sales.CompanySaleSequence", b =>
+                {
+                    b.Property<Guid>("CompanyId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("company_id");
+
+                    b.Property<int>("LastNumber")
+                        .HasColumnType("integer")
+                        .HasColumnName("last_number");
+
+                    b.HasKey("CompanyId");
+
+                    b.ToTable("company_sale_sequences", (string)null);
+                });
+
+            modelBuilder.Entity("OrdemCerta.Domain.Sales.Sale", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<Guid>("CompanyId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("company_id");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<Guid?>("CustomerId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("customer_id");
+
+                    b.Property<string>("CustomerName")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("customer_name");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("description");
+
+                    b.Property<string>("Notes")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)")
+                        .HasColumnName("notes");
+
+                    b.Property<int>("PaymentMethod")
+                        .HasColumnType("integer")
+                        .HasColumnName("payment_method");
+
+                    b.Property<DateTime>("SaleDate")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("sale_date");
+
+                    b.Property<int>("SaleNumber")
+                        .HasColumnType("integer")
+                        .HasColumnName("sale_number");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("integer")
+                        .HasColumnName("status");
+
+                    b.Property<decimal>("TotalValue")
+                        .HasColumnType("numeric(10,2)")
+                        .HasColumnName("total_value");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CompanyId");
+
+                    b.HasIndex("CustomerId");
+
+                    b.HasIndex("Status");
+
+                    b.ToTable("sales", (string)null);
                 });
 
             modelBuilder.Entity("OrdemCerta.Domain.ServiceOrders.CompanyOrderSequence", b =>
@@ -410,8 +522,98 @@ namespace OrdemCerta.Infrastructure.Migrations
                     b.Navigation("Phones");
                 });
 
+            modelBuilder.Entity("OrdemCerta.Domain.Sales.Sale", b =>
+                {
+                    b.OwnsOne("OrdemCerta.Domain.ServiceOrders.ValueObjects.Warranty", "Warranty", b1 =>
+                        {
+                            b1.Property<Guid>("SaleId")
+                                .HasColumnType("uuid");
+
+                            b1.Property<int>("Duration")
+                                .HasColumnType("integer")
+                                .HasColumnName("warranty_duration");
+
+                            b1.Property<int>("Unit")
+                                .HasColumnType("integer")
+                                .HasColumnName("warranty_unit");
+
+                            b1.HasKey("SaleId");
+
+                            b1.ToTable("sales");
+
+                            b1.WithOwner()
+                                .HasForeignKey("SaleId");
+                        });
+
+                    b.OwnsMany("OrdemCerta.Domain.Sales.SaleItem", "Items", b1 =>
+                        {
+                            b1.Property<Guid>("Id")
+                                .HasColumnType("uuid")
+                                .HasColumnName("id");
+
+                            b1.Property<string>("Description")
+                                .IsRequired()
+                                .HasMaxLength(300)
+                                .HasColumnType("character varying(300)")
+                                .HasColumnName("description");
+
+                            b1.Property<int>("Quantity")
+                                .HasColumnType("integer")
+                                .HasColumnName("quantity");
+
+                            b1.Property<Guid>("SaleId")
+                                .HasColumnType("uuid")
+                                .HasColumnName("sale_id");
+
+                            b1.Property<decimal>("UnitPrice")
+                                .HasColumnType("numeric(10,2)")
+                                .HasColumnName("unit_price");
+
+                            b1.Property<Guid>("sale_id")
+                                .HasColumnType("uuid");
+
+                            b1.HasKey("Id");
+
+                            b1.HasIndex("sale_id");
+
+                            b1.ToTable("sale_items", null, t =>
+                                {
+                                    t.Property("sale_id")
+                                        .HasColumnName("sale_id1");
+                                });
+
+                            b1.WithOwner()
+                                .HasForeignKey("sale_id");
+                        });
+
+                    b.Navigation("Items");
+
+                    b.Navigation("Warranty");
+                });
+
             modelBuilder.Entity("OrdemCerta.Domain.ServiceOrders.ServiceOrder", b =>
                 {
+                    b.OwnsOne("OrdemCerta.Domain.ServiceOrders.ValueObjects.Warranty", "Warranty", b1 =>
+                        {
+                            b1.Property<Guid>("ServiceOrderId")
+                                .HasColumnType("uuid");
+
+                            b1.Property<int>("Duration")
+                                .HasColumnType("integer")
+                                .HasColumnName("warranty_duration");
+
+                            b1.Property<int>("Unit")
+                                .HasColumnType("integer")
+                                .HasColumnName("warranty_unit");
+
+                            b1.HasKey("ServiceOrderId");
+
+                            b1.ToTable("service_orders");
+
+                            b1.WithOwner()
+                                .HasForeignKey("ServiceOrderId");
+                        });
+
                     b.OwnsOne("OrdemCerta.Domain.ServiceOrders.ValueObjects.Budget", "Budget", b1 =>
                         {
                             b1.Property<Guid>("ServiceOrderId")
@@ -473,27 +675,6 @@ namespace OrdemCerta.Infrastructure.Migrations
                                 .HasMaxLength(500)
                                 .HasColumnType("character varying(500)")
                                 .HasColumnName("reported_defect");
-
-                            b1.HasKey("ServiceOrderId");
-
-                            b1.ToTable("service_orders");
-
-                            b1.WithOwner()
-                                .HasForeignKey("ServiceOrderId");
-                        });
-
-                    b.OwnsOne("OrdemCerta.Domain.ServiceOrders.ValueObjects.Warranty", "Warranty", b1 =>
-                        {
-                            b1.Property<Guid>("ServiceOrderId")
-                                .HasColumnType("uuid");
-
-                            b1.Property<int>("Duration")
-                                .HasColumnType("integer")
-                                .HasColumnName("warranty_duration");
-
-                            b1.Property<int>("Unit")
-                                .HasColumnType("integer")
-                                .HasColumnName("warranty_unit");
 
                             b1.HasKey("ServiceOrderId");
 

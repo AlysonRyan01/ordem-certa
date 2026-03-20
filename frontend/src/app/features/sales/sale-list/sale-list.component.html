@@ -1,0 +1,137 @@
+<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6 flex-shrink-0">
+  <div>
+    <h2 class="text-2xl font-bold text-slate-900 tracking-tight">Vendas</h2>
+    <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider mt-0.5">Gerencie todas as vendas realizadas</p>
+  </div>
+  <button mat-flat-button class="sm:self-auto self-start" (click)="navigateTo(['/sales', 'new'])">
+    <mat-icon>add</mat-icon>
+    Nova Venda
+  </button>
+</div>
+
+<div class="bg-white border border-slate-200 rounded-xl shadow-sm flex flex-col flex-1 min-h-0">
+  <div class="px-4 pt-4 pb-1 border-b border-slate-100 flex-shrink-0 flex flex-wrap gap-3">
+    <mat-form-field appearance="outline" class="w-56">
+      <mat-label>Filtrar por status</mat-label>
+      <mat-select [formControl]="statusFilter">
+        <mat-option value="">Todos os status</mat-option>
+        @for (s of allStatuses; track s.value) {
+          <mat-option [value]="s.value">{{ s.label }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="w-56">
+      <mat-label>Buscar por cliente/descrição</mat-label>
+      <input matInput [formControl]="searchControl" />
+      <mat-icon matSuffix>search</mat-icon>
+    </mat-form-field>
+  </div>
+
+  <div class="overflow-x-auto overflow-y-auto flex-1 min-h-0">
+    @if (loading()) {
+      <div class="p-4">
+        <app-skeleton-table [rows]="5" [cols]="8" />
+      </div>
+    } @else {
+      <table mat-table [dataSource]="filteredSales()" class="w-full">
+
+        <ng-container matColumnDef="saleNumber">
+          <th mat-header-cell *matHeaderCellDef>#</th>
+          <td mat-cell *matCellDef="let s">
+            <span class="font-mono font-bold text-slate-800">#{{ s.saleNumber }}</span>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="customer">
+          <th mat-header-cell *matHeaderCellDef>Cliente</th>
+          <td mat-cell *matCellDef="let s">
+            <span class="text-slate-800">{{ s.customerName ?? '—' }}</span>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="description">
+          <th mat-header-cell *matHeaderCellDef>Descrição</th>
+          <td mat-cell *matCellDef="let s">
+            <span class="text-slate-500 text-sm">{{ s.description ?? '—' }}</span>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="status">
+          <th mat-header-cell *matHeaderCellDef>Status</th>
+          <td mat-cell *matCellDef="let s">
+            <span
+              class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold"
+              [style.color]="getSaleStatusMeta(s.status).color"
+              [style.background-color]="getSaleStatusMeta(s.status).bgColor"
+            >
+              {{ getSaleStatusMeta(s.status).label }}
+            </span>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="paymentMethod">
+          <th mat-header-cell *matHeaderCellDef>Pagamento</th>
+          <td mat-cell *matCellDef="let s">
+            <span class="text-slate-600 text-sm">{{ getPaymentMethodLabel(s.paymentMethod) }}</span>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="total">
+          <th mat-header-cell *matHeaderCellDef>Total</th>
+          <td mat-cell *matCellDef="let s">
+            <span class="font-semibold text-slate-800 tabular-nums">
+              {{ s.totalValue | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}
+            </span>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="saleDate">
+          <th mat-header-cell *matHeaderCellDef>Data</th>
+          <td mat-cell *matCellDef="let s" class="!font-mono tabular-nums text-sm text-slate-500">
+            {{ s.saleDate | date:'dd/MM/yyyy' }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="actions">
+          <th mat-header-cell *matHeaderCellDef class="w-36"></th>
+          <td mat-cell *matCellDef="let s" (click)="$event.stopPropagation()">
+            <button mat-icon-button matTooltip="Ver detalhe" (click)="navigateTo(['/sales', s.id])">
+              <mat-icon class="!text-slate-400">visibility</mat-icon>
+            </button>
+            @if (s.status === 'Pending') {
+              <button mat-icon-button matTooltip="Editar" (click)="navigateTo(['/sales', s.id, 'edit'])">
+                <mat-icon class="!text-slate-500">edit</mat-icon>
+              </button>
+            }
+            <button mat-icon-button matTooltip="Excluir" (click)="confirmDelete(s)">
+              <mat-icon class="!text-red-300">delete</mat-icon>
+            </button>
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="columns"></tr>
+        <tr mat-row *matRowDef="let row; columns: columns" class="cursor-pointer"
+            (click)="navigateTo(['/sales', row.id])"></tr>
+
+        <tr class="mat-row" *matNoDataRow>
+          <td class="mat-cell" [attr.colspan]="columns.length">
+            <div class="flex flex-col items-center justify-center py-12 gap-2 text-slate-400">
+              <mat-icon class="!text-4xl text-slate-200">shopping_cart</mat-icon>
+              <p class="text-sm">Nenhuma venda encontrada.</p>
+            </div>
+          </td>
+        </tr>
+      </table>
+    }
+  </div>
+
+  <div class="border-t border-slate-100 flex-shrink-0">
+    <app-pagination
+      [total]="total()"
+      [page]="page()"
+      [pageSize]="pageSize()"
+      (pageChange)="onPageChange($event)"
+    />
+  </div>
+</div>

@@ -5,7 +5,10 @@ import { catchError, throwError } from 'rxjs';
 
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const router = inject(Router);
-  const token = localStorage.getItem('token');
+  const isAdminRoute = req.url.includes('/api/admin');
+  const token = isAdminRoute
+    ? localStorage.getItem('admin_token')
+    : localStorage.getItem('token');
 
   const authReq = token
     ? req.clone({ setHeaders: { Authorization: `Bearer ${token}` } })
@@ -14,8 +17,13 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
   return next(authReq).pipe(
     catchError((error: HttpErrorResponse) => {
       if (error.status === 401) {
-        localStorage.removeItem('token');
-        router.navigate(['/login']);
+        if (isAdminRoute) {
+          localStorage.removeItem('admin_token');
+          router.navigate(['/admin/login']);
+        } else {
+          localStorage.removeItem('token');
+          router.navigate(['/login']);
+        }
       }
       return throwError(() => error);
     })
