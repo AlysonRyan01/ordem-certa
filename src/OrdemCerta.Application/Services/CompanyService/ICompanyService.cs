@@ -11,4 +11,6 @@ public interface ICompanyService
     Task<Result<CompanyOutput>> GetByIdAsync(Guid id, CancellationToken cancellationToken);
     Task<Result> RequestPasswordChangeAsync(Guid companyId, CancellationToken cancellationToken);
     Task<Result> ConfirmPasswordChangeAsync(Guid companyId, ConfirmPasswordChangeInput input, CancellationToken cancellationToken);
+    Task<Result> RequestPasswordResetAsync(RequestPasswordResetInput input, CancellationToken cancellationToken);
+    Task<Result> ConfirmPasswordResetAsync(ConfirmPasswordResetInput input, CancellationToken cancellationToken);
 }

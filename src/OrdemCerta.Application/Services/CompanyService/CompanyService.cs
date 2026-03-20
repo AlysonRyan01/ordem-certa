@@ -172,4 +172,49 @@ public class CompanyService : ICompanyService
 
         return Result.Success();
     }
+
+    public async Task<Result> RequestPasswordResetAsync(RequestPasswordResetInput input, CancellationToken cancellationToken)
+    {
+        var email = input.Email.Trim().ToLower();
+        var companyResult = await _companyRepository.GetByEmailAsync(email, cancellationToken);
+        if (companyResult.IsFailure)
+            return Result.Success(); // Não revelar se o e-mail existe
+
+        var company = companyResult.Value!;
+        var code = Random.Shared.Next(100000, 999999).ToString();
+        var cacheKey = $"pwd_reset_{email}";
+        _cache.Set(cacheKey, code, TimeSpan.FromMinutes(5));
+
+        var phone = "55" + company.Phone.Value;
+        var instance = _configuration["EvolutionApi:Instance"] ?? "";
+        var message = $"*OrdemCerta*\n\nSeu código para redefinir a senha é: *{code}*\n\nEste código expira em 5 minutos.";
+
+        await _whatsAppService.SendTextAsync(phone, message, cancellationToken);
+
+        return Result.Success();
+    }
+
+    public async Task<Result> ConfirmPasswordResetAsync(ConfirmPasswordResetInput input, CancellationToken cancellationToken)
+    {
+        var email = input.Email.Trim().ToLower();
+        var cacheKey = $"pwd_reset_{email}";
+
+        if (!_cache.TryGetValue(cacheKey, out string? storedCode) || storedCode != input.Code)
+            return Result.Failure("Código inválido ou expirado.");
+
+        var companyResult = await _companyRepository.GetByEmailAsync(email, cancellationToken);
+        if (companyResult.IsFailure)
+            return Result.Failure(companyResult.Errors);
+
+        var company = companyResult.Value!;
+        var newHash = _passwordHasher.Hash(input.NewPassword);
+        company.UpdatePasswordHash(newHash);
+
+        await _companyRepository.UpdateAsync(company, cancellationToken);
+        await _unitOfWork.CommitAsync(cancellationToken);
+
+        _cache.Remove(cacheKey);
+
+        return Result.Success();
+    }
 }

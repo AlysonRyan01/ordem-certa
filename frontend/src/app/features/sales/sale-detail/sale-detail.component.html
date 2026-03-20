@@ -35,9 +35,14 @@
           Editar
         </button>
         <button mat-flat-button (click)="complete()" [disabled]="acting()">
-          @if (acting()) { <mat-spinner diameter="18" /> } @else {
-            <ng-container><mat-icon>check_circle</mat-icon> Concluir</ng-container>
-          }
+          <span class="flex items-center gap-1">
+            @if (acting()) {
+              <mat-spinner diameter="18" />
+            } @else {
+              <mat-icon>check_circle</mat-icon>
+            }
+            Concluir
+          </span>
         </button>
         <button mat-stroked-button color="warn" (click)="confirmCancel()" [disabled]="acting()">
           <mat-icon>cancel</mat-icon>

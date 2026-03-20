@@ -1,7 +1,9 @@
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { CurrencyPipe, DatePipe } from '@angular/common';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
+import { startWith } from 'rxjs';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -53,12 +55,16 @@ export class SaleListComponent implements OnInit {
 
   readonly statusFilter = new FormControl<SaleStatus | ''>('');
   readonly searchControl = new FormControl('');
+  private readonly searchTerm = toSignal(
+    this.searchControl.valueChanges.pipe(startWith('')),
+    { initialValue: '' }
+  );
 
   readonly allStatuses = ALL_SALE_STATUSES;
   readonly columns = ['saleNumber', 'customer', 'description', 'status', 'paymentMethod', 'total', 'saleDate', 'actions'];
 
   readonly filteredSales = computed(() => {
-    const term = (this.searchControl.value ?? '').toLowerCase().trim();
+    const term = (this.searchTerm() ?? '').toLowerCase().trim();
     if (!term) return this.sales();
     return this.sales().filter(
       (s) =>

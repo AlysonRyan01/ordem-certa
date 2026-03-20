@@ -55,6 +55,14 @@ export class AuthService {
       );
   }
 
+  requestPasswordReset(email: string) {
+    return this.http.post<void>(`${environment.apiUrl}/api/auth/request-password-reset`, { email });
+  }
+
+  confirmPasswordReset(input: { email: string; code: string; newPassword: string }) {
+    return this.http.post<void>(`${environment.apiUrl}/api/auth/confirm-password-reset`, input);
+  }
+
   logout(): void {
     localStorage.removeItem('token');
     this._user.set(null);

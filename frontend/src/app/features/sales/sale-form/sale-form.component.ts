@@ -43,19 +43,11 @@ export class SaleFormComponent implements OnInit {
 
   readonly allPaymentMethods = ALL_PAYMENT_METHODS;
 
-  readonly warrantyUnits = [
-    { value: 'Days'   as const, label: 'Dias' },
-    { value: 'Months' as const, label: 'Meses' },
-    { value: 'Years'  as const, label: 'Anos' },
-  ];
-
   readonly form = new FormGroup({
-    customerName:     new FormControl(''),
-    description:      new FormControl(''),
-    paymentMethod:    new FormControl('', Validators.required),
-    notes:            new FormControl(''),
-    warrantyDuration: new FormControl(''),
-    warrantyUnit:     new FormControl<'Days' | 'Months' | 'Years' | null>(null),
+    customerName:  new FormControl(''),
+    description:   new FormControl(''),
+    paymentMethod: new FormControl('', Validators.required),
+    notes:         new FormControl(''),
     items: new FormArray<FormGroup>([]),
   });
 
@@ -97,12 +89,10 @@ export class SaleFormComponent implements OnInit {
       this.saleService.getById(this.id).subscribe({
         next: (sale) => {
           this.form.patchValue({
-            customerName:     sale.customerName ?? '',
-            description:      sale.description ?? '',
-            paymentMethod:    sale.paymentMethod,
-            notes:            sale.notes ?? '',
-            warrantyDuration: sale.warrantyDuration?.toString() ?? '',
-            warrantyUnit:     (sale.warrantyUnit as any) ?? null,
+            customerName:  sale.customerName ?? '',
+            description:   sale.description ?? '',
+            paymentMethod: sale.paymentMethod,
+            notes:         sale.notes ?? '',
           });
           this.loading.set(false);
         },
@@ -130,8 +120,6 @@ export class SaleFormComponent implements OnInit {
     this.saving.set(true);
 
     const v = this.form.getRawValue();
-    const dur = v.warrantyDuration ? parseInt(v.warrantyDuration) : null;
-    const unit = v.warrantyUnit ?? null;
 
     if (this.isEdit() && this.id) {
       this.saleService.update(this.id, {
@@ -141,9 +129,6 @@ export class SaleFormComponent implements OnInit {
         notes:         v.notes         || undefined,
       }).subscribe({
         next: () => {
-          if (dur && unit) {
-            this.saleService.setWarranty(this.id!, { duration: dur, unit }).subscribe();
-          }
           this.snackBar.open('Venda atualizada.', 'Fechar', { duration: 3000 });
           this.router.navigate(['/sales', this.id]);
         },
@@ -162,9 +147,6 @@ export class SaleFormComponent implements OnInit {
         })),
       }).subscribe({
         next: (sale) => {
-          if (dur && unit) {
-            this.saleService.setWarranty(sale.id, { duration: dur, unit }).subscribe();
-          }
           this.snackBar.open('Venda criada com sucesso.', 'Fechar', { duration: 3000 });
           this.router.navigate(['/sales', sale.id]);
         },

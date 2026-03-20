@@ -54,27 +54,6 @@
         </mat-form-field>
       </div>
 
-      <!-- Garantia -->
-      <div class="bg-white border border-slate-200 rounded-xl shadow-sm p-6 flex flex-col gap-4">
-        <h3 class="text-sm font-semibold text-slate-500 uppercase tracking-wider">Garantia (opcional)</h3>
-
-        <div class="grid grid-cols-2 gap-4">
-          <mat-form-field appearance="outline">
-            <mat-label>Prazo</mat-label>
-            <input matInput formControlName="warrantyDuration" inputmode="numeric" placeholder="Ex.: 90" />
-          </mat-form-field>
-
-          <mat-form-field appearance="outline">
-            <mat-label>Unidade</mat-label>
-            <mat-select formControlName="warrantyUnit">
-              @for (u of warrantyUnits; track u.value) {
-                <mat-option [value]="u.value">{{ u.label }}</mat-option>
-              }
-            </mat-select>
-          </mat-form-field>
-        </div>
-      </div>
-
       <!-- Itens (só no modo criação) -->
       @if (!isEdit()) {
         <div class="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
