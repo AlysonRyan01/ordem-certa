@@ -41,6 +41,7 @@
       - Stripe__PriceId=${STRIPE_PRICE_ID}
       - Admin__Email=${ADMIN_EMAIL}
       - Admin__Password=${ADMIN_PASSWORD}
+      - GooglePlaces__ApiKey=${GOOGLEPLACES_APIKEY}
     volumes:
       - ./src:/app/src
       - /app/src/OrdemCerta.Presentation/bin

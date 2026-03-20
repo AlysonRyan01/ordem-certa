@@ -21,6 +21,7 @@ builder.Services.AddServices();
 builder.Services.AddMediatr();
 builder.Services.AddAuth(builder.Configuration);
 builder.Services.AddWhatsApp(builder.Configuration);
+builder.Services.AddMarketingJobs(builder.Configuration);
 builder.Services.AddHangfire(builder.Configuration);
 builder.Services.AddSwagger();
 builder.Services.AddRateLimiting();

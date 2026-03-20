@@ -27,8 +27,11 @@ using OrdemCerta.Infrastructure.Repositories.CompanyRepository;
 using OrdemCerta.Infrastructure.Repositories.CustomerRepository;
 using OrdemCerta.Infrastructure.Repositories.SaleRepository;
 using OrdemCerta.Infrastructure.Repositories.ServiceOrderRepository;
+using OrdemCerta.Application.GooglePlaces;
+using OrdemCerta.Application.Jobs;
 using OrdemCerta.Application.Security;
 using OrdemCerta.Application.WhatsApp;
+using OrdemCerta.Infrastructure.Repositories.MarketingProspectRepository;
 
 namespace OrdemCerta.Presentation.Extensions;
 
@@ -174,6 +177,7 @@ public static class BuilderExtensions
         services.AddScoped<ISaleRepository, SaleRepository>();
         services.AddScoped<ICompanySaleSequenceRepository, CompanySaleSequenceRepository>();
         services.AddScoped<IAdminRepository, AdminRepository>();
+        services.AddScoped<IMarketingProspectRepository, MarketingProspectRepository>();
     }
 
     public static void AddAuth(this IServiceCollection services, IConfiguration configuration)
@@ -227,6 +231,13 @@ public static class BuilderExtensions
             .UsePostgreSqlStorage(options => options.UseNpgsqlConnection(connectionString)));
 
         services.AddHangfireServer();
+    }
+
+    public static void AddMarketingJobs(this IServiceCollection services, IConfiguration configuration)
+    {
+        services.AddHttpClient<IGooglePlacesService, GooglePlacesService>();
+        services.AddScoped<MarketingProspectorJob>();
+        services.AddScoped<MarketingDispatcherJob>();
     }
 
     public static void AddWhatsApp(this IServiceCollection services, IConfiguration configuration)

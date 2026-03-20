@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using OrdemCerta.Domain.Admin;
 using OrdemCerta.Domain.Companies;
 using OrdemCerta.Domain.Customers;
+using OrdemCerta.Domain.MarketingProspects;
 using OrdemCerta.Domain.Sales;
 using OrdemCerta.Domain.ServiceOrders;
 using OrdemCerta.Shared;
@@ -26,6 +27,7 @@ public class ApplicationDataContext : DbContext
     public DbSet<Sale> Sales => Set<Sale>();
     public DbSet<CompanySaleSequence> CompanySaleSequences => Set<CompanySaleSequence>();
     public DbSet<AdminUser> AdminUsers => Set<AdminUser>();
+    public DbSet<MarketingProspect> MarketingProspects => Set<MarketingProspect>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

@@ -41,6 +41,7 @@ services:
       - Stripe__PriceId=${STRIPE_PRICE_ID}
       - Admin__Email=${ADMIN_EMAIL}
       - Admin__Password=${ADMIN_PASSWORD}
+      - GooglePlaces__ApiKey=${GOOGLEPLACES_APIKEY}
     depends_on:
       ordemcerta.db:
         condition: service_healthy

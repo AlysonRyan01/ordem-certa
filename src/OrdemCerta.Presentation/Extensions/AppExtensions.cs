@@ -1,6 +1,7 @@
 using Hangfire;
 using Microsoft.EntityFrameworkCore;
 using OrdemCerta.Application.Abstractions;
+using OrdemCerta.Application.Jobs;
 using OrdemCerta.Domain.Admin;
 using OrdemCerta.Infrastructure.DataContext.Context;
 using OrdemCerta.Infrastructure.DataContext.Uow;
@@ -30,6 +31,7 @@ public static class AppExtensions
         app.UseHangfireDashboard("/hangfire", new DashboardOptions { Authorization = [] });
         app.ApplyMigrations();
         app.SeedAdmin();
+        app.ScheduleMarketingJobs();
     }
 
     public static void UseInfrastructure(this IApplicationBuilder app)
@@ -64,6 +66,23 @@ public static class AppExtensions
 
         if (dbContext.Database.GetPendingMigrations().Any())
             dbContext.Database.Migrate();
+    }
+
+    private static void ScheduleMarketingJobs(this IApplicationBuilder app)
+    {
+        var manager = app.ApplicationServices.GetRequiredService<IRecurringJobManager>();
+
+        // Busca novos prospects a cada 6 horas
+        manager.AddOrUpdate<MarketingProspectorJob>(
+            "marketing-prospector",
+            job => job.ExecuteAsync(CancellationToken.None),
+            "0 */6 * * *");
+
+        // Envia 2 mensagens por hora em horário comercial (8h–19h) = ~20/dia
+        manager.AddOrUpdate<MarketingDispatcherJob>(
+            "marketing-dispatcher",
+            job => job.ExecuteAsync(CancellationToken.None),
+            "0 8-19 * * 1-6");
     }
 
     private static void SeedAdmin(this IApplicationBuilder app)
