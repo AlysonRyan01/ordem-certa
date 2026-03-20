@@ -1,0 +1,15 @@
+User-agent: *
+Allow: /
+Allow: /login
+Allow: /register
+Allow: /forgot-password
+Allow: /orcamento/
+Disallow: /dashboard
+Disallow: /orders
+Disallow: /customers
+Disallow: /sales
+Disallow: /profile
+Disallow: /billing
+Disallow: /admin
+
+Sitemap: /sitemap.xml
