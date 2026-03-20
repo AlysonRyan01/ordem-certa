@@ -39,6 +39,8 @@
       - Stripe__SecretKey=${STRIPE_SECRET_KEY}
       - Stripe__WebhookSecret=${STRIPE_WEBHOOK_SECRET}
       - Stripe__PriceId=${STRIPE_PRICE_ID}
+      - Admin__Email=${ADMIN_EMAIL}
+      - Admin__Password=${ADMIN_PASSWORD}
     volumes:
       - ./src:/app/src
       - /app/src/OrdemCerta.Presentation/bin
