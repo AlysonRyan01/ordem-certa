@@ -524,30 +524,60 @@ public class ServiceOrderService : IServiceOrderService
         var company = companyResult.Value!;
         var phone = $"55{customer.Phones.First().Value}";
 
-        var budgetLink = $"{_baseUrl}/orcamento/order/{order.Id}";
+        var canBeRepaired = order.RepairResult == RepairResult.CanBeRepaired;
 
-        var message = $"""
-            *{company.Name.Value}*
+        string message;
+        if (canBeRepaired)
+        {
+            var budgetLink = $"{_baseUrl}/orcamento/order/{order.Id}";
 
-            Olá, {customer.Name.FullName}! O orçamento da ordem *#{order.OrderNumber}* está pronto.
+            message = $"""
+                *{company.Name.Value}*
 
-            *Aparelho:* {order.Equipment.DeviceType} {order.Equipment.Brand} {order.Equipment.Model}
-            *Valor:* R$ {order.Budget.Value:N2}
-            *Descrição:* {order.Budget.Description}
+                Olá, {customer.Name.FullName}! O orçamento da ordem *#{order.OrderNumber}* está pronto.
 
-            Acesse o link abaixo para visualizar e responder ao orçamento
+                *Aparelho:* {order.Equipment.DeviceType} {order.Equipment.Brand} {order.Equipment.Model}
+                *Valor:* R$ {order.Budget.Value:N2}
+                *Descrição:* {order.Budget.Description}
 
-            Dúvidas? Fale conosco: {company.Phone.GetFormatted()}
-            """;
+                Acesse o link abaixo para visualizar e responder ao orçamento
 
-        _backgroundJobClient.Enqueue<WhatsAppJobs>(j => j.SendTextAsync(phone, message, CancellationToken.None));
-        _backgroundJobClient.Enqueue<WhatsAppJobs>(j => j.SendTextAsync(phone, budgetLink, CancellationToken.None));
+                Dúvidas? Fale conosco: {company.Phone.GetFormatted()}
+                """;
+
+            _backgroundJobClient.Enqueue<WhatsAppJobs>(j => j.SendTextAsync(phone, message, CancellationToken.None));
+            _backgroundJobClient.Enqueue<WhatsAppJobs>(j => j.SendTextAsync(phone, budgetLink, CancellationToken.None));
+        }
+        else
+        {
+            var motivo = order.RepairResult == RepairResult.NoDefectFound
+                ? "não apresentou defeito durante a análise"
+                : "não tem conserto";
+
+            var taxaLinha = order.Budget.Value > 0
+                ? $"\n*Taxa de diagnóstico: R$ {order.Budget.Value:N2}*"
+                : string.Empty;
+
+            message = $"""
+                *{company.Name.Value}*
+
+                Olá, {customer.Name.FullName}! Finalizamos a análise do seu *{order.Equipment.DeviceType} {order.Equipment.Brand} {order.Equipment.Model}* (ordem *#{order.OrderNumber}*).
+
+                Infelizmente, o aparelho *{motivo}*.{taxaLinha}
+
+                {order.Budget.Description}
+
+                Dúvidas? Fale conosco: {company.Phone.GetFormatted()}
+                """;
+
+            _backgroundJobClient.Enqueue<WhatsAppJobs>(j => j.SendTextAsync(phone, message, CancellationToken.None));
+        }
 
         var companyPhone = $"55{company.Phone.Value}";
         var companyNotification = $"""
             *Mensagem enviada ao cliente*
 
-            O orçamento da ordem *#{order.OrderNumber}* foi enviado para *{customer.Name.FullName}* via WhatsApp.
+            O resultado da ordem *#{order.OrderNumber}* foi enviado para *{customer.Name.FullName}* via WhatsApp.
             """;
 
         _backgroundJobClient.Enqueue<WhatsAppJobs>(j => j.SendTextAsync(companyPhone, companyNotification, CancellationToken.None));
