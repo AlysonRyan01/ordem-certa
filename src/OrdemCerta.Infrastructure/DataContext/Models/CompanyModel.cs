@@ -78,6 +78,13 @@ public class CompanyModel : IEntityTypeConfiguration<Company>
             .HasColumnName("stripe_subscription_id")
             .HasMaxLength(100);
 
+        builder.Property(c => c.RefreshToken)
+            .HasColumnName("refresh_token")
+            .HasMaxLength(128);
+
+        builder.Property(c => c.RefreshTokenExpiresAt)
+            .HasColumnName("refresh_token_expires_at");
+
         builder.Property(c => c.CreatedAt)
             .HasColumnName("created_at")
             .IsRequired();

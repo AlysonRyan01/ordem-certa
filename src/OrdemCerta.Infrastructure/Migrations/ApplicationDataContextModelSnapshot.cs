@@ -116,6 +116,15 @@ namespace OrdemCerta.Infrastructure.Migrations
                         .HasColumnType("text")
                         .HasColumnName("plan");
 
+                    b.Property<string>("RefreshToken")
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)")
+                        .HasColumnName("refresh_token");
+
+                    b.Property<DateTime?>("RefreshTokenExpiresAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("refresh_token_expires_at");
+
                     b.Property<string>("State")
                         .HasMaxLength(2)
                         .HasColumnType("character varying(2)")

@@ -6,6 +6,8 @@ export interface LoginInput {
 export interface TokenOutput {
   token: string;
   expiresAt: string;
+  refreshToken: string;
+  refreshTokenExpiresAt: string;
 }
 
 export interface RegisterInput {

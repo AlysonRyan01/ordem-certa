@@ -49,6 +49,17 @@ public class CompanyRepository : ICompanyRepository
         return company;
     }
 
+    public async Task<Result<Company>> GetByRefreshTokenAsync(string refreshToken, CancellationToken cancellationToken)
+    {
+        var company = await _context.Companies
+            .FirstOrDefaultAsync(c => c.RefreshToken == refreshToken, cancellationToken);
+
+        if (company is null)
+            return "Refresh token inválido";
+
+        return company;
+    }
+
     public async Task AddAsync(Company company, CancellationToken cancellationToken)
     {
         await _context.Companies.AddAsync(company, cancellationToken);

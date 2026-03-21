@@ -7,4 +7,5 @@ namespace OrdemCerta.Application.Services.AuthService;
 public interface IAuthService
 {
     Task<Result<TokenOutput>> LoginAsync(LoginInput input, CancellationToken cancellationToken);
+    Task<Result<TokenOutput>> RefreshAsync(string refreshToken, CancellationToken cancellationToken);
 }

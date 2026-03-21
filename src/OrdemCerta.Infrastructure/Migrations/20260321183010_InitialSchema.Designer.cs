@@ -12,7 +12,7 @@ using OrdemCerta.Infrastructure.DataContext.Context;
 namespace OrdemCerta.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDataContext))]
-    [Migration("20260321182331_InitialSchema")]
+    [Migration("20260321183010_InitialSchema")]
     partial class InitialSchema
     {
         /// <inheritdoc />
@@ -118,6 +118,15 @@ namespace OrdemCerta.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("plan");
+
+                    b.Property<string>("RefreshToken")
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)")
+                        .HasColumnName("refresh_token");
+
+                    b.Property<DateTime?>("RefreshTokenExpiresAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("refresh_token_expires_at");
 
                     b.Property<string>("State")
                         .HasMaxLength(2)

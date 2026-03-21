@@ -44,6 +44,8 @@ namespace OrdemCerta.Infrastructure.Migrations
                     plan = table.Column<string>(type: "text", nullable: false),
                     stripe_customer_id = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true),
                     stripe_subscription_id = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true),
+                    refresh_token = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: true),
+                    refresh_token_expires_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
                 },

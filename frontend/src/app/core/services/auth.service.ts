@@ -1,7 +1,7 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
-import { switchMap, tap } from 'rxjs';
+import { Observable, switchMap, tap } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { LoginInput, RegisterInput, TokenOutput } from '../models/auth.model';
 
@@ -30,8 +30,18 @@ export class AuthService {
       .post<TokenOutput>(`${environment.apiUrl}/api/auth/login`, input)
       .pipe(
         tap((response) => {
-          localStorage.setItem('token', response.token);
-          this._user.set(this.decodeToken(response.token));
+          this.storeTokens(response);
+        })
+      );
+  }
+
+  refresh(): Observable<TokenOutput> {
+    const refreshToken = localStorage.getItem('refresh_token');
+    return this.http
+      .post<TokenOutput>(`${environment.apiUrl}/api/auth/refresh`, { refreshToken })
+      .pipe(
+        tap((response) => {
+          this.storeTokens(response);
         })
       );
   }
@@ -65,8 +75,15 @@ export class AuthService {
 
   logout(): void {
     localStorage.removeItem('token');
+    localStorage.removeItem('refresh_token');
     this._user.set(null);
     this.router.navigate(['/login']);
+  }
+
+  private storeTokens(response: TokenOutput): void {
+    localStorage.setItem('token', response.token);
+    localStorage.setItem('refresh_token', response.refreshToken);
+    this._user.set(this.decodeToken(response.token));
   }
 
   private loadFromToken(): JwtPayload | null {

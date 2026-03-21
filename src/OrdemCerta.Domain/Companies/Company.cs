@@ -19,6 +19,8 @@ public class Company : AggregateRoot
     public PlanType Plan { get; private set; }
     public string? StripeCustomerId { get; private set; }
     public string? StripeSubscriptionId { get; private set; }
+    public string? RefreshToken { get; private set; }
+    public DateTime? RefreshTokenExpiresAt { get; private set; }
 
     protected Company() { }
 
@@ -113,6 +115,20 @@ public class Company : AggregateRoot
     {
         StripeSubscriptionId = null;
         Plan = PlanType.Demo;
+        return Result.Success();
+    }
+
+    public Result SetRefreshToken(string token, DateTime expiresAt)
+    {
+        RefreshToken = token;
+        RefreshTokenExpiresAt = expiresAt;
+        return Result.Success();
+    }
+
+    public Result ClearRefreshToken()
+    {
+        RefreshToken = null;
+        RefreshTokenExpiresAt = null;
         return Result.Success();
     }
 
