@@ -14,6 +14,7 @@ import { map } from 'rxjs';
 import { AuthService } from '../../core/services/auth.service';
 import { CompanyService } from '../../core/services/company.service';
 import { BreadcrumbComponent } from '../../shared/components/breadcrumb/breadcrumb.component';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-main-layout',
@@ -73,5 +74,9 @@ export class MainLayoutComponent implements OnInit {
 
   logout(): void {
     this.auth.logout();
+  }
+
+  openSupport(): void {
+    window.open(`https://wa.me/${environment.supportWhatsApp}`, '_blank');
   }
 }
