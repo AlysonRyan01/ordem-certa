@@ -1,0 +1,405 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Geist:wght@300;400;500;600;700&display=swap');
+
+:host {
+  --amber: #FBBF24;
+  --amber-dim: rgba(251, 191, 36, 0.15);
+  --amber-glow: rgba(251, 191, 36, 0.08);
+  --dark: #0F1629;
+  --dark-card: #111827;
+  --dark-border: rgba(251, 191, 36, 0.2);
+  --slate-bg: #F1F5F9;
+  display: block;
+}
+
+.billing-page {
+  max-width: 780px;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+/* Header */
+.billing-label {
+  font-family: 'Geist', sans-serif;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #94A3B8;
+  margin: 0 0 0.35rem;
+}
+
+.billing-title {
+  font-family: 'DM Serif Display', serif;
+  font-size: 2rem;
+  font-weight: 400;
+  color: #0F172A;
+  margin: 0 0 0.4rem;
+  letter-spacing: -0.02em;
+}
+
+.billing-subtitle {
+  font-family: 'Geist', sans-serif;
+  font-size: 0.9rem;
+  color: #64748B;
+  margin: 0;
+}
+
+/* Grid */
+.plans-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem;
+  align-items: stretch;
+
+  @media (max-width: 600px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Cards */
+.plan-card {
+  border-radius: 16px;
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  position: relative;
+  overflow: hidden;
+  font-family: 'Geist', sans-serif;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+  }
+}
+
+/* Demo card */
+.plan-demo {
+  background: #ffffff;
+  border: 1.5px solid #E2E8F0;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+
+  &.plan-current {
+    border-color: #CBD5E1;
+    box-shadow: 0 0 0 3px rgba(148, 163, 184, 0.15), 0 1px 3px rgba(0,0,0,0.06);
+  }
+
+  &:hover {
+    box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+  }
+}
+
+/* Paid card */
+.plan-paid {
+  background: var(--dark);
+  border: 1.5px solid var(--dark-border);
+  box-shadow:
+    0 0 0 1px rgba(251, 191, 36, 0.06),
+    0 8px 32px rgba(15, 22, 41, 0.4),
+    0 2px 8px rgba(0,0,0,0.2);
+
+  &.plan-current {
+    border-color: rgba(251, 191, 36, 0.4);
+    box-shadow:
+      0 0 0 3px rgba(251, 191, 36, 0.1),
+      0 8px 32px rgba(15, 22, 41, 0.5);
+  }
+
+  &:hover {
+    box-shadow:
+      0 0 0 1px rgba(251, 191, 36, 0.15),
+      0 12px 40px rgba(15, 22, 41, 0.5),
+      0 4px 12px rgba(0,0,0,0.25);
+  }
+}
+
+/* Glow effect on paid card */
+.plan-glow {
+  position: absolute;
+  top: -60px;
+  right: -60px;
+  width: 200px;
+  height: 200px;
+  background: radial-gradient(circle, rgba(251, 191, 36, 0.12) 0%, transparent 70%);
+  pointer-events: none;
+  border-radius: 50%;
+}
+
+/* Badges */
+.current-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 0.25rem 0.65rem;
+  border-radius: 100px;
+  margin-bottom: 1.25rem;
+  width: fit-content;
+
+  &--demo {
+    background: #F1F5F9;
+    color: #475569;
+    border: 1px solid #E2E8F0;
+  }
+
+  &--paid {
+    background: var(--amber-dim);
+    color: var(--amber);
+    border: 1px solid rgba(251, 191, 36, 0.3);
+  }
+
+  &::before {
+    content: '';
+    display: block;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: currentColor;
+  }
+}
+
+.popular-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 0.25rem 0.65rem;
+  border-radius: 100px;
+  margin-bottom: 1.25rem;
+  width: fit-content;
+  background: var(--amber-dim);
+  color: var(--amber);
+  border: 1px solid rgba(251, 191, 36, 0.25);
+
+  &::before {
+    content: '★';
+    font-size: 0.6rem;
+  }
+}
+
+/* Plan name */
+.plan-name {
+  font-family: 'Geist', sans-serif;
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #94A3B8;
+  margin-bottom: 0.75rem;
+
+  &--paid {
+    color: rgba(251, 191, 36, 0.6);
+  }
+}
+
+/* Price */
+.plan-price {
+  display: flex;
+  align-items: baseline;
+  gap: 0.25rem;
+  margin-bottom: 0.3rem;
+}
+
+.price-value {
+  font-family: 'DM Serif Display', serif;
+  font-size: 2.6rem;
+  font-weight: 400;
+  color: #1E293B;
+  letter-spacing: -0.03em;
+  line-height: 1;
+
+  &--paid {
+    color: #ffffff;
+  }
+}
+
+.price-period {
+  font-family: 'Geist', sans-serif;
+  font-size: 0.9rem;
+  color: #94A3B8;
+  font-weight: 400;
+
+  &--paid {
+    color: rgba(255,255,255,0.4);
+  }
+}
+
+.price-note {
+  font-family: 'Geist', sans-serif;
+  font-size: 0.75rem;
+  color: rgba(255,255,255,0.35);
+  margin: 0 0 0;
+}
+
+/* Divider */
+.plan-divider {
+  height: 1px;
+  background: #F1F5F9;
+  margin: 1.5rem 0;
+
+  &--paid {
+    background: rgba(255,255,255,0.07);
+  }
+}
+
+/* Features */
+.plan-features {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  flex: 1;
+}
+
+.feature-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 0.875rem;
+  font-weight: 400;
+  color: #475569;
+
+  &--disabled {
+    color: #CBD5E1;
+    text-decoration: line-through;
+    text-decoration-color: #E2E8F0;
+  }
+
+  &--paid {
+    color: rgba(255,255,255,0.75);
+  }
+}
+
+.feature-check {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  font-size: 0.65rem;
+  font-weight: 700;
+
+  &--ok {
+    background: #F1F5F9;
+    color: #64748B;
+  }
+
+  &--no {
+    background: #FEF2F2;
+    color: #FCA5A5;
+  }
+
+  &--paid {
+    background: var(--amber-dim);
+    color: var(--amber);
+  }
+}
+
+/* Buttons */
+.upgrade-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0.875rem 1.5rem;
+  margin-top: 1.75rem;
+  border-radius: 10px;
+  border: none;
+  background: linear-gradient(135deg, #FBBF24 0%, #F59E0B 100%);
+  color: #0F1629;
+  font-family: 'Geist', sans-serif;
+  font-size: 0.875rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+  overflow: hidden;
+
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(255,255,255,0.15) 0%, transparent 60%);
+    opacity: 0;
+    transition: opacity 0.2s ease;
+  }
+
+  &:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 20px rgba(251, 191, 36, 0.4);
+
+    &::after {
+      opacity: 1;
+    }
+  }
+
+  &:active:not(:disabled) {
+    transform: translateY(0);
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
+.manage-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0.875rem 1.5rem;
+  margin-top: 1.75rem;
+  border-radius: 10px;
+  border: 1.5px solid rgba(255,255,255,0.15);
+  background: rgba(255,255,255,0.05);
+  color: rgba(255,255,255,0.7);
+  font-family: 'Geist', sans-serif;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover:not(:disabled) {
+    background: rgba(255,255,255,0.1);
+    border-color: rgba(255,255,255,0.25);
+    color: rgba(255,255,255,0.9);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+.btn-spinner {
+  width: 18px;
+  height: 18px;
+  border: 2px solid rgba(0,0,0,0.2);
+  border-top-color: currentColor;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+.btn-spinner--light {
+  border-color: rgba(255,255,255,0.15);
+  border-top-color: rgba(255,255,255,0.7);
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}

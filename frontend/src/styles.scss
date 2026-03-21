@@ -180,3 +180,22 @@ textarea.mat-mdc-input-element {
 .mat-mdc-icon-button .mat-icon {
   overflow: hidden;
 }
+
+// ─── Command Palette dialog ───────────────────────────────────────────────────
+.command-palette-dialog .mat-mdc-dialog-container {
+  padding: 0 !important;
+  border-radius: 16px !important;
+  box-shadow: none !important;
+  overflow: visible !important;
+
+  .mdc-dialog__surface {
+    border-radius: 16px !important;
+    padding: 0 !important;
+    overflow: hidden;
+  }
+}
+
+.command-palette-backdrop {
+  background: rgba(15, 23, 42, 0.4);
+  backdrop-filter: blur(4px);
+}

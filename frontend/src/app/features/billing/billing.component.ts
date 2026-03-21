@@ -1,16 +1,13 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
-import { MatButtonModule } from '@angular/material/button';
-import { MatCardModule } from '@angular/material/card';
-import { MatIconModule } from '@angular/material/icon';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { BillingService } from '../../core/services/billing.service';
 import { CompanyService } from '../../core/services/company.service';
 
 @Component({
   selector: 'app-billing',
   standalone: true,
-  imports: [MatCardModule, MatButtonModule, MatIconModule, MatProgressSpinnerModule],
+  imports: [],
   templateUrl: './billing.component.html',
+  styleUrl: './billing.component.scss',
 })
 export class BillingComponent implements OnInit {
   private readonly billingService = inject(BillingService);
