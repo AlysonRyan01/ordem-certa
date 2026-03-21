@@ -12,8 +12,8 @@ using OrdemCerta.Infrastructure.DataContext.Context;
 namespace OrdemCerta.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDataContext))]
-    [Migration("20260321181932_SinglePhoneOnCustomer")]
-    partial class SinglePhoneOnCustomer
+    [Migration("20260321182331_InitialSchema")]
+    partial class InitialSchema
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
