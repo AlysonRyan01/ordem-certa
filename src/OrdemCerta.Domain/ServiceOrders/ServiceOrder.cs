@@ -13,10 +13,12 @@ public class ServiceOrder : AggregateRoot
     public ServiceOrderStatus Status { get; private set; }
     public ServiceOrderRepairStatus? BudgetStatus { get; private set; }
     public RepairResult? RepairResult { get; private set; }
-    public Warranty? Warranty { get; private set; }
+    public int? WarrantyDuration { get; private set; }
+    public WarrantyUnit? WarrantyUnit { get; private set; }
     public DateTime EntryDate { get; private set; }
     public string? TechnicianName { get; private set; }
-    public Budget? Budget { get; private set; }
+    public decimal? BudgetValue { get; private set; }
+    public string? BudgetDescription { get; private set; }
 
     protected ServiceOrder() { }
 
@@ -57,7 +59,8 @@ public class ServiceOrder : AggregateRoot
 
     public Result SetWarranty(Warranty warranty)
     {
-        Warranty = warranty;
+        WarrantyDuration = warranty.Duration;
+        WarrantyUnit = warranty.Unit;
         return Result.Success();
     }
 
@@ -72,7 +75,8 @@ public class ServiceOrder : AggregateRoot
 
     public Result CreateBudget(Budget budget, RepairResult repairResult, Warranty? warranty = null)
     {
-        Budget = budget;
+        BudgetValue = budget.Value;
+        BudgetDescription = budget.Description;
         RepairResult = repairResult;
 
         if (repairResult is Enums.RepairResult.NoFix or Enums.RepairResult.NoDefectFound)
@@ -84,7 +88,11 @@ public class ServiceOrder : AggregateRoot
         {
             Status = ServiceOrderStatus.AwaitingApproval;
             BudgetStatus = ServiceOrderRepairStatus.Entered;
-            if (warranty is not null) Warranty = warranty;
+            if (warranty is not null)
+            {
+                WarrantyDuration = warranty.Duration;
+                WarrantyUnit = warranty.Unit;
+            }
         }
 
         return Result.Success();
@@ -98,19 +106,25 @@ public class ServiceOrder : AggregateRoot
         if (Status == ServiceOrderStatus.Delivered || Status == ServiceOrderStatus.Cancelled)
             return "Não é possível alterar o orçamento de uma ordem finalizada.";
 
-        Budget = budget;
+        BudgetValue = budget.Value;
+        BudgetDescription = budget.Description;
         RepairResult = repairResult;
 
         if (repairResult is Enums.RepairResult.NoFix or Enums.RepairResult.NoDefectFound)
         {
             Status = ServiceOrderStatus.ReadyForPickup;
             BudgetStatus = null;
-            Warranty = null;
+            WarrantyDuration = null;
+            WarrantyUnit = null;
         }
         else
         {
             BudgetStatus = ServiceOrderRepairStatus.Entered;
-            if (warranty is not null) Warranty = warranty;
+            if (warranty is not null)
+            {
+                WarrantyDuration = warranty.Duration;
+                WarrantyUnit = warranty.Unit;
+            }
         }
 
         return Result.Success();
@@ -118,7 +132,7 @@ public class ServiceOrder : AggregateRoot
 
     public Result MarkBudgetAsWaiting()
     {
-        if (Budget is null)
+        if (BudgetValue is null)
             return "A ordem não possui orçamento.";
 
         if (BudgetStatus is ServiceOrderRepairStatus.Approved or ServiceOrderRepairStatus.Disapproved)
@@ -154,10 +168,12 @@ public class ServiceOrder : AggregateRoot
         {
             case ServiceOrderStatus.AwaitingApproval:
                 Status = ServiceOrderStatus.UnderAnalysis;
-                Budget = null;
+                BudgetValue = null;
+                BudgetDescription = null;
                 BudgetStatus = null;
                 RepairResult = null;
-                Warranty = null;
+                WarrantyDuration = null;
+                WarrantyUnit = null;
                 return Result.Success();
 
             case ServiceOrderStatus.BudgetApproved:

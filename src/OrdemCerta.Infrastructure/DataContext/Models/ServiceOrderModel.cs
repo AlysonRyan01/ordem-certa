@@ -69,14 +69,11 @@ public class ServiceOrderModel : IEntityTypeConfiguration<ServiceOrder>
         builder.Property(o => o.RepairResult)
             .HasColumnName("repair_result");
 
-        builder.OwnsOne(o => o.Warranty, warranty =>
-        {
-            warranty.Property(w => w.Duration)
-                .HasColumnName("warranty_duration");
+        builder.Property(o => o.WarrantyDuration)
+            .HasColumnName("warranty_duration");
 
-            warranty.Property(w => w.Unit)
-                .HasColumnName("warranty_unit");
-        });
+        builder.Property(o => o.WarrantyUnit)
+            .HasColumnName("warranty_unit");
 
         builder.Property(o => o.EntryDate)
             .HasColumnName("entry_date")
@@ -86,16 +83,13 @@ public class ServiceOrderModel : IEntityTypeConfiguration<ServiceOrder>
             .HasColumnName("technician_name")
             .HasMaxLength(200);
 
-        builder.OwnsOne(o => o.Budget, budget =>
-        {
-            budget.Property(b => b.Value)
-                .HasColumnName("budget_value")
-                .HasColumnType("numeric(10,2)");
+        builder.Property(o => o.BudgetValue)
+            .HasColumnName("budget_value")
+            .HasColumnType("numeric(10,2)");
 
-            budget.Property(b => b.Description)
-                .HasColumnName("budget_description")
-                .HasMaxLength(500);
-        });
+        builder.Property(o => o.BudgetDescription)
+            .HasColumnName("budget_description")
+            .HasMaxLength(500);
 
         builder.Property(o => o.CreatedAt)
             .HasColumnName("created_at")

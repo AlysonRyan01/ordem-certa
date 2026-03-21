@@ -28,7 +28,7 @@ public class ServiceOrderTests
         result.Value.OrderNumber.Should().Be(1);
         result.Value.Status.Should().Be(ServiceOrderStatus.Received);
         result.Value.TechnicianName.Should().Be("João");
-        result.Value.Budget.Should().BeNull();
+        result.Value.BudgetValue.Should().BeNull();
         result.Value.Id.Should().NotBeEmpty();
     }
 
@@ -86,8 +86,8 @@ public class ServiceOrderTests
 
         result.IsSuccess.Should().BeTrue();
         order.Status.Should().Be(ServiceOrderStatus.WaitingApproval);
-        order.Budget.Should().NotBeNull();
-        order.Budget!.Value.Should().Be(350m);
+        order.BudgetValue.Should().NotBeNull();
+        order.BudgetValue.Should().Be(350m);
     }
 
     [Fact]

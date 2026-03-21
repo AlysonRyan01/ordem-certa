@@ -502,7 +502,7 @@ public class ServiceOrderService : IServiceOrderService
             return Result.Failure(orderResult.Errors);
 
         var order = orderResult.Value!;
-        if (order.Budget is null)
+        if (order.BudgetValue is null)
             return "A ordem não possui orçamento.";
 
         var noFixResult = order.RepairResult is RepairResult.NoFix or RepairResult.NoDefectFound;
@@ -541,8 +541,8 @@ public class ServiceOrderService : IServiceOrderService
                 Olá, {customer.Name.FullName}! O orçamento da ordem *#{order.OrderNumber}* está pronto.
 
                 *Aparelho:* {order.Equipment.DeviceType} {order.Equipment.Brand} {order.Equipment.Model}
-                *Valor:* R$ {order.Budget.Value:N2}
-                *Descrição:* {order.Budget.Description}
+                *Valor:* R$ {order.BudgetValue:N2}
+                *Descrição:* {order.BudgetDescription}
 
                 Acesse o link abaixo para visualizar e responder ao orçamento
 
@@ -558,8 +558,8 @@ public class ServiceOrderService : IServiceOrderService
                 ? "não apresentou defeito durante a análise"
                 : "não tem conserto";
 
-            var taxaLinha = order.Budget.Value > 0
-                ? $"\n*Taxa de diagnóstico: R$ {order.Budget.Value:N2}*"
+            var taxaLinha = order.BudgetValue > 0
+                ? $"\n*Taxa de diagnóstico: R$ {order.BudgetValue:N2}*"
                 : string.Empty;
 
             message = $"""
@@ -569,7 +569,7 @@ public class ServiceOrderService : IServiceOrderService
 
                 Infelizmente, o aparelho *{motivo}*.{taxaLinha}
 
-                {order.Budget.Description}
+                {order.BudgetDescription}
 
                 Dúvidas? Fale conosco: {company.Phone.GetFormatted()}
                 """;

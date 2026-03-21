@@ -20,12 +20,12 @@ public static class ServiceOrderExtensions
             order.Status.ToString(),
             order.BudgetStatus?.ToString(),
             order.RepairResult?.ToString(),
-            order.Warranty?.Duration,
-            order.Warranty?.Unit.ToString(),
+            order.WarrantyDuration,
+            order.WarrantyUnit?.ToString(),
             order.EntryDate,
             order.TechnicianName,
-            order.Budget?.Value,
-            order.Budget?.Description,
+            order.BudgetValue,
+            order.BudgetDescription,
             companyName);
     }
 
