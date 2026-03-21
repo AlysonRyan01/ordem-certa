@@ -1,4 +1,5 @@
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { DatePipe, DecimalPipe } from '@angular/common';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
@@ -55,7 +56,7 @@ export class OrderDetailComponent implements OnInit {
   readonly editingBudget = signal(false);
 
   readonly createBudgetForm = new FormGroup({
-    value: new FormControl<number | null>(null, [Validators.required, Validators.min(0.01)]),
+    value: new FormControl<number | null>(null, [Validators.required, Validators.min(0)]),
     description: new FormControl('', Validators.required),
     repairResult: new FormControl<RepairResult | null>(null, Validators.required),
     warrantyDuration: new FormControl<number | null>(null, Validators.min(1)),
@@ -63,7 +64,7 @@ export class OrderDetailComponent implements OnInit {
   });
 
   readonly editBudgetForm = new FormGroup({
-    value: new FormControl<number | null>(null, [Validators.required, Validators.min(0.01)]),
+    value: new FormControl<number | null>(null, [Validators.required, Validators.min(0)]),
     description: new FormControl('', Validators.required),
     repairResult: new FormControl<RepairResult | null>(null, Validators.required),
     warrantyDuration: new FormControl<number | null>(null, Validators.min(1)),
@@ -78,6 +79,19 @@ export class OrderDetailComponent implements OnInit {
     { value: 'Months', label: 'Meses' },
     { value: 'Years',  label: 'Anos' },
   ];
+
+  private readonly createRepairResult = toSignal(
+    this.createBudgetForm.controls.repairResult.valueChanges,
+    { initialValue: this.createBudgetForm.controls.repairResult.value }
+  );
+
+  private readonly editRepairResult = toSignal(
+    this.editBudgetForm.controls.repairResult.valueChanges,
+    { initialValue: this.editBudgetForm.controls.repairResult.value }
+  );
+
+  readonly showCreateWarranty = computed(() => this.createRepairResult() === 'CanBeRepaired');
+  readonly showEditWarranty = computed(() => this.editRepairResult() === 'CanBeRepaired');
 
   readonly canEditBudget = computed(() => {
     const order = this.order();

@@ -8,7 +8,7 @@ public class CreateBudgetInputValidator : AbstractValidator<CreateBudgetInput>
     public CreateBudgetInputValidator()
     {
         RuleFor(x => x.Value)
-            .GreaterThan(0).WithMessage("O valor do orçamento deve ser maior que zero");
+            .GreaterThanOrEqualTo(0).WithMessage("O valor do orçamento não pode ser negativo");
 
         RuleFor(x => x.Description)
             .NotEmpty().WithMessage("A descrição do orçamento é obrigatória")
