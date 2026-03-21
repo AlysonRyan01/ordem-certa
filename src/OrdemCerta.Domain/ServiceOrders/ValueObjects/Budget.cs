@@ -15,8 +15,8 @@ public class Budget : ValueObject
 
     public static Result<Budget> Create(decimal value, string description)
     {
-        if (value <= 0)
-            return "O valor do orçamento deve ser maior que zero";
+        if (value < 0)
+            return "O valor do orçamento não pode ser negativo";
 
         if (string.IsNullOrWhiteSpace(description))
             return "A descrição do orçamento é obrigatória";
