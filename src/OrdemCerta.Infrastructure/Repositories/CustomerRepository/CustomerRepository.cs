@@ -79,6 +79,16 @@ public class CustomerRepository : ICustomerRepository
         return Result<IEnumerable<Customer>>.Success(customers);
     }
 
+    public async Task<Dictionary<Guid, string>> GetNamesByIdsAsync(IEnumerable<Guid> ids, CancellationToken cancellationToken = default)
+    {
+        var idList = ids.Distinct().ToList();
+        return await _context.Customers
+            .AsNoTracking()
+            .Where(c => idList.Contains(c.Id))
+            .Select(c => new { c.Id, c.FullName })
+            .ToDictionaryAsync(c => c.Id, c => c.FullName, cancellationToken);
+    }
+
     public async Task AddAsync(Customer customer, CancellationToken cancellationToken = default)
     {
         await _context.Customers.AddAsync(customer, cancellationToken);

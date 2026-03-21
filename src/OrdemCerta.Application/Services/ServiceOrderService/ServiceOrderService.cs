@@ -172,19 +172,22 @@ public class ServiceOrderService : IServiceOrderService
     public async Task<Result<List<ServiceOrderOutput>>> GetPagedAsync(GetPagedInput input, CancellationToken cancellationToken)
     {
         var orders = await _serviceOrderRepository.GetPagedAsync(input.Page, input.PageSize, cancellationToken);
-        return orders.Select(o => o.ToOutput()).ToList();
+        var names = await _customerRepository.GetNamesByIdsAsync(orders.Select(o => o.CustomerId), cancellationToken);
+        return orders.Select(o => o.ToOutput(customerName: names.GetValueOrDefault(o.CustomerId))).ToList();
     }
 
     public async Task<Result<List<ServiceOrderOutput>>> GetByStatusAsync(ServiceOrderStatus status, GetPagedInput input, CancellationToken cancellationToken)
     {
         var orders = await _serviceOrderRepository.GetByStatusAsync(status, input.Page, input.PageSize, cancellationToken);
-        return orders.Select(o => o.ToOutput()).ToList();
+        var names = await _customerRepository.GetNamesByIdsAsync(orders.Select(o => o.CustomerId), cancellationToken);
+        return orders.Select(o => o.ToOutput(customerName: names.GetValueOrDefault(o.CustomerId))).ToList();
     }
 
     public async Task<Result<List<ServiceOrderOutput>>> GetByCustomerAsync(Guid customerId, GetPagedInput input, CancellationToken cancellationToken)
     {
         var orders = await _serviceOrderRepository.GetByCustomerAsync(customerId, input.Page, input.PageSize, cancellationToken);
-        return orders.Select(o => o.ToOutput()).ToList();
+        var names = await _customerRepository.GetNamesByIdsAsync(orders.Select(o => o.CustomerId), cancellationToken);
+        return orders.Select(o => o.ToOutput(customerName: names.GetValueOrDefault(o.CustomerId))).ToList();
     }
 
     public async Task<Result<ServiceOrderOutput>> ChangeStatusAsync(Guid id, ChangeStatusInput input, CancellationToken cancellationToken)

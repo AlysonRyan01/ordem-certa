@@ -4,7 +4,7 @@ namespace OrdemCerta.Domain.ServiceOrders.Extensions;
 
 public static class ServiceOrderExtensions
 {
-    public static ServiceOrderOutput ToOutput(this ServiceOrder order, string? companyName = null)
+    public static ServiceOrderOutput ToOutput(this ServiceOrder order, string? companyName = null, string? customerName = null)
     {
         return new ServiceOrderOutput(
             order.Id,
@@ -26,7 +26,8 @@ public static class ServiceOrderExtensions
             order.TechnicianName,
             order.BudgetValue,
             order.BudgetDescription,
-            companyName);
+            companyName,
+            customerName);
     }
 
     public static IEnumerable<ServiceOrderOutput> ToOutput(this IEnumerable<ServiceOrder> orders)

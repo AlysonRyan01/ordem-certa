@@ -20,4 +20,5 @@ public record ServiceOrderOutput(
     string? TechnicianName,
     decimal? BudgetValue,
     string? BudgetDescription,
-    string? CompanyName = null);
+    string? CompanyName = null,
+    string? CustomerName = null);

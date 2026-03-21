@@ -34,6 +34,7 @@ export interface ServiceOrderOutput {
   budgetValue?: number;
   budgetDescription?: string;
   companyName?: string;
+  customerName?: string;
 }
 
 export interface CreateServiceOrderInput {
