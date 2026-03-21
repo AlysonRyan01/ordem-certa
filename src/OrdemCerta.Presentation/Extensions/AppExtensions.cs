@@ -72,13 +72,11 @@ public static class AppExtensions
     {
         var manager = app.ApplicationServices.GetRequiredService<IRecurringJobManager>();
 
-        // Busca novos prospects a cada 6 horas
         manager.AddOrUpdate<MarketingProspectorJob>(
             "marketing-prospector",
             job => job.ExecuteAsync(CancellationToken.None),
             "0 */6 * * *");
 
-        // Envia 2 mensagens por hora em horário comercial (8h–19h) = ~20/dia
         manager.AddOrUpdate<MarketingDispatcherJob>(
             "marketing-dispatcher",
             job => job.ExecuteAsync(CancellationToken.None),
@@ -103,9 +101,16 @@ public static class AppExtensions
         if (adminRepository.AnyAsync(CancellationToken.None).GetAwaiter().GetResult())
             return;
 
-        var hash = passwordHasher.Hash(password);
-        var admin = AdminUser.Create(email, hash);
-        adminRepository.AddAsync(admin, CancellationToken.None).GetAwaiter().GetResult();
-        unitOfWork.CommitAsync(CancellationToken.None).GetAwaiter().GetResult();
+        try
+        {
+            var hash = passwordHasher.Hash(password);
+            var admin = AdminUser.Create(email, hash);
+            adminRepository.AddAsync(admin, CancellationToken.None).GetAwaiter().GetResult();
+            unitOfWork.CommitAsync(CancellationToken.None).GetAwaiter().GetResult();
+        }
+        catch (Exception)
+        {
+
+        }
     }
 }
