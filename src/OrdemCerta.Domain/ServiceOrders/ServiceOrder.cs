@@ -75,7 +75,7 @@ public class ServiceOrder : AggregateRoot
         Budget = budget;
         RepairResult = repairResult;
 
-        if (repairResult is RepairResult.NoFix or RepairResult.NoDefectFound)
+        if (repairResult is Enums.RepairResult.NoFix or Enums.RepairResult.NoDefectFound)
         {
             Status = ServiceOrderStatus.ReadyForPickup;
             BudgetStatus = null;
@@ -101,7 +101,7 @@ public class ServiceOrder : AggregateRoot
         Budget = budget;
         RepairResult = repairResult;
 
-        if (repairResult is RepairResult.NoFix or RepairResult.NoDefectFound)
+        if (repairResult is Enums.RepairResult.NoFix or Enums.RepairResult.NoDefectFound)
         {
             Status = ServiceOrderStatus.ReadyForPickup;
             BudgetStatus = null;
