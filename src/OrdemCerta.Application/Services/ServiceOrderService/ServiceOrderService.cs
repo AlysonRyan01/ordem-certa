@@ -505,12 +505,16 @@ public class ServiceOrderService : IServiceOrderService
         if (order.Budget is null)
             return "A ordem não possui orçamento.";
 
-        var markResult = order.MarkBudgetAsWaiting();
-        if (markResult.IsFailure)
-            return markResult;
+        var noFixResult = order.RepairResult is RepairResult.NoFix or RepairResult.NoDefectFound;
+        if (!noFixResult)
+        {
+            var markResult = order.MarkBudgetAsWaiting();
+            if (markResult.IsFailure)
+                return markResult;
 
-        await _serviceOrderRepository.UpdateAsync(order, cancellationToken);
-        await _unitOfWork.CommitAsync(cancellationToken);
+            await _serviceOrderRepository.UpdateAsync(order, cancellationToken);
+            await _unitOfWork.CommitAsync(cancellationToken);
+        }
 
         var customerResult = await _customerRepository.GetByIdAsync(order.CustomerId, cancellationToken);
         if (customerResult.IsFailure || !customerResult.Value!.Phones.Any())

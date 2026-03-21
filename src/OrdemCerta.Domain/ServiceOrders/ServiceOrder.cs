@@ -73,10 +73,20 @@ public class ServiceOrder : AggregateRoot
     public Result CreateBudget(Budget budget, RepairResult repairResult, Warranty? warranty = null)
     {
         Budget = budget;
-        Status = ServiceOrderStatus.BudgetPending;
-        BudgetStatus = ServiceOrderRepairStatus.Entered;
         RepairResult = repairResult;
-        if (warranty is not null) Warranty = warranty;
+
+        if (repairResult is RepairResult.NoFix or RepairResult.NoDefectFound)
+        {
+            Status = ServiceOrderStatus.ReadyForPickup;
+            BudgetStatus = null;
+        }
+        else
+        {
+            Status = ServiceOrderStatus.BudgetPending;
+            BudgetStatus = ServiceOrderRepairStatus.Entered;
+            if (warranty is not null) Warranty = warranty;
+        }
+
         return Result.Success();
     }
 
@@ -89,9 +99,20 @@ public class ServiceOrder : AggregateRoot
             return "Não é possível alterar o orçamento de uma ordem finalizada.";
 
         Budget = budget;
-        BudgetStatus = ServiceOrderRepairStatus.Entered;
         RepairResult = repairResult;
-        if (warranty is not null) Warranty = warranty;
+
+        if (repairResult is RepairResult.NoFix or RepairResult.NoDefectFound)
+        {
+            Status = ServiceOrderStatus.ReadyForPickup;
+            BudgetStatus = null;
+            Warranty = null;
+        }
+        else
+        {
+            BudgetStatus = ServiceOrderRepairStatus.Entered;
+            if (warranty is not null) Warranty = warranty;
+        }
+
         return Result.Success();
     }
 
