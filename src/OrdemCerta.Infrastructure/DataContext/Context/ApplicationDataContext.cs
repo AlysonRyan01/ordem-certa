@@ -22,7 +22,6 @@ public class ApplicationDataContext : DbContext
 
     public DbSet<Company> Companies => Set<Company>();
     public DbSet<Customer> Customers => Set<Customer>();
-    public DbSet<CustomerPhone> CustomerPhones => Set<CustomerPhone>();
     public DbSet<ServiceOrder> ServiceOrders => Set<ServiceOrder>();
     public DbSet<CompanyOrderSequence> CompanyOrderSequences => Set<CompanyOrderSequence>();
     public DbSet<Sale> Sales => Set<Sale>();

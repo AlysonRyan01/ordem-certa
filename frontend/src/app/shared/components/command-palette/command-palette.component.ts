@@ -69,7 +69,7 @@ export class CommandPaletteComponent implements OnInit, OnDestroy {
       this.results.set(customers.map((c) => ({
         id: c.id,
         label: c.fullName,
-        sublabel: c.phones[0]?.value ?? c.email ?? '',
+        sublabel: c.phoneFormatted ?? c.email ?? '',
         icon: 'person',
         route: ['/customers', c.id],
         category: 'Clientes',

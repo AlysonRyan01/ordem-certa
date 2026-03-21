@@ -37,6 +37,10 @@
       <div class="px-5 py-5">
         <dl class="grid grid-cols-2 gap-x-8 gap-y-4 text-sm">
           <div>
+            <dt class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">WhatsApp</dt>
+            <dd class="text-slate-700 font-mono">{{ c.phoneFormatted }}</dd>
+          </div>
+          <div>
             <dt class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">E-mail</dt>
             <dd class="text-slate-700">{{ c.email ?? '—' }}</dd>
           </div>
@@ -58,41 +62,6 @@
       </div>
     </div>
 
-    <!-- Phones -->
-    <div class="oc-section-card">
-      <div class="oc-section-header flex items-center justify-between">
-        <span>Telefones</span>
-        <span class="text-slate-400 font-normal">{{ c.phones.length }} cadastrado(s)</span>
-      </div>
-      <div class="px-5 py-5">
-        <div class="flex flex-wrap gap-2 mb-4">
-          @for (phone of c.phones; track phone.value) {
-            <mat-chip-set>
-              <mat-chip>
-                <mat-icon matChipAvatar class="!text-sm">phone</mat-icon>
-                {{ phone.value }}
-                <button matChipRemove matTooltip="Remover" (click)="confirmRemovePhone(phone.value)">
-                  <mat-icon>cancel</mat-icon>
-                </button>
-              </mat-chip>
-            </mat-chip-set>
-          } @empty {
-            <p class="text-sm text-slate-400">Nenhum telefone cadastrado.</p>
-          }
-        </div>
-
-        <div class="flex gap-3 items-start pt-3 border-t border-slate-100">
-          <mat-form-field appearance="outline" class="flex-1">
-            <mat-label>Adicionar telefone</mat-label>
-            <mat-icon matPrefix>phone</mat-icon>
-            <input matInput [formControl]="phoneControl" mask="(00) 00000-0000||(00) 0000-0000" placeholder="(11) 98765-4321" />
-          </mat-form-field>
-          <button mat-flat-button class="mt-1" (click)="addPhone()" [disabled]="phoneControl.invalid || addingPhone()">
-            @if (addingPhone()) { <mat-spinner diameter="18" /> } @else { Adicionar }
-          </button>
-        </div>
-      </div>
-    </div>
 
     <div>
       <a mat-button routerLink="/customers">

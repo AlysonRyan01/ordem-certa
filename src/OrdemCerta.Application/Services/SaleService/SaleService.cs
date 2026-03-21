@@ -280,7 +280,7 @@ public class SaleService : ISaleService
             {
                 var customer = customerResult.Value!;
                 customerName = customer.FullName;
-                customerPhone = customer.Phones.FirstOrDefault()?.GetFormatted();
+                customerPhone = customer.GetPhoneFormatted();
                 customerDocument = customer.GetDocumentFormatted();
             }
         }
@@ -320,7 +320,7 @@ public class SaleService : ISaleService
             {
                 var customer = customerResult.Value!;
                 customerName = customer.FullName;
-                customerPhone = customer.Phones.FirstOrDefault()?.GetFormatted();
+                customerPhone = customer.GetPhoneFormatted();
                 customerDocument = customer.GetDocumentFormatted();
             }
         }

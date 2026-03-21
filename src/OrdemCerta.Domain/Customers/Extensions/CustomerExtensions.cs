@@ -11,13 +11,8 @@ public static class CustomerExtensions
             Id = customer.Id,
             FullName = customer.FullName,
             Email = customer.Email,
-            Phones = customer.Phones.Select(p => new CustomerPhoneOutput
-            {
-                Value = p.Value,
-                AreaCode = p.AreaCode,
-                Number = p.Number,
-                Formatted = p.GetFormatted()
-            }).ToList(),
+            Phone = customer.Phone,
+            PhoneFormatted = customer.GetPhoneFormatted(),
             Address = customer.AddressStreet != null || customer.AddressCity != null
                 ? new CustomerAddressOutput
                 {

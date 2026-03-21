@@ -7,7 +7,9 @@ public class Customer : AggregateRoot
 {
     public Guid CompanyId { get; private set; }
     public string FullName { get; private set; } = null!;
-    public List<CustomerPhone> Phones { get; private set; } = new();
+    public string Phone { get; private set; } = null!;
+    public string PhoneAreaCode { get; private set; } = null!;
+    public string PhoneNumber { get; private set; } = null!;
     public string? Email { get; private set; }
     public string? AddressStreet { get; private set; }
     public string? AddressNumber { get; private set; }
@@ -21,7 +23,9 @@ public class Customer : AggregateRoot
     private Customer(
         Guid companyId,
         string fullName,
-        List<CustomerPhone> phones,
+        string phone,
+        string phoneAreaCode,
+        string phoneNumber,
         string? email = null,
         string? addressStreet = null,
         string? addressNumber = null,
@@ -33,8 +37,10 @@ public class Customer : AggregateRoot
         Id = Guid.NewGuid();
         CompanyId = companyId;
         FullName = fullName;
+        Phone = phone;
+        PhoneAreaCode = phoneAreaCode;
+        PhoneNumber = phoneNumber;
         Email = email;
-        Phones = phones;
         AddressStreet = addressStreet;
         AddressNumber = addressNumber;
         AddressCity = addressCity;
@@ -46,7 +52,9 @@ public class Customer : AggregateRoot
     public static Result<Customer> Create(
         Guid companyId,
         string fullName,
-        List<CustomerPhone> phones,
+        string phone,
+        string phoneAreaCode,
+        string phoneNumber,
         string? email = null,
         string? addressStreet = null,
         string? addressNumber = null,
@@ -55,25 +63,14 @@ public class Customer : AggregateRoot
         string? document = null,
         CustomerDocumentType? documentType = null)
     {
-        return new Customer(companyId, fullName, phones, email, addressStreet, addressNumber, addressCity, addressState, document, documentType);
+        return new Customer(companyId, fullName, phone, phoneAreaCode, phoneNumber, email, addressStreet, addressNumber, addressCity, addressState, document, documentType);
     }
 
-    public Result AddPhone(CustomerPhone phone)
+    public Result UpdatePhone(string phone, string areaCode, string number)
     {
-        if (Phones.Any(p => p.Value == phone.Value))
-            return Result.Failure("Este telefone já está cadastrado");
-
-        Phones.Add(phone);
-        return Result.Success();
-    }
-
-    public Result RemovePhone(CustomerPhone phone)
-    {
-        var existing = Phones.FirstOrDefault(p => p.Value == phone.Value);
-        if (existing is null)
-            return Result.Failure("Telefone não encontrado");
-
-        Phones.Remove(existing);
+        Phone = phone;
+        PhoneAreaCode = areaCode;
+        PhoneNumber = number;
         return Result.Success();
     }
 
@@ -103,6 +100,14 @@ public class Customer : AggregateRoot
     {
         FullName = fullName;
         return Result.Success();
+    }
+
+    public string GetPhoneFormatted()
+    {
+        if (Phone.Length == 11)
+            return $"({PhoneAreaCode}) {PhoneNumber[..5]}-{PhoneNumber[5..]}";
+
+        return $"({PhoneAreaCode}) {PhoneNumber[..4]}-{PhoneNumber[4..]}";
     }
 
     public string? GetDocumentFormatted()

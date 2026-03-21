@@ -54,7 +54,7 @@ public class PdfService : IPdfService
                             t.ColumnsDefinition(c => { c.RelativeColumn(2); c.RelativeColumn(1); c.RelativeColumn(1); });
                             DataCell(t, "Nome", customer.FullName);
                             DataCell(t, "Documento", customer.Document?.Formatted ?? "—");
-                            DataCell(t, "Telefone", customer.Phones.FirstOrDefault()?.Formatted ?? "—");
+                            DataCell(t, "Telefone", customer.PhoneFormatted);
                         });
 
                         body.Item().PaddingTop(24).Column(sec =>
@@ -158,7 +158,7 @@ public class PdfService : IPdfService
                                 t.ColumnsDefinition(c => { c.RelativeColumn(2); c.RelativeColumn(1); c.RelativeColumn(1); });
                                 DataCell(t, "Nome", customer.FullName);
                                 DataCell(t, "Documento", customer.Document?.Formatted ?? "—");
-                                DataCell(t, "Telefone", customer.Phones.FirstOrDefault()?.Formatted ?? "—");
+                                DataCell(t, "Telefone", customer.PhoneFormatted);
                             });
                         });
 
@@ -253,7 +253,7 @@ public class PdfService : IPdfService
                                 t.ColumnsDefinition(c => { c.RelativeColumn(2); c.RelativeColumn(1); c.RelativeColumn(1); });
                                 DataCell(t, "Nome", customer.FullName);
                                 DataCell(t, "Documento", customer.Document?.Formatted ?? "—");
-                                DataCell(t, "Telefone", customer.Phones.FirstOrDefault()?.Formatted ?? "—");
+                                DataCell(t, "Telefone", customer.PhoneFormatted);
                             });
                         });
 

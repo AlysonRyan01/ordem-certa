@@ -356,14 +356,14 @@ public class ServiceOrderService : IServiceOrderService
         var companyResult = await _companyRepository.GetByIdAsync(order.CompanyId, cancellationToken);
         var customerResult = await _customerRepository.GetByIdAsync(order.CustomerId, cancellationToken);
 
-        if (companyResult.IsSuccess && customerResult.IsSuccess && customerResult.Value!.Phones.Any())
+        if (companyResult.IsSuccess && customerResult.IsSuccess && customerResult.Value!.Phone != null)
         {
             var company = companyResult.Value!;
             var customer = customerResult.Value!;
             var device = $"{order.DeviceType} {order.Brand} {order.Model}";
 
             _backgroundJobClient.Enqueue<WhatsAppJobs>(j => j.SendTextAsync(
-                $"55{customer.Phones.First().Value}",
+                $"55{customer.Phone}",
                 $"""
                 *Orçamento aprovado!*
 
@@ -413,14 +413,14 @@ public class ServiceOrderService : IServiceOrderService
         var companyResult = await _companyRepository.GetByIdAsync(order.CompanyId, cancellationToken);
         var customerResult = await _customerRepository.GetByIdAsync(order.CustomerId, cancellationToken);
 
-        if (companyResult.IsSuccess && customerResult.IsSuccess && customerResult.Value!.Phones.Any())
+        if (companyResult.IsSuccess && customerResult.IsSuccess && customerResult.Value!.Phone != null)
         {
             var company = companyResult.Value!;
             var customer = customerResult.Value!;
             var device = $"{order.DeviceType} {order.Brand} {order.Model}";
 
             _backgroundJobClient.Enqueue<WhatsAppJobs>(j => j.SendTextAsync(
-                $"55{customer.Phones.First().Value}",
+                $"55{customer.Phone}",
                 $"""
                 *Orçamento recusado*
 
@@ -473,7 +473,7 @@ public class ServiceOrderService : IServiceOrderService
         }
 
         var customerResult = await _customerRepository.GetByIdAsync(order.CustomerId, cancellationToken);
-        if (customerResult.IsFailure || !customerResult.Value!.Phones.Any())
+        if (customerResult.IsFailure || string.IsNullOrEmpty(customerResult.Value!.Phone))
             return Result.Success();
 
         var companyResult = await _companyRepository.GetByIdAsync(order.CompanyId, cancellationToken);
@@ -482,7 +482,7 @@ public class ServiceOrderService : IServiceOrderService
 
         var customer = customerResult.Value!;
         var company = companyResult.Value!;
-        var phone = $"55{customer.Phones.First().Value}";
+        var phone = $"55{customer.Phone}";
 
         var canBeRepaired = order.RepairResult == RepairResult.CanBeRepaired;
 
@@ -607,7 +607,7 @@ public class ServiceOrderService : IServiceOrderService
         var order = orderResult.Value!;
 
         var customerResult = await _customerRepository.GetByIdAsync(order.CustomerId, cancellationToken);
-        if (customerResult.IsFailure || !customerResult.Value!.Phones.Any())
+        if (customerResult.IsFailure || string.IsNullOrEmpty(customerResult.Value!.Phone))
             return Result.Success();
 
         var companyResult = await _companyRepository.GetByIdAsync(order.CompanyId, cancellationToken);
@@ -616,7 +616,7 @@ public class ServiceOrderService : IServiceOrderService
 
         var customer = customerResult.Value!;
         var company = companyResult.Value!;
-        var phone = $"55{customer.Phones.First().Value}";
+        var phone = $"55{customer.Phone}";
 
         var device = $"{order.DeviceType} {order.Brand} {order.Model}";
 

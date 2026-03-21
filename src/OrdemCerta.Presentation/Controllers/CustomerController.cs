@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 using OrdemCerta.Application.Inputs.CustomerInputs;
 using OrdemCerta.Application.Services.CustomerService;
+
 using OrdemCerta.Domain.Customers.DTOs;
 using OrdemCerta.Shared;
 
@@ -120,37 +121,4 @@ public class CustomerController : ControllerBase
         return Ok(result.Value);
     }
     
-    [HttpPost("{id:guid}/phones")]
-    [ProducesResponseType(typeof(CustomerOutput), StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> AddPhone(
-        [FromRoute] Guid id,
-        [FromBody] AddPhoneInput input,
-        CancellationToken cancellationToken)
-    {
-        var result = await _customerService.AddPhoneAsync(id, input, cancellationToken);
-
-        if (result.IsFailure)
-            return BadRequest(new { errors = result.Errors });
-
-        return Ok(result.Value);
-    }
-
-    [HttpDelete("{id:guid}/phones")]
-    [ProducesResponseType(typeof(CustomerOutput), StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> RemovePhone(
-        [FromRoute] Guid id,
-        [FromBody] RemovePhoneInput input,
-        CancellationToken cancellationToken)
-    {
-        var result = await _customerService.RemovePhoneAsync(id, input, cancellationToken);
-
-        if (result.IsFailure)
-            return BadRequest(new { errors = result.Errors });
-
-        return Ok(result.Value);
-    }
 }

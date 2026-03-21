@@ -53,10 +53,20 @@ public class CustomerModel : IEntityTypeConfiguration<Customer>
             .HasColumnName("address_state")
             .HasMaxLength(2);
 
-        builder.HasMany(c => c.Phones)
-            .WithOne()
-            .HasForeignKey(p => p.CustomerId)
-            .OnDelete(DeleteBehavior.Cascade);
+        builder.Property(c => c.Phone)
+            .HasColumnName("phone")
+            .HasMaxLength(11)
+            .IsRequired();
+
+        builder.Property(c => c.PhoneAreaCode)
+            .HasColumnName("phone_area_code")
+            .HasMaxLength(2)
+            .IsRequired();
+
+        builder.Property(c => c.PhoneNumber)
+            .HasColumnName("phone_number")
+            .HasMaxLength(9)
+            .IsRequired();
 
         builder.Ignore(c => c.DomainEvents);
     }
