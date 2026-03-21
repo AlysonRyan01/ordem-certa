@@ -6,7 +6,7 @@ namespace OrdemCerta.Domain.ServiceOrders.Enums;
 public enum ServiceOrderStatus
 {
     UnderAnalysis = 1,
-    BudgetPending = 2,
+    AwaitingApproval = 2,
     UnderRepair = 3,
     ReadyForPickup = 4,
     Delivered = 5,

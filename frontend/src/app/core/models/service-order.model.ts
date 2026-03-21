@@ -1,6 +1,6 @@
 export type ServiceOrderStatus =
   | 'UnderAnalysis'
-  | 'BudgetPending'
+  | 'AwaitingApproval'
   | 'UnderRepair'
   | 'ReadyForPickup'
   | 'Delivered'

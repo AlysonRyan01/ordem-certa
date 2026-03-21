@@ -85,13 +85,13 @@
             <p class="text-sm text-slate-500 flex-1">Adicione um orçamento abaixo para enviar ao cliente.</p>
           }
 
-          @if (o.status === 'BudgetPending' && (o.repairResult === 'NoFix' || o.repairResult === 'NoDefectFound')) {
+          @if (o.status === 'AwaitingApproval' && (o.repairResult === 'NoFix' || o.repairResult === 'NoDefectFound')) {
             <button mat-flat-button (click)="changeStatusTo('ReadyForPickup')" [disabled]="changingStatus()">
               @if (changingStatus()) { <mat-spinner diameter="20" /> } @else { <span class="flex items-center gap-1"><mat-icon>check_circle</mat-icon> Marcar pronto para retirada</span> }
             </button>
           }
 
-          @if (o.status === 'BudgetPending' && o.repairResult !== 'NoFix' && o.repairResult !== 'NoDefectFound') {
+          @if (o.status === 'AwaitingApproval' && o.repairResult !== 'NoFix' && o.repairResult !== 'NoDefectFound') {
             @if (o.budgetStatus === 'Waiting' || o.budgetStatus === 'Entered') {
               <p class="text-sm text-slate-500 mr-2">Aguardando resposta do cliente sobre o orçamento.</p>
               <button mat-flat-button class="!bg-emerald-600 !text-white" (click)="approveBudget()" [disabled]="changingStatus()">

@@ -8,8 +8,8 @@ export interface StatusMeta {
 }
 
 export const STATUS_META: Record<ServiceOrderStatus, StatusMeta> = {
-  UnderAnalysis:   { label: 'Em análise',            color: 'text-indigo-700',bg: 'bg-indigo-100', icon: 'search' },
-  BudgetPending:   { label: 'Orçamento pendente',    color: 'text-orange-700',bg: 'bg-orange-100', icon: 'pending' },
+  UnderAnalysis:   { label: 'Orçamento pendente',    color: 'text-orange-700',bg: 'bg-orange-100', icon: 'pending' },
+  AwaitingApproval:{ label: 'Aguardando resposta do cliente', color: 'text-indigo-700',bg: 'bg-indigo-100', icon: 'hourglass_empty' },
   UnderRepair:     { label: 'Em conserto',           color: 'text-purple-700',bg: 'bg-purple-100', icon: 'build' },
   ReadyForPickup:  { label: 'Pronto para retirada',  color: 'text-teal-700',  bg: 'bg-teal-100',   icon: 'check_circle' },
   Delivered:       { label: 'Entregue',              color: 'text-gray-700',  bg: 'bg-gray-100',   icon: 'done_all' },

@@ -14,7 +14,7 @@ public class DashboardService : IDashboardService
     private static readonly ServiceOrderStatus[] OpenStatuses =
     [
         ServiceOrderStatus.UnderAnalysis,
-        ServiceOrderStatus.BudgetPending,
+        ServiceOrderStatus.AwaitingApproval,
         ServiceOrderStatus.UnderRepair,
         ServiceOrderStatus.ReadyForPickup,
     ];

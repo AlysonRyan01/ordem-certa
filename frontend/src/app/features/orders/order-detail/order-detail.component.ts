@@ -100,7 +100,7 @@ export class OrderDetailComponent implements OnInit {
 
   readonly canRollback = computed(() => {
     const s = this.order()?.status;
-    return s === 'BudgetPending' || s === 'UnderRepair' || s === 'ReadyForPickup';
+    return s === 'AwaitingApproval' || s === 'UnderRepair' || s === 'ReadyForPickup';
   });
 
   get id(): string { return this.route.snapshot.paramMap.get('id')!; }

@@ -82,7 +82,7 @@ public class ServiceOrder : AggregateRoot
         }
         else
         {
-            Status = ServiceOrderStatus.BudgetPending;
+            Status = ServiceOrderStatus.AwaitingApproval;
             BudgetStatus = ServiceOrderRepairStatus.Entered;
             if (warranty is not null) Warranty = warranty;
         }
@@ -150,7 +150,7 @@ public class ServiceOrder : AggregateRoot
     {
         switch (Status)
         {
-            case ServiceOrderStatus.BudgetPending:
+            case ServiceOrderStatus.AwaitingApproval:
                 if (BudgetStatus is ServiceOrderRepairStatus.Approved or ServiceOrderRepairStatus.Disapproved)
                 {
                     BudgetStatus = ServiceOrderRepairStatus.Entered;
@@ -164,13 +164,13 @@ public class ServiceOrder : AggregateRoot
                 return Result.Success();
 
             case ServiceOrderStatus.UnderRepair:
-                Status = ServiceOrderStatus.BudgetPending;
+                Status = ServiceOrderStatus.AwaitingApproval;
                 return Result.Success();
 
             case ServiceOrderStatus.ReadyForPickup:
                 Status = RepairResult is Enums.RepairResult.NoFix or Enums.RepairResult.NoDefectFound
                       || BudgetStatus == ServiceOrderRepairStatus.Disapproved
-                    ? ServiceOrderStatus.BudgetPending
+                    ? ServiceOrderStatus.AwaitingApproval
                     : ServiceOrderStatus.UnderRepair;
                 return Result.Success();
 
