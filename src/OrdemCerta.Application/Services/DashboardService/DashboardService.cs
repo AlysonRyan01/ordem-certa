@@ -15,6 +15,8 @@ public class DashboardService : IDashboardService
     [
         ServiceOrderStatus.UnderAnalysis,
         ServiceOrderStatus.AwaitingApproval,
+        ServiceOrderStatus.BudgetApproved,
+        ServiceOrderStatus.BudgetRefused,
         ServiceOrderStatus.UnderRepair,
         ServiceOrderStatus.ReadyForPickup,
     ];

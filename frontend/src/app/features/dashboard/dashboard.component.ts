@@ -13,7 +13,7 @@ import { STATUS_META, StatusMeta } from '../../core/models/service-order-status.
 import { ServiceOrderStatus } from '../../core/models/service-order.model';
 
 const STATUS_ORDER: ServiceOrderStatus[] = [
-  'UnderAnalysis', 'AwaitingApproval', 'UnderRepair', 'ReadyForPickup', 'Delivered', 'Cancelled',
+  'UnderAnalysis', 'AwaitingApproval', 'BudgetApproved', 'BudgetRefused', 'UnderRepair', 'ReadyForPickup', 'Delivered', 'Cancelled',
 ];
 
 export interface StatusCount {
@@ -25,8 +25,10 @@ export interface StatusCount {
 Chart.register(...registerables);
 
 const CHART_COLORS: Record<string, string> = {
-  UnderAnalysis:   'rgba(99,  102, 241, 0.7)',
-  AwaitingApproval:'rgba(249, 115,  22, 0.7)',
+  UnderAnalysis:   'rgba(249, 115,  22, 0.7)',
+  AwaitingApproval:'rgba(99,  102, 241, 0.7)',
+  BudgetApproved:  'rgba(16,  185,  89, 0.7)',
+  BudgetRefused:   'rgba(239,  68,  68, 0.7)',
   UnderRepair:     'rgba(168,  85, 247, 0.7)',
   ReadyForPickup:  'rgba(20,  184, 166, 0.7)',
   Delivered:       'rgba(107, 114, 128, 0.7)',

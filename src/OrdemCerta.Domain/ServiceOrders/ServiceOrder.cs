@@ -134,6 +134,7 @@ public class ServiceOrder : AggregateRoot
             return "O orçamento não está disponível para aprovação.";
 
         BudgetStatus = ServiceOrderRepairStatus.Approved;
+        Status = ServiceOrderStatus.BudgetApproved;
         return Result.Success();
     }
 
@@ -143,6 +144,7 @@ public class ServiceOrder : AggregateRoot
             return "O orçamento não está disponível para recusa.";
 
         BudgetStatus = ServiceOrderRepairStatus.Disapproved;
+        Status = ServiceOrderStatus.BudgetRefused;
         return Result.Success();
     }
 
@@ -151,11 +153,6 @@ public class ServiceOrder : AggregateRoot
         switch (Status)
         {
             case ServiceOrderStatus.AwaitingApproval:
-                if (BudgetStatus is ServiceOrderRepairStatus.Approved or ServiceOrderRepairStatus.Disapproved)
-                {
-                    BudgetStatus = ServiceOrderRepairStatus.Entered;
-                    return Result.Success();
-                }
                 Status = ServiceOrderStatus.UnderAnalysis;
                 Budget = null;
                 BudgetStatus = null;
@@ -163,15 +160,31 @@ public class ServiceOrder : AggregateRoot
                 Warranty = null;
                 return Result.Success();
 
-            case ServiceOrderStatus.UnderRepair:
+            case ServiceOrderStatus.BudgetApproved:
                 Status = ServiceOrderStatus.AwaitingApproval;
+                BudgetStatus = ServiceOrderRepairStatus.Waiting;
+                return Result.Success();
+
+            case ServiceOrderStatus.BudgetRefused:
+                Status = ServiceOrderStatus.AwaitingApproval;
+                BudgetStatus = ServiceOrderRepairStatus.Waiting;
+                return Result.Success();
+
+            case ServiceOrderStatus.UnderRepair:
+                Status = ServiceOrderStatus.BudgetApproved;
                 return Result.Success();
 
             case ServiceOrderStatus.ReadyForPickup:
-                Status = RepairResult is Enums.RepairResult.NoFix or Enums.RepairResult.NoDefectFound
-                      || BudgetStatus == ServiceOrderRepairStatus.Disapproved
-                    ? ServiceOrderStatus.AwaitingApproval
-                    : ServiceOrderStatus.UnderRepair;
+                if (BudgetStatus == ServiceOrderRepairStatus.Disapproved)
+                {
+                    Status = ServiceOrderStatus.BudgetRefused;
+                }
+                else
+                {
+                    Status = RepairResult is Enums.RepairResult.NoFix or Enums.RepairResult.NoDefectFound
+                        ? ServiceOrderStatus.AwaitingApproval
+                        : ServiceOrderStatus.UnderRepair;
+                }
                 return Result.Success();
 
             default:

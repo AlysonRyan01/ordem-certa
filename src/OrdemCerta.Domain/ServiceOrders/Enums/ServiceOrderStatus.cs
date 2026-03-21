@@ -10,5 +10,7 @@ public enum ServiceOrderStatus
     UnderRepair = 3,
     ReadyForPickup = 4,
     Delivered = 5,
-    Cancelled = 6
+    Cancelled = 6,
+    BudgetApproved = 7,
+    BudgetRefused = 8
 }

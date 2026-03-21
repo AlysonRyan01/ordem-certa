@@ -101,16 +101,20 @@
                 <span class="flex items-center gap-1"><mat-icon>thumb_down</mat-icon> Recusar</span>
               </button>
             }
-            @if (o.budgetStatus === 'Disapproved') {
-              <button mat-flat-button (click)="changeStatusTo('ReadyForPickup')" [disabled]="changingStatus()">
-                @if (changingStatus()) { <mat-spinner diameter="20" /> } @else { <span class="flex items-center gap-1"><mat-icon>check_circle</mat-icon> Marcar pronto para retirada</span> }
-              </button>
-            }
-            @if (o.budgetStatus === 'Approved') {
-              <button mat-flat-button (click)="changeStatusTo('UnderRepair')" [disabled]="changingStatus()">
-                @if (changingStatus()) { <mat-spinner diameter="20" /> } @else { <span class="flex items-center gap-1"><mat-icon>build</mat-icon> Marcar em conserto</span> }
-              </button>
-            }
+          }
+
+          @if (o.status === 'BudgetApproved') {
+            <p class="text-sm text-slate-500 mr-2">O cliente aprovou o orçamento.</p>
+            <button mat-flat-button (click)="changeStatusTo('UnderRepair')" [disabled]="changingStatus()">
+              @if (changingStatus()) { <mat-spinner diameter="20" /> } @else { <span class="flex items-center gap-1"><mat-icon>build</mat-icon> Iniciar conserto</span> }
+            </button>
+          }
+
+          @if (o.status === 'BudgetRefused') {
+            <p class="text-sm text-slate-500 mr-2">O cliente recusou o orçamento.</p>
+            <button mat-flat-button (click)="changeStatusTo('ReadyForPickup')" [disabled]="changingStatus()">
+              @if (changingStatus()) { <mat-spinner diameter="20" /> } @else { <span class="flex items-center gap-1"><mat-icon>check_circle</mat-icon> Marcar pronto para retirada</span> }
+            </button>
           }
 
           @if (o.status === 'UnderRepair') {
