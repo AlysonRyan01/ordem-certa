@@ -630,9 +630,13 @@ public class ServiceOrderService : IServiceOrderService
                 ("*Atualização sobre seu equipamento*",
                  $"O *{device}* da ordem *#{order.OrderNumber}* foi avaliado e *não apresentou defeito* detectável.\n\n📍 O equipamento está disponível para retirada."),
 
+            RepairResult.CanBeRepaired when order.BudgetStatus == ServiceOrderRepairStatus.Disapproved =>
+                ("*Equipamento disponível para retirada*",
+                 $"O orçamento da ordem *#{order.OrderNumber}* foi recusado. O *{device}* está disponível para retirada sem reparo."),
+
             _ =>
-                ("*Equipamento pronto para retirada!*",
-                 $"O *{device}* da ordem *#{order.OrderNumber}* está pronto para retirada."),
+                ("*Equipamento pronto para retirada!* 🎉",
+                 $"O *{device}* da ordem *#{order.OrderNumber}* foi consertado e está pronto para retirada."),
         };
 
         var message = $"""
@@ -653,6 +657,7 @@ public class ServiceOrderService : IServiceOrderService
         {
             RepairResult.NoFix         => "sem conserto",
             RepairResult.NoDefectFound => "sem defeito detectado",
+            RepairResult.CanBeRepaired when order.BudgetStatus == ServiceOrderRepairStatus.Disapproved => "orçamento recusado",
             _                          => "consertado",
         };
 
