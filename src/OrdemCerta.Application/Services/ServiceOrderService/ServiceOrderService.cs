@@ -409,7 +409,7 @@ public class ServiceOrderService : IServiceOrderService
             _backgroundJobClient.Enqueue<WhatsAppJobs>(j => j.SendTextAsync(
                 $"55{customer.Phones.First().Value}",
                 $"""
-                ✅ *Orçamento aprovado!*
+                *Orçamento aprovado!*
 
                 Olá, {customer.Name.FullName}! Recebemos sua aprovação do orçamento da ordem *#{order.OrderNumber}*.
 
@@ -424,12 +424,12 @@ public class ServiceOrderService : IServiceOrderService
             _backgroundJobClient.Enqueue<WhatsAppJobs>(j => j.SendTextAsync(
                 $"55{company.Phone.Value}",
                 $"""
-                ✅ *Orçamento aprovado pelo cliente*
+                *Orçamento aprovado pelo cliente*
 
                 O cliente aprovou o orçamento da ordem *#{order.OrderNumber}* pelo link.
 
-                👤 *Cliente:* {customer.Name.FullName}
-                📱 *Aparelho:* {device}
+                *Cliente:* {customer.Name.FullName}
+                *Aparelho:* {device}
 
                 O reparo pode ser iniciado.
                 """,
@@ -466,7 +466,7 @@ public class ServiceOrderService : IServiceOrderService
             _backgroundJobClient.Enqueue<WhatsAppJobs>(j => j.SendTextAsync(
                 $"55{customer.Phones.First().Value}",
                 $"""
-                ❌ *Orçamento recusado*
+                *Orçamento recusado*
 
                 Olá, {customer.Name.FullName}! Recebemos sua recusa do orçamento da ordem *#{order.OrderNumber}*.
 
@@ -481,12 +481,12 @@ public class ServiceOrderService : IServiceOrderService
             _backgroundJobClient.Enqueue<WhatsAppJobs>(j => j.SendTextAsync(
                 $"55{company.Phone.Value}",
                 $"""
-                ❌ *Orçamento recusado pelo cliente*
+                *Orçamento recusado pelo cliente*
 
                 O cliente recusou o orçamento da ordem *#{order.OrderNumber}* pelo link.
 
-                👤 *Cliente:* {customer.Name.FullName}
-                📱 *Aparelho:* {device}
+                *Cliente:* {customer.Name.FullName}
+                *Aparelho:* {device}
                 """,
                 CancellationToken.None));
         }
@@ -527,31 +527,27 @@ public class ServiceOrderService : IServiceOrderService
         var budgetLink = $"{_baseUrl}/orcamento/order/{order.Id}";
 
         var message = $"""
-            🔧 *{company.Name.Value}*
+            *{company.Name.Value}*
 
             Olá, {customer.Name.FullName}! O orçamento da ordem *#{order.OrderNumber}* está pronto.
 
-            📱 *Aparelho:* {order.Equipment.DeviceType} {order.Equipment.Brand} {order.Equipment.Model}
-            💰 *Valor:* R$ {order.Budget.Value:N2}
-            📋 *Descrição:* {order.Budget.Description}
+            *Aparelho:* {order.Equipment.DeviceType} {order.Equipment.Brand} {order.Equipment.Model}
+            *Valor:* R$ {order.Budget.Value:N2}
+            *Descrição:* {order.Budget.Description}
 
-            Acesse o link abaixo para visualizar e responder ao orçamento:
-            👉 {budgetLink}
+            Acesse o link abaixo para visualizar e responder ao orçamento
 
             Dúvidas? Fale conosco: {company.Phone.GetFormatted()}
             """;
 
         _backgroundJobClient.Enqueue<WhatsAppJobs>(j => j.SendTextAsync(phone, message, CancellationToken.None));
+        _backgroundJobClient.Enqueue<WhatsAppJobs>(j => j.SendTextAsync(phone, budgetLink, CancellationToken.None));
 
         var companyPhone = $"55{company.Phone.Value}";
         var companyNotification = $"""
-            📤 *Mensagem enviada ao cliente*
+            *Mensagem enviada ao cliente*
 
             O orçamento da ordem *#{order.OrderNumber}* foi enviado para *{customer.Name.FullName}* via WhatsApp.
-
-            💰 *Valor:* R$ {order.Budget.Value:N2}
-            📋 *Descrição:* {order.Budget.Description}
-            📱 *Aparelho:* {order.Equipment.DeviceType} {order.Equipment.Brand} {order.Equipment.Model}
             """;
 
         _backgroundJobClient.Enqueue<WhatsAppJobs>(j => j.SendTextAsync(companyPhone, companyNotification, CancellationToken.None));
@@ -574,7 +570,7 @@ public class ServiceOrderService : IServiceOrderService
         var phone = $"55{company.Phone.Value}";
 
         var message = $"""
-            ✅ APROVADO
+            APROVADO
 
             O orçamento da ordem *#{order.OrderNumber}* foi aprovado.
 
@@ -601,7 +597,7 @@ public class ServiceOrderService : IServiceOrderService
         var phone = $"55{company.Phone.Value}";
 
         var message = $"""
-            ❌ RECUSADO
+            RECUSADO
 
             O orçamento da ordem *#{order.OrderNumber}* foi recusado.
 
@@ -637,15 +633,15 @@ public class ServiceOrderService : IServiceOrderService
         var (headline, body) = order.RepairResult switch
         {
             RepairResult.NoFix =>
-                ("⚠️ *Atualização sobre seu equipamento*",
+                ("*Atualização sobre seu equipamento*",
                  $"Infelizmente, após avaliação técnica, não foi possível consertar o *{device}* da ordem *#{order.OrderNumber}*.\n\n📍 O equipamento está disponível para retirada."),
 
             RepairResult.NoDefectFound =>
-                ("ℹ️ *Atualização sobre seu equipamento*",
+                ("*Atualização sobre seu equipamento*",
                  $"O *{device}* da ordem *#{order.OrderNumber}* foi avaliado e *não apresentou defeito* detectável.\n\n📍 O equipamento está disponível para retirada."),
 
             _ =>
-                ("✅ *Equipamento pronto para retirada!*",
+                ("*Equipamento pronto para retirada!*",
                  $"O *{device}* da ordem *#{order.OrderNumber}* está pronto para retirada."),
         };
 
@@ -672,12 +668,12 @@ public class ServiceOrderService : IServiceOrderService
 
         var companyPhone = $"55{company.Phone.Value}";
         var companyNotification = $"""
-            📤 *Mensagem enviada ao cliente*
+            *Mensagem enviada ao cliente*
 
             A notificação de *pronto para retirada* ({resultLabel}) foi enviada para *{customer.Name.FullName}* via WhatsApp.
 
-            📱 *Aparelho:* {device}
-            🔢 *Ordem:* #{order.OrderNumber}
+            *Aparelho:* {device}
+            *Ordem:* #{order.OrderNumber}
             """;
 
         _backgroundJobClient.Enqueue<WhatsAppJobs>(j => j.SendTextAsync(companyPhone, companyNotification, CancellationToken.None));
