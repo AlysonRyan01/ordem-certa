@@ -142,7 +142,7 @@
     <div class="oc-section-card">
       <div class="oc-section-header">Orçamento</div>
 
-      @if (o.budgetValue) {
+      @if (o.budgetValue != null) {
 
         @if (!editingBudget()) {
           <!-- Receipt view -->
@@ -211,16 +211,6 @@
             <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4">Editando orçamento</p>
             <ng-container [formGroup]="editBudgetForm">
               <div class="flex gap-4 flex-wrap mb-4">
-                <mat-form-field appearance="outline" class="!w-44">
-                  <mat-label>Valor (R$)</mat-label>
-                  <input matInput type="number" formControlName="value" min="0" step="0.01" />
-                </mat-form-field>
-                <mat-form-field appearance="outline" class="flex-1 !min-w-48">
-                  <mat-label>Descrição do serviço</mat-label>
-                  <input matInput formControlName="description" />
-                </mat-form-field>
-              </div>
-              <div class="flex gap-4 flex-wrap mb-4">
                 <mat-form-field appearance="outline" class="flex-1">
                   <mat-label>Resultado do diagnóstico</mat-label>
                   <mat-select formControlName="repairResult">
@@ -233,6 +223,18 @@
                   }
                 </mat-form-field>
               </div>
+              @if (showEditBudgetFields()) {
+                <div class="flex gap-4 flex-wrap mb-4">
+                  <mat-form-field appearance="outline" class="!w-44">
+                    <mat-label>Valor (R$)</mat-label>
+                    <input matInput type="number" formControlName="value" min="0" step="0.01" />
+                  </mat-form-field>
+                  <mat-form-field appearance="outline" class="flex-1 !min-w-48">
+                    <mat-label>Descrição do serviço</mat-label>
+                    <input matInput formControlName="description" />
+                  </mat-form-field>
+                </div>
+              }
               @if (showEditWarranty()) {
                 <div class="flex gap-4 flex-wrap mb-5">
                   <mat-form-field appearance="outline" class="!w-32">
@@ -274,16 +276,6 @@
         <div class="px-5 py-5">
           <ng-container [formGroup]="createBudgetForm">
             <div class="flex gap-4 flex-wrap mb-4">
-              <mat-form-field appearance="outline" class="!w-44">
-                <mat-label>Valor (R$)</mat-label>
-                <input matInput type="number" formControlName="value" min="0" step="0.01" />
-              </mat-form-field>
-              <mat-form-field appearance="outline" class="flex-1 !min-w-48">
-                <mat-label>Descrição do serviço</mat-label>
-                <input matInput formControlName="description" />
-              </mat-form-field>
-            </div>
-            <div class="flex gap-4 flex-wrap mb-4">
               <mat-form-field appearance="outline" class="flex-1">
                 <mat-label>Resultado do diagnóstico</mat-label>
                 <mat-select formControlName="repairResult">
@@ -296,6 +288,18 @@
                 }
               </mat-form-field>
             </div>
+            @if (showCreateBudgetFields()) {
+              <div class="flex gap-4 flex-wrap mb-4">
+                <mat-form-field appearance="outline" class="!w-44">
+                  <mat-label>Valor (R$)</mat-label>
+                  <input matInput type="number" formControlName="value" min="0" step="0.01" />
+                </mat-form-field>
+                <mat-form-field appearance="outline" class="flex-1 !min-w-48">
+                  <mat-label>Descrição do serviço</mat-label>
+                  <input matInput formControlName="description" />
+                </mat-form-field>
+              </div>
+            }
             @if (showCreateWarranty()) {
               <div class="flex gap-4 flex-wrap mb-5">
                 <mat-form-field appearance="outline" class="!w-32">
@@ -313,9 +317,11 @@
                 </mat-form-field>
               </div>
             }
-            <button mat-flat-button (click)="createBudget()" [disabled]="createBudgetForm.invalid">
-              <mat-icon>send</mat-icon> Enviar Orçamento
-            </button>
+            @if (createBudgetForm.controls.repairResult.value) {
+              <button mat-flat-button (click)="createBudget()" [disabled]="createBudgetForm.invalid">
+                <mat-icon>send</mat-icon> Confirmar
+              </button>
+            }
           </ng-container>
         </div>
       }
