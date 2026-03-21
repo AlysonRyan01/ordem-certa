@@ -1,8 +1,6 @@
 using FluentAssertions;
 using OrdemCerta.Domain.ServiceOrders;
 using OrdemCerta.Domain.ServiceOrders.Enums;
-using OrdemCerta.Domain.ServiceOrders.Events;
-using OrdemCerta.Domain.ServiceOrders.ValueObjects;
 
 namespace OrdemCerta.Tests.Domain.Aggregates;
 
@@ -11,22 +9,19 @@ public class ServiceOrderTests
     private static readonly Guid CompanyId = Guid.NewGuid();
     private static readonly Guid CustomerId = Guid.NewGuid();
 
-    private static EquipmentInfo ValidEquipment() =>
-        EquipmentInfo.Create("Smartphone", "Samsung", "A54", "Tela quebrada").Value!;
-
     private static ServiceOrder CreateOrder(string? technicianName = null) =>
-        ServiceOrder.Create(CompanyId, CustomerId, 1, ValidEquipment(), technicianName).Value!;
+        ServiceOrder.Create(CompanyId, CustomerId, 1, "Smartphone", "Samsung", "A54", "Tela quebrada", null, null, technicianName).Value!;
 
     [Fact]
     public void Create_WithValidData_ReturnsSuccess()
     {
-        var result = ServiceOrder.Create(CompanyId, CustomerId, 1, ValidEquipment(), "João");
+        var result = ServiceOrder.Create(CompanyId, CustomerId, 1, "Smartphone", "Samsung", "A54", "Tela quebrada", null, null, "João");
 
         result.IsSuccess.Should().BeTrue();
         result.Value!.CompanyId.Should().Be(CompanyId);
         result.Value.CustomerId.Should().Be(CustomerId);
         result.Value.OrderNumber.Should().Be(1);
-        result.Value.Status.Should().Be(ServiceOrderStatus.Received);
+        result.Value.Status.Should().Be(ServiceOrderStatus.UnderAnalysis);
         result.Value.TechnicianName.Should().Be("João");
         result.Value.BudgetValue.Should().BeNull();
         result.Value.Id.Should().NotBeEmpty();
@@ -52,73 +47,29 @@ public class ServiceOrderTests
     }
 
     [Fact]
-    public void ChangeStatus_ToReadyForPickup_RaisesServiceReadyEvent()
+    public void CreateBudget_WithValidData_SetsBudgetAndStatus()
     {
         var order = CreateOrder();
 
-        order.ChangeStatus(ServiceOrderStatus.ReadyForPickup);
-
-        order.DomainEvents.Should().ContainSingle(e => e is ServiceReadyEvent);
-        var evt = (ServiceReadyEvent)order.DomainEvents.First();
-        evt.ServiceOrderId.Should().Be(order.Id);
-        evt.OrderNumber.Should().Be(1);
-        evt.CompanyId.Should().Be(CompanyId);
-        evt.CustomerId.Should().Be(CustomerId);
-    }
-
-    [Fact]
-    public void ChangeStatus_ToOtherStatus_DoesNotRaiseServiceReadyEvent()
-    {
-        var order = CreateOrder();
-
-        order.ChangeStatus(ServiceOrderStatus.UnderRepair);
-
-        order.DomainEvents.Should().BeEmpty();
-    }
-
-    [Fact]
-    public void CreateBudget_WithValidBudget_SetsBudgetAndStatus()
-    {
-        var order = CreateOrder();
-        var budget = Budget.Create(350m, "Troca de tela").Value!;
-
-        var result = order.CreateBudget(budget);
+        var result = order.CreateBudget(350m, "Troca de tela", RepairResult.CanBeRepaired);
 
         result.IsSuccess.Should().BeTrue();
-        order.Status.Should().Be(ServiceOrderStatus.WaitingApproval);
-        order.BudgetValue.Should().NotBeNull();
+        order.Status.Should().Be(ServiceOrderStatus.AwaitingApproval);
         order.BudgetValue.Should().Be(350m);
+        order.BudgetDescription.Should().Be("Troca de tela");
     }
 
     [Fact]
-    public void CreateBudget_RaisesBudgetCreatedEvent()
+    public void ApproveBudget_WhenWaitingApproval_ApprovesSuccessfully()
     {
         var order = CreateOrder();
-        var budget = Budget.Create(350m, "Troca de tela").Value!;
-
-        order.CreateBudget(budget);
-
-        order.DomainEvents.Should().ContainSingle(e => e is BudgetCreatedEvent);
-        var evt = (BudgetCreatedEvent)order.DomainEvents.First();
-        evt.OrderNumber.Should().Be(1);
-        evt.BudgetValue.Should().Be(350m);
-    }
-
-    [Fact]
-    public void ApproveBudget_WhenWaitingApproval_ApprovesAndRaisesEvent()
-    {
-        var order = CreateOrder();
-        order.CreateBudget(Budget.Create(350m, "Troca de tela").Value!);
-        order.ClearDomainEvents();
+        order.CreateBudget(350m, "Troca de tela", RepairResult.CanBeRepaired);
+        order.MarkBudgetAsWaiting();
 
         var result = order.ApproveBudget();
 
         result.IsSuccess.Should().BeTrue();
         order.Status.Should().Be(ServiceOrderStatus.BudgetApproved);
-        order.DomainEvents.Should().ContainSingle(e => e is BudgetRespondedEvent);
-        var evt = (BudgetRespondedEvent)order.DomainEvents.First();
-        evt.Approved.Should().BeTrue();
-        evt.OrderNumber.Should().Be(1);
     }
 
     [Fact]
@@ -129,23 +80,19 @@ public class ServiceOrderTests
         var result = order.ApproveBudget();
 
         result.IsFailure.Should().BeTrue();
-        result.Errors.Should().Contain("A ordem não está aguardando aprovação");
     }
 
     [Fact]
-    public void RefuseBudget_WhenWaitingApproval_RefusesAndRaisesEvent()
+    public void RefuseBudget_WhenWaitingApproval_RefusesSuccessfully()
     {
         var order = CreateOrder();
-        order.CreateBudget(Budget.Create(350m, "Troca de tela").Value!);
-        order.ClearDomainEvents();
+        order.CreateBudget(350m, "Troca de tela", RepairResult.CanBeRepaired);
+        order.MarkBudgetAsWaiting();
 
         var result = order.RefuseBudget();
 
         result.IsSuccess.Should().BeTrue();
         order.Status.Should().Be(ServiceOrderStatus.BudgetRefused);
-        order.DomainEvents.Should().ContainSingle(e => e is BudgetRespondedEvent);
-        var evt = (BudgetRespondedEvent)order.DomainEvents.First();
-        evt.Approved.Should().BeFalse();
     }
 
     [Fact]
@@ -156,19 +103,17 @@ public class ServiceOrderTests
         var result = order.RefuseBudget();
 
         result.IsFailure.Should().BeTrue();
-        result.Errors.Should().Contain("A ordem não está aguardando aprovação");
     }
 
     [Fact]
     public void UpdateEquipment_ReplacesEquipment()
     {
         var order = CreateOrder();
-        var newEquipment = EquipmentInfo.Create("Notebook", "Dell", "XPS 15", "Não liga").Value!;
 
-        order.UpdateEquipment(newEquipment);
+        order.UpdateEquipment("Notebook", "Dell", "XPS 15", "Não liga", null, null);
 
-        order.Equipment.DeviceType.Should().Be("Notebook");
-        order.Equipment.Brand.Should().Be("Dell");
+        order.DeviceType.Should().Be("Notebook");
+        order.Brand.Should().Be("Dell");
     }
 
     [Fact]

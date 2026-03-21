@@ -1,5 +1,5 @@
 using OrdemCerta.Domain.Sales.Enums;
-using OrdemCerta.Domain.ServiceOrders.ValueObjects;
+using OrdemCerta.Domain.ServiceOrders.Enums;
 using OrdemCerta.Shared;
 
 namespace OrdemCerta.Domain.Sales;
@@ -14,7 +14,8 @@ public class Sale : AggregateRoot
     public SaleStatus Status { get; private set; }
     public SalePaymentMethod PaymentMethod { get; private set; }
     public decimal TotalValue { get; private set; }
-    public Warranty? Warranty { get; private set; }
+    public int? WarrantyDuration { get; private set; }
+    public WarrantyUnit? WarrantyUnit { get; private set; }
     public string? Notes { get; private set; }
     public DateTime SaleDate { get; private set; }
 
@@ -122,12 +123,13 @@ public class Sale : AggregateRoot
         return Result.Success();
     }
 
-    public Result SetWarranty(Warranty warranty)
+    public Result SetWarranty(int duration, WarrantyUnit unit)
     {
         if (Status == SaleStatus.Cancelled)
             return "Não é possível definir garantia para uma venda cancelada.";
 
-        Warranty = warranty;
+        WarrantyDuration = duration;
+        WarrantyUnit = unit;
         return Result.Success();
     }
 

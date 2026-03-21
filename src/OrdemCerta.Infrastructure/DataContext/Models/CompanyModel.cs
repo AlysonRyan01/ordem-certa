@@ -16,38 +16,29 @@ public class CompanyModel : IEntityTypeConfiguration<Company>
             .HasColumnName("id")
             .ValueGeneratedNever();
 
-        builder.OwnsOne(c => c.Name, name =>
-        {
-            name.Property(n => n.Value)
-                .HasColumnName("name")
-                .HasMaxLength(200)
-                .IsRequired();
-        });
+        builder.Property(c => c.Name)
+            .HasColumnName("name")
+            .HasMaxLength(200)
+            .IsRequired();
 
-        builder.OwnsOne(c => c.Cnpj, cnpj =>
-        {
-            cnpj.Property(n => n.Value)
-                .HasColumnName("cnpj")
-                .HasMaxLength(14);
-        });
+        builder.Property(c => c.Cnpj)
+            .HasColumnName("cnpj")
+            .HasMaxLength(14);
 
-        builder.OwnsOne(c => c.Phone, phone =>
-        {
-            phone.Property(p => p.Value)
-                .HasColumnName("phone")
-                .HasMaxLength(11)
-                .IsRequired();
+        builder.Property(c => c.Phone)
+            .HasColumnName("phone")
+            .HasMaxLength(11)
+            .IsRequired();
 
-            phone.Property(p => p.AreaCode)
-                .HasColumnName("phone_area_code")
-                .HasMaxLength(2)
-                .IsRequired();
+        builder.Property(c => c.PhoneAreaCode)
+            .HasColumnName("phone_area_code")
+            .HasMaxLength(2)
+            .IsRequired();
 
-            phone.Property(p => p.Number)
-                .HasColumnName("phone_number")
-                .HasMaxLength(9)
-                .IsRequired();
-        });
+        builder.Property(c => c.PhoneNumber)
+            .HasColumnName("phone_number")
+            .HasMaxLength(9)
+            .IsRequired();
 
         builder.Property(c => c.Email)
             .HasColumnName("email")

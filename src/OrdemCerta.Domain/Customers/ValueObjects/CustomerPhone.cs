@@ -1,13 +1,17 @@
-using OrdemCerta.Shared;
 using System.Text.RegularExpressions;
+using OrdemCerta.Shared;
 
-namespace OrdemCerta.Domain.Customers.ValueObjects;
+namespace OrdemCerta.Domain.Customers;
 
-public class CustomerPhone : ValueObject
+public class CustomerPhone
 {
-    public string Value { get; private set; }
-    public string AreaCode { get; private set; }
-    public string Number { get; private set; }
+    public int Id { get; private set; }
+    public Guid CustomerId { get; private set; }
+    public string Value { get; private set; } = null!;
+    public string AreaCode { get; private set; } = null!;
+    public string Number { get; private set; } = null!;
+
+    protected CustomerPhone() { }
 
     private CustomerPhone(string value, string areaCode, string number)
     {
@@ -21,12 +25,12 @@ public class CustomerPhone : ValueObject
         if (string.IsNullOrWhiteSpace(phone))
             return "Telefone é obrigatório";
 
-        var cleanPhone = CleanPhone(phone);
+        var cleanPhone = Regex.Replace(phone, @"[^\d]", string.Empty);
 
         if (cleanPhone.Length == 11)
         {
-            var areaCode = cleanPhone.Substring(0, 2);
-            var number = cleanPhone.Substring(2);
+            var areaCode = cleanPhone[..2];
+            var number = cleanPhone[2..];
 
             if (number[0] != '9')
                 return "Telefone celular deve começar com 9";
@@ -36,8 +40,8 @@ public class CustomerPhone : ValueObject
 
         if (cleanPhone.Length == 10)
         {
-            var areaCode = cleanPhone.Substring(0, 2);
-            var number = cleanPhone.Substring(2);
+            var areaCode = cleanPhone[..2];
+            var number = cleanPhone[2..];
 
             if (number[0] == '9')
                 return "Telefone fixo não deve começar com 9";
@@ -48,21 +52,11 @@ public class CustomerPhone : ValueObject
         return "Telefone deve conter 10 dígitos (fixo) ou 11 dígitos (celular)";
     }
 
-    private static string CleanPhone(string phone)
-    {
-        return Regex.Replace(phone, @"[^\d]", string.Empty);
-    }
-
     public string GetFormatted()
     {
         if (Value.Length == 11)
-            return $"({AreaCode}) {Number.Substring(0, 5)}-{Number.Substring(5)}";
+            return $"({AreaCode}) {Number[..5]}-{Number[5..]}";
 
-        return $"({AreaCode}) {Number.Substring(0, 4)}-{Number.Substring(4)}";
-    }
-
-    protected override IEnumerable<object> GetEqualityComponents()
-    {
-        yield return Value;
+        return $"({AreaCode}) {Number[..4]}-{Number[4..]}";
     }
 }

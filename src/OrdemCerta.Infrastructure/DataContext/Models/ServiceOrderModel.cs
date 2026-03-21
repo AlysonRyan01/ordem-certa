@@ -28,36 +28,33 @@ public class ServiceOrderModel : IEntityTypeConfiguration<ServiceOrder>
             .HasColumnName("order_number")
             .IsRequired();
 
-        builder.OwnsOne(o => o.Equipment, equipment =>
-        {
-            equipment.Property(e => e.DeviceType)
-                .HasColumnName("device_type")
-                .HasMaxLength(100)
-                .IsRequired();
+        builder.Property(o => o.DeviceType)
+            .HasColumnName("device_type")
+            .HasMaxLength(100)
+            .IsRequired();
 
-            equipment.Property(e => e.Brand)
-                .HasColumnName("brand")
-                .HasMaxLength(100)
-                .IsRequired();
+        builder.Property(o => o.Brand)
+            .HasColumnName("brand")
+            .HasMaxLength(100)
+            .IsRequired();
 
-            equipment.Property(e => e.Model)
-                .HasColumnName("model")
-                .HasMaxLength(100)
-                .IsRequired();
+        builder.Property(o => o.Model)
+            .HasColumnName("model")
+            .HasMaxLength(100)
+            .IsRequired();
 
-            equipment.Property(e => e.ReportedDefect)
-                .HasColumnName("reported_defect")
-                .HasMaxLength(500)
-                .IsRequired();
+        builder.Property(o => o.ReportedDefect)
+            .HasColumnName("reported_defect")
+            .HasMaxLength(500)
+            .IsRequired();
 
-            equipment.Property(e => e.Accessories)
-                .HasColumnName("accessories")
-                .HasMaxLength(300);
+        builder.Property(o => o.Accessories)
+            .HasColumnName("accessories")
+            .HasMaxLength(300);
 
-            equipment.Property(e => e.Observations)
-                .HasColumnName("observations")
-                .HasMaxLength(500);
-        });
+        builder.Property(o => o.Observations)
+            .HasColumnName("observations")
+            .HasMaxLength(500);
 
         builder.Property(o => o.Status)
             .HasColumnName("status")

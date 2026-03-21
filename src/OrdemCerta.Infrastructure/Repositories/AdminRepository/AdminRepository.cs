@@ -50,7 +50,7 @@ public class AdminRepository : IAdminRepository
             .Take(pageSize)
             .Select(c => new AdminCompanyOutput(
                 c.Id,
-                c.Name.Value,
+                c.Name,
                 c.Email,
                 c.Plan.ToString(),
                 c.StripeSubscriptionId != null,

@@ -7,7 +7,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace OrdemCerta.Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class Initial : Migration
+    public partial class InitialSchema : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -100,6 +100,26 @@ namespace OrdemCerta.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "marketing_prospects",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    place_id = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: false),
+                    business_name = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: false),
+                    phone_number = table.Column<string>(type: "character varying(20)", maxLength: 20, nullable: false),
+                    city = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: true),
+                    state = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: true),
+                    status = table.Column<string>(type: "text", nullable: false),
+                    contacted_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_marketing_prospects", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "sales",
                 columns: table => new
                 {
@@ -161,10 +181,10 @@ namespace OrdemCerta.Infrastructure.Migrations
                 {
                     id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    customer_id = table.Column<Guid>(type: "uuid", nullable: false),
                     value = table.Column<string>(type: "character varying(11)", maxLength: 11, nullable: false),
                     area_code = table.Column<string>(type: "character varying(2)", maxLength: 2, nullable: false),
-                    number = table.Column<string>(type: "character varying(9)", maxLength: 9, nullable: false),
-                    customer_id = table.Column<Guid>(type: "uuid", nullable: false)
+                    number = table.Column<string>(type: "character varying(9)", maxLength: 9, nullable: false)
                 },
                 constraints: table =>
                 {
@@ -209,6 +229,12 @@ namespace OrdemCerta.Infrastructure.Migrations
                 name: "IX_customer_phones_customer_id",
                 table: "customer_phones",
                 column: "customer_id");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_marketing_prospects_place_id",
+                table: "marketing_prospects",
+                column: "place_id",
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_sale_items_sale_id1",
@@ -263,6 +289,9 @@ namespace OrdemCerta.Infrastructure.Migrations
 
             migrationBuilder.DropTable(
                 name: "customer_phones");
+
+            migrationBuilder.DropTable(
+                name: "marketing_prospects");
 
             migrationBuilder.DropTable(
                 name: "sale_items");

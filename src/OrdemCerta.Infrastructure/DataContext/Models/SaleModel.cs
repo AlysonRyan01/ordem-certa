@@ -48,14 +48,11 @@ public class SaleModel : IEntityTypeConfiguration<Sale>
             .HasColumnType("numeric(10,2)")
             .IsRequired();
 
-        builder.OwnsOne(s => s.Warranty, warranty =>
-        {
-            warranty.Property(w => w.Duration)
-                .HasColumnName("warranty_duration");
+        builder.Property(s => s.WarrantyDuration)
+            .HasColumnName("warranty_duration");
 
-            warranty.Property(w => w.Unit)
-                .HasColumnName("warranty_unit");
-        });
+        builder.Property(s => s.WarrantyUnit)
+            .HasColumnName("warranty_unit");
 
         builder.Property(s => s.Notes)
             .HasColumnName("notes")

@@ -9,12 +9,12 @@ public static class CompanyExtensions
         return new CompanyOutput
         {
             Id = company.Id,
-            Name = company.Name.Value,
+            Name = company.Name,
             Email = company.Email,
-            Cnpj = company.Cnpj?.Value,
-            CnpjFormatted = company.Cnpj?.GetFormatted(),
-            Phone = company.Phone.Value,
-            PhoneFormatted = company.Phone.GetFormatted(),
+            Cnpj = company.Cnpj,
+            CnpjFormatted = company.GetCnpjFormatted(),
+            Phone = company.Phone,
+            PhoneFormatted = company.GetPhoneFormatted(),
             Street = company.Street,
             Number = company.Number,
             City = company.City,

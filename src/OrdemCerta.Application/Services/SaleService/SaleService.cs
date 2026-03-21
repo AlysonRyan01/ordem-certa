@@ -8,7 +8,6 @@ using OrdemCerta.Domain.Sales;
 using OrdemCerta.Domain.Sales.DTOs;
 using OrdemCerta.Domain.Sales.Enums;
 using OrdemCerta.Domain.Sales.Extensions;
-using OrdemCerta.Domain.ServiceOrders.ValueObjects;
 using OrdemCerta.Infrastructure.DataContext.Uow;
 using OrdemCerta.Infrastructure.Repositories.CompanyRepository;
 using OrdemCerta.Infrastructure.Repositories.CustomerRepository;
@@ -245,12 +244,7 @@ public class SaleService : ISaleService
             return Result<SaleOutput>.Failure(saleResult.Errors);
 
         var sale = saleResult.Value!;
-
-        var warrantyResult = Warranty.Create(input.Duration, input.Unit);
-        if (warrantyResult.IsFailure)
-            return Result<SaleOutput>.Failure(warrantyResult.Errors);
-
-        var setResult = sale.SetWarranty(warrantyResult.Value!);
+        var setResult = sale.SetWarranty(input.Duration, input.Unit);
         if (setResult.IsFailure)
             return Result<SaleOutput>.Failure(setResult.Errors);
 
@@ -285,9 +279,9 @@ public class SaleService : ISaleService
             if (customerResult.IsSuccess)
             {
                 var customer = customerResult.Value!;
-                customerName = customer.Name.FullName;
+                customerName = customer.FullName;
                 customerPhone = customer.Phones.FirstOrDefault()?.GetFormatted();
-                customerDocument = customer.Document?.GetFormatted();
+                customerDocument = customer.GetDocumentFormatted();
             }
         }
 
@@ -305,7 +299,7 @@ public class SaleService : ISaleService
 
         var sale = saleResult.Value!;
 
-        if (sale.Warranty is null)
+        if (sale.WarrantyDuration is null)
             return "Esta venda não possui garantia registrada.";
 
         var companyResult = await _companyRepository.GetByIdAsync(sale.CompanyId, cancellationToken);
@@ -325,9 +319,9 @@ public class SaleService : ISaleService
             if (customerResult.IsSuccess)
             {
                 var customer = customerResult.Value!;
-                customerName = customer.Name.FullName;
+                customerName = customer.FullName;
                 customerPhone = customer.Phones.FirstOrDefault()?.GetFormatted();
-                customerDocument = customer.Document?.GetFormatted();
+                customerDocument = customer.GetDocumentFormatted();
             }
         }
 

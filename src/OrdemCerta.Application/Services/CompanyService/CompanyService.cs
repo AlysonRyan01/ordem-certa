@@ -6,10 +6,10 @@ using OrdemCerta.Application.Inputs.CompanyInputs;
 using OrdemCerta.Domain.Companies;
 using OrdemCerta.Domain.Companies.DTOs;
 using OrdemCerta.Domain.Companies.Extensions;
-using OrdemCerta.Domain.Companies.ValueObjects;
 using OrdemCerta.Infrastructure.DataContext.Uow;
 using OrdemCerta.Infrastructure.Repositories.CompanyRepository;
 using OrdemCerta.Shared;
+using System.Text.RegularExpressions;
 
 namespace OrdemCerta.Application.Services.CompanyService;
 
@@ -50,30 +50,16 @@ public class CompanyService : ICompanyService
         if (!validationResult.IsValid)
             return Result<CompanyOutput>.Failure(validationResult.Errors.Select(e => e.ErrorMessage).ToList());
 
-        var nameResult = CompanyName.Create(input.Name);
-        if (nameResult.IsFailure)
-            return Result<CompanyOutput>.Failure(nameResult.Errors);
-
-        CompanyCnpj? cnpj = null;
-        if (!string.IsNullOrWhiteSpace(input.Cnpj))
-        {
-            var cnpjResult = CompanyCnpj.Create(input.Cnpj);
-            if (cnpjResult.IsFailure)
-                return Result<CompanyOutput>.Failure(cnpjResult.Errors);
-
-            cnpj = cnpjResult.Value;
-        }
-
-        var phoneResult = CompanyPhone.Create(input.Phone);
-        if (phoneResult.IsFailure)
-            return Result<CompanyOutput>.Failure(phoneResult.Errors);
-
+        var (phone, areaCode, number) = ParsePhone(input.Phone);
+        var cnpj = ParseCnpj(input.Cnpj);
         var email = input.Email.Trim().ToLower();
         var passwordHash = _passwordHasher.Hash(input.Password);
 
         var companyResult = Company.Create(
-            nameResult.Value!,
-            phoneResult.Value!,
+            input.Name,
+            phone,
+            areaCode,
+            number,
             email,
             passwordHash,
             cnpj,
@@ -102,17 +88,10 @@ public class CompanyService : ICompanyService
             return Result<CompanyOutput>.Failure(companyResult.Errors);
 
         var company = companyResult.Value!;
+        var (phone, areaCode, number) = ParsePhone(input.Phone);
 
-        var nameResult = CompanyName.Create(input.Name);
-        if (nameResult.IsFailure)
-            return Result<CompanyOutput>.Failure(nameResult.Errors);
-
-        var phoneResult = CompanyPhone.Create(input.Phone);
-        if (phoneResult.IsFailure)
-            return Result<CompanyOutput>.Failure(phoneResult.Errors);
-
-        company.UpdateName(nameResult.Value!);
-        company.UpdatePhone(phoneResult.Value!);
+        company.UpdateName(input.Name);
+        company.UpdatePhone(phone, areaCode, number);
         company.UpdateAddress(input.Street, input.Number, input.City, input.State);
 
         await _companyRepository.UpdateAsync(company, cancellationToken);
@@ -142,8 +121,7 @@ public class CompanyService : ICompanyService
         var cacheKey = $"pwd_code_{companyId}";
         _cache.Set(cacheKey, code, TimeSpan.FromMinutes(5));
 
-        var phone = "55" + company.Phone.Value;
-        var instance = _configuration["EvolutionApi:Instance"] ?? "";
+        var phone = "55" + company.Phone;
         var message = $"*OrdemCerta*\n\nSeu código para alterar a senha é: *{code}*\n\nEste código expira em 5 minutos.";
 
         await _whatsAppService.SendTextAsync(phone, message, cancellationToken);
@@ -185,8 +163,7 @@ public class CompanyService : ICompanyService
         var cacheKey = $"pwd_reset_{email}";
         _cache.Set(cacheKey, code, TimeSpan.FromMinutes(5));
 
-        var phone = "55" + company.Phone.Value;
-        var instance = _configuration["EvolutionApi:Instance"] ?? "";
+        var phone = "55" + company.Phone;
         var message = $"*OrdemCerta*\n\nSeu código para redefinir a senha é: *{code}*\n\nEste código expira em 5 minutos.";
 
         await _whatsAppService.SendTextAsync(phone, message, cancellationToken);
@@ -216,5 +193,19 @@ public class CompanyService : ICompanyService
         _cache.Remove(cacheKey);
 
         return Result.Success();
+    }
+
+    private static (string phone, string areaCode, string number) ParsePhone(string input)
+    {
+        var digits = Regex.Replace(input, @"\D", "");
+        var areaCode = digits[..2];
+        var number = digits[2..];
+        return (digits, areaCode, number);
+    }
+
+    private static string? ParseCnpj(string? input)
+    {
+        if (string.IsNullOrWhiteSpace(input)) return null;
+        return Regex.Replace(input, @"\D", "");
     }
 }

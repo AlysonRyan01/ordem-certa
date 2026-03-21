@@ -2,11 +2,12 @@ using FluentValidation;
 using OrdemCerta.Application.Inputs.CustomerInputs;
 using OrdemCerta.Domain.Customers;
 using OrdemCerta.Domain.Customers.DTOs;
+using OrdemCerta.Domain.Customers.Enums;
 using OrdemCerta.Domain.Customers.Extensions;
-using OrdemCerta.Domain.Customers.ValueObjects;
 using OrdemCerta.Infrastructure.DataContext.Uow;
 using OrdemCerta.Infrastructure.Repositories.CustomerRepository;
 using OrdemCerta.Shared;
+using System.Text.RegularExpressions;
 
 namespace OrdemCerta.Application.Services.CustomerService;
 
@@ -44,51 +45,23 @@ public class CustomerService : ICustomerService
             return Result<CustomerOutput>.Failure(errors);
         }
 
-        var nameResult = CustomerName.Create(input.FullName);
-        if (nameResult.IsFailure)
-            return Result<CustomerOutput>.Failure(nameResult.Errors);
-
         var phoneResult = CustomerPhone.Create(input.Phone);
         if (phoneResult.IsFailure)
             return Result<CustomerOutput>.Failure(phoneResult.Errors);
 
-        CustomerEmail? email = null;
-        if (!string.IsNullOrWhiteSpace(input.Email))
-        {
-            var emailResult = CustomerEmail.Create(input.Email);
-            if (emailResult.IsFailure)
-                return Result<CustomerOutput>.Failure(emailResult.Errors);
-
-            email = emailResult.Value;
-        }
-
-        CustomerDocument? document = null;
-        if (!string.IsNullOrWhiteSpace(input.Document))
-        {
-            var documentResult = CustomerDocument.Create(input.Document);
-            if (documentResult.IsFailure)
-                return Result<CustomerOutput>.Failure(documentResult.Errors);
-
-            document = documentResult.Value;
-        }
-
-        CustomerAddress? address = null;
-        if (!string.IsNullOrWhiteSpace(input.Street) || !string.IsNullOrWhiteSpace(input.City))
-        {
-            var addressResult = CustomerAddress.Create(input.Street, input.Number, input.City, input.State);
-            if (addressResult.IsFailure)
-                return Result<CustomerOutput>.Failure(addressResult.Errors);
-
-            address = addressResult.Value;
-        }
+        (string? document, CustomerDocumentType? documentType) = ParseDocument(input.Document);
 
         var customerResult = Customer.Create(
             companyId,
-            nameResult.Value!,
+            input.FullName,
             new List<CustomerPhone> { phoneResult.Value! },
-            email,
-            address,
-            document
+            input.Email,
+            input.Street,
+            input.Number,
+            input.City,
+            input.State,
+            document,
+            documentType
         );
 
         if (customerResult.IsFailure)
@@ -115,35 +88,13 @@ public class CustomerService : ICustomerService
 
         var customer = customerResult.Value!;
 
-        var nameResult = CustomerName.Create(input.FullName);
-        if (nameResult.IsFailure)
-            return Result<CustomerOutput>.Failure(nameResult.Errors);
-
-        var updateNameResult = customer.UpdateName(nameResult.Value!);
-        if (updateNameResult.IsFailure)
-            return Result<CustomerOutput>.Failure(updateNameResult.Errors);
+        customer.UpdateName(input.FullName);
 
         if (!string.IsNullOrWhiteSpace(input.Email))
-        {
-            var emailResult = CustomerEmail.Create(input.Email);
-            if (emailResult.IsFailure)
-                return Result<CustomerOutput>.Failure(emailResult.Errors);
-
-            var updateEmailResult = customer.UpdateEmail(emailResult.Value);
-            if (updateEmailResult.IsFailure)
-                return Result<CustomerOutput>.Failure(updateEmailResult.Errors);
-        }
+            customer.UpdateEmail(input.Email);
 
         if (!string.IsNullOrWhiteSpace(input.Street) || !string.IsNullOrWhiteSpace(input.City))
-        {
-            var addressResult = CustomerAddress.Create(input.Street, input.Number, input.City, input.State);
-            if (addressResult.IsFailure)
-                return Result<CustomerOutput>.Failure(addressResult.Errors);
-
-            var updateAddressResult = customer.UpdateAddress(addressResult.Value);
-            if (updateAddressResult.IsFailure)
-                return Result<CustomerOutput>.Failure(updateAddressResult.Errors);
-        }
+            customer.UpdateAddress(input.Street, input.Number, input.City, input.State);
 
         await _customerRepository.UpdateAsync(customer, cancellationToken);
         await _unitOfWork.CommitAsync(cancellationToken);
@@ -180,7 +131,7 @@ public class CustomerService : ICustomerService
 
         return customersResult.Value!.ToOutput();
     }
-    
+
     public async Task<Result<List<CustomerOutput>>> GetByNameAsync(string searchTerm, GetPagedInput input, CancellationToken cancellationToken = default)
     {
         var customersResult = await _customerRepository.GetByNameAsync(searchTerm, input.Page, input.PageSize, cancellationToken);
@@ -240,5 +191,15 @@ public class CustomerService : ICustomerService
         await _unitOfWork.CommitAsync(cancellationToken);
 
         return customer.ToOutput();
+    }
+
+    private static (string? document, CustomerDocumentType? documentType) ParseDocument(string? input)
+    {
+        if (string.IsNullOrWhiteSpace(input)) return (null, null);
+
+        var digits = Regex.Replace(input, @"[^\d]", string.Empty);
+        if (digits.Length == 11) return (digits, CustomerDocumentType.Cpf);
+        if (digits.Length == 14) return (digits, CustomerDocumentType.Cnpj);
+        return (digits, null);
     }
 }

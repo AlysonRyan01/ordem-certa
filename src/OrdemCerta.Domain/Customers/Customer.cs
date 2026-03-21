@@ -1,4 +1,4 @@
-using OrdemCerta.Domain.Customers.ValueObjects;
+using OrdemCerta.Domain.Customers.Enums;
 using OrdemCerta.Shared;
 
 namespace OrdemCerta.Domain.Customers;
@@ -6,46 +6,61 @@ namespace OrdemCerta.Domain.Customers;
 public class Customer : AggregateRoot
 {
     public Guid CompanyId { get; private set; }
-    public CustomerName Name { get; private set; } = null!;
+    public string FullName { get; private set; } = null!;
     public List<CustomerPhone> Phones { get; private set; } = new();
-    public CustomerEmail? Email { get; private set; }
-    public CustomerAddress? Address { get; private set; }
-    public CustomerDocument? Document { get; private set; }
+    public string? Email { get; private set; }
+    public string? AddressStreet { get; private set; }
+    public string? AddressNumber { get; private set; }
+    public string? AddressCity { get; private set; }
+    public string? AddressState { get; private set; }
+    public string? Document { get; private set; }
+    public CustomerDocumentType? DocumentType { get; private set; }
 
     private Customer() { }
 
     private Customer(
         Guid companyId,
-        CustomerName name,
+        string fullName,
         List<CustomerPhone> phones,
-        CustomerEmail? email = null,
-        CustomerAddress? address = null,
-        CustomerDocument? document = null)
+        string? email = null,
+        string? addressStreet = null,
+        string? addressNumber = null,
+        string? addressCity = null,
+        string? addressState = null,
+        string? document = null,
+        CustomerDocumentType? documentType = null)
     {
         Id = Guid.NewGuid();
         CompanyId = companyId;
-        Name = name;
+        FullName = fullName;
         Email = email;
         Phones = phones;
-        Address = address;
+        AddressStreet = addressStreet;
+        AddressNumber = addressNumber;
+        AddressCity = addressCity;
+        AddressState = addressState;
         Document = document;
+        DocumentType = documentType;
     }
 
     public static Result<Customer> Create(
         Guid companyId,
-        CustomerName name,
+        string fullName,
         List<CustomerPhone> phones,
-        CustomerEmail? email = null,
-        CustomerAddress? address = null,
-        CustomerDocument? document = null)
+        string? email = null,
+        string? addressStreet = null,
+        string? addressNumber = null,
+        string? addressCity = null,
+        string? addressState = null,
+        string? document = null,
+        CustomerDocumentType? documentType = null)
     {
-        var customer = new Customer(companyId, name, phones, email, address, document);
-        return customer;
+        return new Customer(companyId, fullName, phones, email, addressStreet, addressNumber, addressCity, addressState, document, documentType);
     }
 
     public Result AddPhone(CustomerPhone phone)
     {
-        if (Phones.Any(p => p == phone))
+        if (Phones.Any(p => p.Value == phone.Value))
             return Result.Failure("Este telefone já está cadastrado");
 
         Phones.Add(phone);
@@ -54,33 +69,47 @@ public class Customer : AggregateRoot
 
     public Result RemovePhone(CustomerPhone phone)
     {
-        if (!Phones.Remove(phone))
+        var existing = Phones.FirstOrDefault(p => p.Value == phone.Value);
+        if (existing is null)
             return Result.Failure("Telefone não encontrado");
 
+        Phones.Remove(existing);
         return Result.Success();
     }
 
-    public Result UpdateEmail(CustomerEmail? email)
+    public Result UpdateEmail(string? email)
     {
         Email = email;
         return Result.Success();
     }
 
-    public Result UpdateAddress(CustomerAddress? address)
+    public Result UpdateAddress(string? street, string? number, string? city, string? state)
     {
-        Address = address;
+        AddressStreet = street;
+        AddressNumber = number;
+        AddressCity = city;
+        AddressState = state;
         return Result.Success();
     }
 
-    public Result UpdateDocument(CustomerDocument? document)
+    public Result UpdateDocument(string? document, CustomerDocumentType? documentType)
     {
         Document = document;
+        DocumentType = documentType;
         return Result.Success();
     }
 
-    public Result UpdateName(CustomerName name)
+    public Result UpdateName(string fullName)
     {
-        Name = name;
+        FullName = fullName;
         return Result.Success();
+    }
+
+    public string? GetDocumentFormatted()
+    {
+        if (Document is null || DocumentType is null) return null;
+        return DocumentType == CustomerDocumentType.Cpf
+            ? $"{Document[..3]}.{Document[3..6]}.{Document[6..9]}-{Document[9..]}"
+            : $"{Document[..2]}.{Document[2..5]}.{Document[5..8]}/{Document[8..12]}-{Document[12..]}";
     }
 }

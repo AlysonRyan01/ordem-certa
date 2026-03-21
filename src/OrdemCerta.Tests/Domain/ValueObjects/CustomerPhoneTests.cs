@@ -1,5 +1,5 @@
 using FluentAssertions;
-using OrdemCerta.Domain.Customers.ValueObjects;
+using OrdemCerta.Domain.Customers;
 
 namespace OrdemCerta.Tests.Domain.ValueObjects;
 
