@@ -6,6 +6,7 @@ using OrdemCerta.Domain.Admin;
 using OrdemCerta.Infrastructure.DataContext.Context;
 using OrdemCerta.Infrastructure.DataContext.Uow;
 using OrdemCerta.Infrastructure.Repositories.AdminRepository;
+using OrdemCerta.Presentation.Filters;
 using Serilog;
 
 namespace OrdemCerta.Presentation.Extensions;
@@ -28,7 +29,10 @@ public static class AppExtensions
         app.UseAuthorization();
         app.MapControllers();
         app.MapHealthChecks("/health");
-        app.UseHangfireDashboard("/hangfire", new DashboardOptions { Authorization = [] });
+        app.UseHangfireDashboard("/hangfire", new DashboardOptions
+        {
+            Authorization = app.Environment.IsDevelopment() ? [] : [new HangfireAuthFilter()]
+        });
         app.ApplyMigrations();
         app.SeedAdmin();
         app.ScheduleMarketingJobs();
@@ -72,15 +76,19 @@ public static class AppExtensions
     {
         var manager = app.ApplicationServices.GetRequiredService<IRecurringJobManager>();
 
+        var brasiliaTimeZone = TimeZoneInfo.FindSystemTimeZoneById("America/Sao_Paulo");
+
         manager.AddOrUpdate<MarketingProspectorJob>(
             "marketing-prospector",
             job => job.ExecuteAsync(CancellationToken.None),
-            "0 */6 * * *");
+            "0 */6 * * *",
+            new RecurringJobOptions { TimeZone = brasiliaTimeZone });
 
         manager.AddOrUpdate<MarketingDispatcherJob>(
             "marketing-dispatcher",
             job => job.ExecuteAsync(CancellationToken.None),
-            "0 8-19 * * 1-6");
+            "0 8-19 * * 1-6",
+            new RecurringJobOptions { TimeZone = brasiliaTimeZone });
     }
 
     private static void SeedAdmin(this IApplicationBuilder app)
