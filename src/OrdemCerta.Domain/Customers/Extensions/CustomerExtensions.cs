@@ -1,5 +1,4 @@
 using OrdemCerta.Domain.Customers.DTOs;
-using OrdemCerta.Domain.Customers.ValueObjects;
 
 namespace OrdemCerta.Domain.Customers.Extensions;
 
@@ -10,28 +9,25 @@ public static class CustomerExtensions
         return new CustomerOutput
         {
             Id = customer.Id,
-            FullName = customer.Name.FullName,
-            Email = customer.Email?.Value,
-            Phones = customer.Phones.Select(p => new CustomerPhoneOutput
-            {
-                Value = p.Value,
-                AreaCode = p.AreaCode,
-                Number = p.Number,
-                Formatted = p.GetFormatted()
-            }).ToList(),
-            Address = customer.Address != null ? new CustomerAddressOutput
-            {
-                Street = customer.Address.Street,
-                Number = customer.Address.Number,
-                City = customer.Address.City,
-                State = customer.Address.State,
-                FullAddress = GetFullAddress(customer.Address)
-            } : null,
+            FullName = customer.FullName,
+            Email = customer.Email,
+            Phone = customer.Phone,
+            PhoneFormatted = customer.GetPhoneFormatted(),
+            Address = customer.AddressStreet != null || customer.AddressCity != null
+                ? new CustomerAddressOutput
+                {
+                    Street = customer.AddressStreet,
+                    Number = customer.AddressNumber,
+                    City = customer.AddressCity,
+                    State = customer.AddressState,
+                    FullAddress = GetFullAddress(customer.AddressStreet, customer.AddressNumber, customer.AddressCity, customer.AddressState)
+                }
+                : null,
             Document = customer.Document != null ? new CustomerDocumentOutput
             {
-                Value = customer.Document.Value,
-                Type = customer.Document.Type.ToString(),
-                Formatted = customer.Document.GetFormatted()
+                Value = customer.Document,
+                Type = customer.DocumentType?.ToString(),
+                Formatted = customer.GetDocumentFormatted()
             } : null
         };
     }
@@ -41,21 +37,21 @@ public static class CustomerExtensions
         return customers.Select(c => c.ToOutput()).ToList();
     }
 
-    private static string GetFullAddress(CustomerAddress address)
+    private static string GetFullAddress(string? street, string? number, string? city, string? state)
     {
         var parts = new List<string>();
 
-        if (!string.IsNullOrWhiteSpace(address.Street))
-            parts.Add(address.Street);
+        if (!string.IsNullOrWhiteSpace(street))
+            parts.Add(street);
 
-        if (!string.IsNullOrWhiteSpace(address.Number))
-            parts.Add(address.Number);
+        if (!string.IsNullOrWhiteSpace(number))
+            parts.Add(number);
 
-        if (!string.IsNullOrWhiteSpace(address.City))
-            parts.Add(address.City);
+        if (!string.IsNullOrWhiteSpace(city))
+            parts.Add(city);
 
-        if (!string.IsNullOrWhiteSpace(address.State))
-            parts.Add(address.State);
+        if (!string.IsNullOrWhiteSpace(state))
+            parts.Add(state);
 
         return string.Join(", ", parts);
     }

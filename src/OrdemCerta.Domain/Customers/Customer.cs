@@ -1,4 +1,4 @@
-using OrdemCerta.Domain.Customers.ValueObjects;
+using OrdemCerta.Domain.Customers.Enums;
 using OrdemCerta.Shared;
 
 namespace OrdemCerta.Domain.Customers;
@@ -6,81 +6,115 @@ namespace OrdemCerta.Domain.Customers;
 public class Customer : AggregateRoot
 {
     public Guid CompanyId { get; private set; }
-    public CustomerName Name { get; private set; } = null!;
-    public List<CustomerPhone> Phones { get; private set; } = new();
-    public CustomerEmail? Email { get; private set; }
-    public CustomerAddress? Address { get; private set; }
-    public CustomerDocument? Document { get; private set; }
+    public string FullName { get; private set; } = null!;
+    public string Phone { get; private set; } = null!;
+    public string PhoneAreaCode { get; private set; } = null!;
+    public string PhoneNumber { get; private set; } = null!;
+    public string? Email { get; private set; }
+    public string? AddressStreet { get; private set; }
+    public string? AddressNumber { get; private set; }
+    public string? AddressCity { get; private set; }
+    public string? AddressState { get; private set; }
+    public string? Document { get; private set; }
+    public CustomerDocumentType? DocumentType { get; private set; }
 
     private Customer() { }
 
     private Customer(
         Guid companyId,
-        CustomerName name,
-        List<CustomerPhone> phones,
-        CustomerEmail? email = null,
-        CustomerAddress? address = null,
-        CustomerDocument? document = null)
+        string fullName,
+        string phone,
+        string phoneAreaCode,
+        string phoneNumber,
+        string? email = null,
+        string? addressStreet = null,
+        string? addressNumber = null,
+        string? addressCity = null,
+        string? addressState = null,
+        string? document = null,
+        CustomerDocumentType? documentType = null)
     {
         Id = Guid.NewGuid();
         CompanyId = companyId;
-        Name = name;
+        FullName = fullName;
+        Phone = phone;
+        PhoneAreaCode = phoneAreaCode;
+        PhoneNumber = phoneNumber;
         Email = email;
-        Phones = phones;
-        Address = address;
+        AddressStreet = addressStreet;
+        AddressNumber = addressNumber;
+        AddressCity = addressCity;
+        AddressState = addressState;
         Document = document;
+        DocumentType = documentType;
     }
 
     public static Result<Customer> Create(
         Guid companyId,
-        CustomerName name,
-        List<CustomerPhone> phones,
-        CustomerEmail? email = null,
-        CustomerAddress? address = null,
-        CustomerDocument? document = null)
+        string fullName,
+        string phone,
+        string phoneAreaCode,
+        string phoneNumber,
+        string? email = null,
+        string? addressStreet = null,
+        string? addressNumber = null,
+        string? addressCity = null,
+        string? addressState = null,
+        string? document = null,
+        CustomerDocumentType? documentType = null)
     {
-        var customer = new Customer(companyId, name, phones, email, address, document);
-        return customer;
+        return new Customer(companyId, fullName, phone, phoneAreaCode, phoneNumber, email, addressStreet, addressNumber, addressCity, addressState, document, documentType);
     }
 
-    public Result AddPhone(CustomerPhone phone)
+    public Result UpdatePhone(string phone, string areaCode, string number)
     {
-        if (Phones.Any(p => p == phone))
-            return Result.Failure("Este telefone já está cadastrado");
-
-        Phones.Add(phone);
+        Phone = phone;
+        PhoneAreaCode = areaCode;
+        PhoneNumber = number;
         return Result.Success();
     }
 
-    public Result RemovePhone(CustomerPhone phone)
-    {
-        if (!Phones.Remove(phone))
-            return Result.Failure("Telefone não encontrado");
-
-        return Result.Success();
-    }
-
-    public Result UpdateEmail(CustomerEmail? email)
+    public Result UpdateEmail(string? email)
     {
         Email = email;
         return Result.Success();
     }
 
-    public Result UpdateAddress(CustomerAddress? address)
+    public Result UpdateAddress(string? street, string? number, string? city, string? state)
     {
-        Address = address;
+        AddressStreet = street;
+        AddressNumber = number;
+        AddressCity = city;
+        AddressState = state;
         return Result.Success();
     }
 
-    public Result UpdateDocument(CustomerDocument? document)
+    public Result UpdateDocument(string? document, CustomerDocumentType? documentType)
     {
         Document = document;
+        DocumentType = documentType;
         return Result.Success();
     }
 
-    public Result UpdateName(CustomerName name)
+    public Result UpdateName(string fullName)
     {
-        Name = name;
+        FullName = fullName;
         return Result.Success();
+    }
+
+    public string GetPhoneFormatted()
+    {
+        if (Phone.Length == 11)
+            return $"({PhoneAreaCode}) {PhoneNumber[..5]}-{PhoneNumber[5..]}";
+
+        return $"({PhoneAreaCode}) {PhoneNumber[..4]}-{PhoneNumber[4..]}";
+    }
+
+    public string? GetDocumentFormatted()
+    {
+        if (Document is null || DocumentType is null) return null;
+        return DocumentType == CustomerDocumentType.Cpf
+            ? $"{Document[..3]}.{Document[3..6]}.{Document[6..9]}-{Document[9..]}"
+            : $"{Document[..2]}.{Document[2..5]}.{Document[5..8]}/{Document[8..12]}-{Document[12..]}";
     }
 }

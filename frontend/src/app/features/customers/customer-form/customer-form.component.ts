@@ -60,13 +60,12 @@ export class CustomerFormComponent implements OnInit {
     const id = this.route.snapshot.paramMap.get('id');
     if (id) {
       this.editId.set(id);
-      this.form.controls.phone.clearValidators();
-      this.form.controls.phone.updateValueAndValidity();
       this.loading.set(true);
       this.customerService.getById(id).subscribe({
         next: (c) => {
           this.form.patchValue({
             fullName: c.fullName,
+            phone: c.phone,
             email: c.email ?? '',
             document: c.document?.value ?? '',
             street: c.address?.street ?? '',
@@ -88,6 +87,7 @@ export class CustomerFormComponent implements OnInit {
     const obs = this.isEdit
       ? this.customerService.update(this.editId()!, {
           fullName: value.fullName!,
+          phone: value.phone!,
           email: value.email || undefined,
           street: value.street || undefined,
           number: value.number || undefined,

@@ -90,6 +90,8 @@ export class OrderDetailComponent implements OnInit {
     { initialValue: this.editBudgetForm.controls.repairResult.value }
   );
 
+  readonly showCreateBudgetFields = computed(() => this.createRepairResult() === 'CanBeRepaired');
+  readonly showEditBudgetFields = computed(() => this.editRepairResult() === 'CanBeRepaired');
   readonly showCreateWarranty = computed(() => this.createRepairResult() === 'CanBeRepaired');
   readonly showEditWarranty = computed(() => this.editRepairResult() === 'CanBeRepaired');
 
@@ -105,7 +107,37 @@ export class OrderDetailComponent implements OnInit {
 
   get id(): string { return this.route.snapshot.paramMap.get('id')!; }
 
-  ngOnInit(): void { this.load(); }
+  ngOnInit(): void {
+    this.load();
+
+    this.createBudgetForm.controls.repairResult.valueChanges.subscribe(result => {
+      const valueCtrl = this.createBudgetForm.controls.value;
+      const descCtrl = this.createBudgetForm.controls.description;
+      if (result === 'CanBeRepaired') {
+        valueCtrl.setValidators([Validators.required, Validators.min(0)]);
+        descCtrl.setValidators(Validators.required);
+      } else {
+        valueCtrl.clearValidators();
+        descCtrl.clearValidators();
+      }
+      valueCtrl.updateValueAndValidity();
+      descCtrl.updateValueAndValidity();
+    });
+
+    this.editBudgetForm.controls.repairResult.valueChanges.subscribe(result => {
+      const valueCtrl = this.editBudgetForm.controls.value;
+      const descCtrl = this.editBudgetForm.controls.description;
+      if (result === 'CanBeRepaired') {
+        valueCtrl.setValidators([Validators.required, Validators.min(0)]);
+        descCtrl.setValidators(Validators.required);
+      } else {
+        valueCtrl.clearValidators();
+        descCtrl.clearValidators();
+      }
+      valueCtrl.updateValueAndValidity();
+      descCtrl.updateValueAndValidity();
+    });
+  }
 
   changeStatusTo(status: ServiceOrderStatus): void {
     if (this.changingStatus()) return;
@@ -162,10 +194,15 @@ export class OrderDetailComponent implements OnInit {
   createBudget(): void {
     if (this.createBudgetForm.invalid) return;
     const raw = this.createBudgetForm.getRawValue();
+    const noRepair = raw.repairResult === 'NoFix' || raw.repairResult === 'NoDefectFound';
 
     this.orderService.createBudget(this.id, {
-      value: raw.value!,
-      description: raw.description!,
+      value: noRepair ? 0 : raw.value!,
+      description: noRepair
+        ? (raw.repairResult === 'NoFix'
+            ? 'Sem conserto — equipamento não pôde ser reparado após avaliação técnica.'
+            : 'Nenhum defeito detectado — o equipamento foi avaliado e não apresentou falha reproduzível.')
+        : raw.description!,
       repairResult: raw.repairResult!,
       warrantyDuration: raw.warrantyDuration ?? undefined,
       warrantyUnit: raw.warrantyUnit ?? undefined,
@@ -204,10 +241,15 @@ export class OrderDetailComponent implements OnInit {
   saveBudget(): void {
     if (this.editBudgetForm.invalid) return;
     const raw = this.editBudgetForm.getRawValue();
+    const noRepair = raw.repairResult === 'NoFix' || raw.repairResult === 'NoDefectFound';
 
     this.orderService.updateBudget(this.id, {
-      value: raw.value!,
-      description: raw.description!,
+      value: noRepair ? 0 : raw.value!,
+      description: noRepair
+        ? (raw.repairResult === 'NoFix'
+            ? 'Sem conserto — equipamento não pôde ser reparado após avaliação técnica.'
+            : 'Nenhum defeito detectado — o equipamento foi avaliado e não apresentou falha reproduzível.')
+        : raw.description!,
       repairResult: raw.repairResult!,
       warrantyDuration: raw.warrantyDuration ?? undefined,
       warrantyUnit: raw.warrantyUnit ?? undefined,

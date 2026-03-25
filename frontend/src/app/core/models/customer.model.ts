@@ -1,9 +1,3 @@
-export interface CustomerPhoneOutput {
-  value: string;
-  areaCode: string;
-  number: string;
-}
-
 export interface CustomerDocumentOutput {
   value: string;
   type: 'Cpf' | 'Cnpj';
@@ -21,10 +15,11 @@ export interface CustomerOutput {
   id: string;
   companyId: string;
   fullName: string;
+  phone: string;
+  phoneFormatted: string;
   email?: string;
   document?: CustomerDocumentOutput;
   address?: CustomerAddressOutput;
-  phones: CustomerPhoneOutput[];
 }
 
 export interface CreateCustomerInput {
@@ -40,17 +35,10 @@ export interface CreateCustomerInput {
 
 export interface UpdateCustomerInput {
   fullName: string;
+  phone: string;
   email?: string;
   street?: string;
   number?: string;
   city?: string;
   state?: string;
-}
-
-export interface AddPhoneInput {
-  phone: string;
-}
-
-export interface RemovePhoneInput {
-  phone: string;
 }

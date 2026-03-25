@@ -11,6 +11,10 @@ public class UpdateCustomerInputValidator : AbstractValidator<UpdateCustomerInpu
             .NotEmpty().WithMessage("Nome é obrigatório")
             .MaximumLength(100).WithMessage("Nome deve ter no máximo 100 caracteres");
 
+        RuleFor(x => x.Phone)
+            .NotEmpty().WithMessage("Telefone é obrigatório")
+            .Matches(@"^\d{10,11}$").WithMessage("Telefone deve conter 10 ou 11 dígitos");
+
         When(x => !string.IsNullOrWhiteSpace(x.Email), () =>
         {
             RuleFor(x => x.Email)

@@ -47,14 +47,14 @@ public class CustomerRepository : ICustomerRepository
 
         var customers = await _context.Customers
             .AsNoTracking()
-            .OrderBy(c => c.Name.FullName)
+            .OrderBy(c => c.FullName)
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
             .ToListAsync(cancellationToken);
 
         return Result<IEnumerable<Customer>>.Success(customers);
     }
-    
+
     public async Task<Result<IEnumerable<Customer>>> GetByNameAsync(string searchTerm, int page, int pageSize, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrWhiteSpace(searchTerm))
@@ -70,13 +70,23 @@ public class CustomerRepository : ICustomerRepository
 
         var customers = await _context.Customers
             .AsNoTracking()
-            .Where(c => EF.Functions.Like(c.Name.FullName.ToLower(), $"%{normalizedSearchTerm}%"))
-            .OrderBy(c => c.Name.FullName)
+            .Where(c => EF.Functions.Like(c.FullName.ToLower(), $"%{normalizedSearchTerm}%"))
+            .OrderBy(c => c.FullName)
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
             .ToListAsync(cancellationToken);
 
         return Result<IEnumerable<Customer>>.Success(customers);
+    }
+
+    public async Task<Dictionary<Guid, string>> GetNamesByIdsAsync(IEnumerable<Guid> ids, CancellationToken cancellationToken = default)
+    {
+        var idList = ids.Distinct().ToList();
+        return await _context.Customers
+            .AsNoTracking()
+            .Where(c => idList.Contains(c.Id))
+            .Select(c => new { c.Id, c.FullName })
+            .ToDictionaryAsync(c => c.Id, c => c.FullName, cancellationToken);
     }
 
     public async Task AddAsync(Customer customer, CancellationToken cancellationToken = default)

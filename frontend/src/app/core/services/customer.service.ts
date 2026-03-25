@@ -3,10 +3,8 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import {
-  AddPhoneInput,
   CreateCustomerInput,
   CustomerOutput,
-  RemovePhoneInput,
   UpdateCustomerInput,
 } from '../models/customer.model';
 
@@ -41,13 +39,5 @@ export class CustomerService {
 
   delete(id: string): Observable<void> {
     return this.http.delete<void>(`${this.base}/${id}`);
-  }
-
-  addPhone(id: string, input: AddPhoneInput): Observable<CustomerOutput> {
-    return this.http.post<CustomerOutput>(`${this.base}/${id}/phones`, input);
-  }
-
-  removePhone(id: string, input: RemovePhoneInput): Observable<CustomerOutput> {
-    return this.http.delete<CustomerOutput>(`${this.base}/${id}/phones`, { body: input });
   }
 }

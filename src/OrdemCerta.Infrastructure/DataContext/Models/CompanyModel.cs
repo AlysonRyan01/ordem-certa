@@ -16,38 +16,29 @@ public class CompanyModel : IEntityTypeConfiguration<Company>
             .HasColumnName("id")
             .ValueGeneratedNever();
 
-        builder.OwnsOne(c => c.Name, name =>
-        {
-            name.Property(n => n.Value)
-                .HasColumnName("name")
-                .HasMaxLength(200)
-                .IsRequired();
-        });
+        builder.Property(c => c.Name)
+            .HasColumnName("name")
+            .HasMaxLength(200)
+            .IsRequired();
 
-        builder.OwnsOne(c => c.Cnpj, cnpj =>
-        {
-            cnpj.Property(n => n.Value)
-                .HasColumnName("cnpj")
-                .HasMaxLength(14);
-        });
+        builder.Property(c => c.Cnpj)
+            .HasColumnName("cnpj")
+            .HasMaxLength(14);
 
-        builder.OwnsOne(c => c.Phone, phone =>
-        {
-            phone.Property(p => p.Value)
-                .HasColumnName("phone")
-                .HasMaxLength(11)
-                .IsRequired();
+        builder.Property(c => c.Phone)
+            .HasColumnName("phone")
+            .HasMaxLength(11)
+            .IsRequired();
 
-            phone.Property(p => p.AreaCode)
-                .HasColumnName("phone_area_code")
-                .HasMaxLength(2)
-                .IsRequired();
+        builder.Property(c => c.PhoneAreaCode)
+            .HasColumnName("phone_area_code")
+            .HasMaxLength(2)
+            .IsRequired();
 
-            phone.Property(p => p.Number)
-                .HasColumnName("phone_number")
-                .HasMaxLength(9)
-                .IsRequired();
-        });
+        builder.Property(c => c.PhoneNumber)
+            .HasColumnName("phone_number")
+            .HasMaxLength(9)
+            .IsRequired();
 
         builder.Property(c => c.Email)
             .HasColumnName("email")
@@ -86,6 +77,13 @@ public class CompanyModel : IEntityTypeConfiguration<Company>
         builder.Property(c => c.StripeSubscriptionId)
             .HasColumnName("stripe_subscription_id")
             .HasMaxLength(100);
+
+        builder.Property(c => c.RefreshToken)
+            .HasColumnName("refresh_token")
+            .HasMaxLength(128);
+
+        builder.Property(c => c.RefreshTokenExpiresAt)
+            .HasColumnName("refresh_token_expires_at");
 
         builder.Property(c => c.CreatedAt)
             .HasColumnName("created_at")

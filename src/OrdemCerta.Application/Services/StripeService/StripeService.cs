@@ -50,7 +50,7 @@ public class StripeService : IStripeService
             var customer = await stripeCustomerService.CreateAsync(new CustomerCreateOptions
             {
                 Email = company.Email,
-                Name = company.Name.Value,
+                Name = company.Name,
                 Metadata = new Dictionary<string, string> { ["companyId"] = companyId.ToString() },
             }, cancellationToken: cancellationToken);
 

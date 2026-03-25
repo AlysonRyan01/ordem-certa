@@ -1,5 +1,4 @@
 using OrdemCerta.Domain.ServiceOrders.Enums;
-using OrdemCerta.Domain.ServiceOrders.ValueObjects;
 using OrdemCerta.Shared;
 
 namespace OrdemCerta.Domain.ServiceOrders;
@@ -9,7 +8,12 @@ public class ServiceOrder : AggregateRoot
     public Guid CompanyId { get; private set; }
     public Guid CustomerId { get; private set; }
     public int OrderNumber { get; private set; }
-    public EquipmentInfo Equipment { get; private set; } = null!;
+    public string DeviceType { get; private set; } = null!;
+    public string Brand { get; private set; } = null!;
+    public string Model { get; private set; } = null!;
+    public string ReportedDefect { get; private set; } = null!;
+    public string? Accessories { get; private set; }
+    public string? Observations { get; private set; }
     public ServiceOrderStatus Status { get; private set; }
     public ServiceOrderRepairStatus? BudgetStatus { get; private set; }
     public RepairResult? RepairResult { get; private set; }
@@ -22,26 +26,62 @@ public class ServiceOrder : AggregateRoot
 
     protected ServiceOrder() { }
 
-    private ServiceOrder(Guid companyId, Guid customerId, int orderNumber, EquipmentInfo equipment, string? technicianName)
+    private ServiceOrder(
+        Guid companyId,
+        Guid customerId,
+        int orderNumber,
+        string deviceType,
+        string brand,
+        string model,
+        string reportedDefect,
+        string? accessories,
+        string? observations,
+        string? technicianName)
     {
         Id = Guid.NewGuid();
         CompanyId = companyId;
         CustomerId = customerId;
         OrderNumber = orderNumber;
-        Equipment = equipment;
+        DeviceType = deviceType;
+        Brand = brand;
+        Model = model;
+        ReportedDefect = reportedDefect;
+        Accessories = accessories;
+        Observations = observations;
         Status = ServiceOrderStatus.UnderAnalysis;
         EntryDate = DateTime.UtcNow;
         TechnicianName = technicianName;
     }
 
-    public static Result<ServiceOrder> Create(Guid companyId, Guid customerId, int orderNumber, EquipmentInfo equipment, string? technicianName)
+    public static Result<ServiceOrder> Create(
+        Guid companyId,
+        Guid customerId,
+        int orderNumber,
+        string deviceType,
+        string brand,
+        string model,
+        string reportedDefect,
+        string? accessories,
+        string? observations,
+        string? technicianName)
     {
-        return new ServiceOrder(companyId, customerId, orderNumber, equipment, technicianName);
+        return new ServiceOrder(companyId, customerId, orderNumber, deviceType, brand, model, reportedDefect, accessories, observations, technicianName);
     }
 
-    public Result UpdateEquipment(EquipmentInfo equipment)
+    public Result UpdateEquipment(
+        string deviceType,
+        string brand,
+        string model,
+        string reportedDefect,
+        string? accessories,
+        string? observations)
     {
-        Equipment = equipment;
+        DeviceType = deviceType;
+        Brand = brand;
+        Model = model;
+        ReportedDefect = reportedDefect;
+        Accessories = accessories;
+        Observations = observations;
         return Result.Success();
     }
 
@@ -57,10 +97,10 @@ public class ServiceOrder : AggregateRoot
         return Result.Success();
     }
 
-    public Result SetWarranty(Warranty warranty)
+    public Result SetWarranty(int duration, WarrantyUnit unit)
     {
-        WarrantyDuration = warranty.Duration;
-        WarrantyUnit = warranty.Unit;
+        WarrantyDuration = duration;
+        WarrantyUnit = unit;
         return Result.Success();
     }
 
@@ -73,10 +113,10 @@ public class ServiceOrder : AggregateRoot
         return Result.Success();
     }
 
-    public Result CreateBudget(Budget budget, RepairResult repairResult, Warranty? warranty = null)
+    public Result CreateBudget(decimal value, string description, RepairResult repairResult, int? warrantyDuration = null, WarrantyUnit? warrantyUnit = null)
     {
-        BudgetValue = budget.Value;
-        BudgetDescription = budget.Description;
+        BudgetValue = value;
+        BudgetDescription = description;
         RepairResult = repairResult;
 
         if (repairResult is Enums.RepairResult.NoFix or Enums.RepairResult.NoDefectFound)
@@ -88,17 +128,17 @@ public class ServiceOrder : AggregateRoot
         {
             Status = ServiceOrderStatus.AwaitingApproval;
             BudgetStatus = ServiceOrderRepairStatus.Entered;
-            if (warranty is not null)
+            if (warrantyDuration.HasValue && warrantyUnit.HasValue)
             {
-                WarrantyDuration = warranty.Duration;
-                WarrantyUnit = warranty.Unit;
+                WarrantyDuration = warrantyDuration;
+                WarrantyUnit = warrantyUnit;
             }
         }
 
         return Result.Success();
     }
 
-    public Result UpdateBudget(Budget budget, RepairResult repairResult, Warranty? warranty = null)
+    public Result UpdateBudget(decimal value, string description, RepairResult repairResult, int? warrantyDuration = null, WarrantyUnit? warrantyUnit = null)
     {
         if (BudgetStatus == ServiceOrderRepairStatus.Approved)
             return "Não é possível alterar o orçamento após aprovação.";
@@ -106,8 +146,8 @@ public class ServiceOrder : AggregateRoot
         if (Status == ServiceOrderStatus.Delivered || Status == ServiceOrderStatus.Cancelled)
             return "Não é possível alterar o orçamento de uma ordem finalizada.";
 
-        BudgetValue = budget.Value;
-        BudgetDescription = budget.Description;
+        BudgetValue = value;
+        BudgetDescription = description;
         RepairResult = repairResult;
 
         if (repairResult is Enums.RepairResult.NoFix or Enums.RepairResult.NoDefectFound)
@@ -120,10 +160,10 @@ public class ServiceOrder : AggregateRoot
         else
         {
             BudgetStatus = ServiceOrderRepairStatus.Entered;
-            if (warranty is not null)
+            if (warrantyDuration.HasValue && warrantyUnit.HasValue)
             {
-                WarrantyDuration = warranty.Duration;
-                WarrantyUnit = warranty.Unit;
+                WarrantyDuration = warrantyDuration;
+                WarrantyUnit = warrantyUnit;
             }
         }
 

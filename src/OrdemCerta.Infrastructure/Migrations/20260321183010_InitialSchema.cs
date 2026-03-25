@@ -1,13 +1,12 @@
 ﻿using System;
 using Microsoft.EntityFrameworkCore.Migrations;
-using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
 namespace OrdemCerta.Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class Initial : Migration
+    public partial class InitialSchema : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -45,6 +44,8 @@ namespace OrdemCerta.Infrastructure.Migrations
                     plan = table.Column<string>(type: "text", nullable: false),
                     stripe_customer_id = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true),
                     stripe_subscription_id = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true),
+                    refresh_token = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: true),
+                    refresh_token_expires_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
                 },
@@ -84,6 +85,9 @@ namespace OrdemCerta.Infrastructure.Migrations
                     id = table.Column<Guid>(type: "uuid", nullable: false),
                     company_id = table.Column<Guid>(type: "uuid", nullable: false),
                     full_name = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
+                    phone = table.Column<string>(type: "character varying(11)", maxLength: 11, nullable: false),
+                    phone_area_code = table.Column<string>(type: "character varying(2)", maxLength: 2, nullable: false),
+                    phone_number = table.Column<string>(type: "character varying(9)", maxLength: 9, nullable: false),
                     email = table.Column<string>(type: "character varying(254)", maxLength: 254, nullable: true),
                     address_street = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: true),
                     address_number = table.Column<string>(type: "character varying(20)", maxLength: 20, nullable: true),
@@ -97,6 +101,26 @@ namespace OrdemCerta.Infrastructure.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_customers", x => x.id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "marketing_prospects",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    place_id = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: false),
+                    business_name = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: false),
+                    phone_number = table.Column<string>(type: "character varying(20)", maxLength: 20, nullable: false),
+                    city = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: true),
+                    state = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: true),
+                    status = table.Column<string>(type: "text", nullable: false),
+                    contacted_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_marketing_prospects", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -156,28 +180,6 @@ namespace OrdemCerta.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "customer_phones",
-                columns: table => new
-                {
-                    id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    value = table.Column<string>(type: "character varying(11)", maxLength: 11, nullable: false),
-                    area_code = table.Column<string>(type: "character varying(2)", maxLength: 2, nullable: false),
-                    number = table.Column<string>(type: "character varying(9)", maxLength: 9, nullable: false),
-                    customer_id = table.Column<Guid>(type: "uuid", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_customer_phones", x => x.id);
-                    table.ForeignKey(
-                        name: "FK_customer_phones_customers_customer_id",
-                        column: x => x.customer_id,
-                        principalTable: "customers",
-                        principalColumn: "id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "sale_items",
                 columns: table => new
                 {
@@ -206,9 +208,10 @@ namespace OrdemCerta.Infrastructure.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_customer_phones_customer_id",
-                table: "customer_phones",
-                column: "customer_id");
+                name: "IX_marketing_prospects_place_id",
+                table: "marketing_prospects",
+                column: "place_id",
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_sale_items_sale_id1",
@@ -262,16 +265,16 @@ namespace OrdemCerta.Infrastructure.Migrations
                 name: "company_sale_sequences");
 
             migrationBuilder.DropTable(
-                name: "customer_phones");
+                name: "customers");
+
+            migrationBuilder.DropTable(
+                name: "marketing_prospects");
 
             migrationBuilder.DropTable(
                 name: "sale_items");
 
             migrationBuilder.DropTable(
                 name: "service_orders");
-
-            migrationBuilder.DropTable(
-                name: "customers");
 
             migrationBuilder.DropTable(
                 name: "sales");

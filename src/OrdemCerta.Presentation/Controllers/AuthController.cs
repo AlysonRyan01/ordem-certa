@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using OrdemCerta.Application.Inputs.CompanyInputs;
+
 using OrdemCerta.Application.Services.AuthService;
 using OrdemCerta.Application.Services.CompanyService;
 using OrdemCerta.Domain.Companies.DTOs;
@@ -27,6 +28,21 @@ public class AuthController : ControllerBase
         CancellationToken cancellationToken)
     {
         var result = await _authService.LoginAsync(input, cancellationToken);
+
+        if (result.IsFailure)
+            return BadRequest(new { errors = result.Errors });
+
+        return Ok(result.Value);
+    }
+
+    [HttpPost("refresh")]
+    [ProducesResponseType(typeof(TokenOutput), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> Refresh(
+        [FromBody] RefreshTokenInput input,
+        CancellationToken cancellationToken)
+    {
+        var result = await _authService.RefreshAsync(input.RefreshToken, cancellationToken);
 
         if (result.IsFailure)
             return BadRequest(new { errors = result.Errors });

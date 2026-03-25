@@ -14,7 +14,6 @@ using OrdemCerta.Domain.ServiceOrders;
 using OrdemCerta.Domain.ServiceOrders.DTOs;
 using OrdemCerta.Domain.ServiceOrders.Enums;
 using OrdemCerta.Domain.ServiceOrders.Extensions;
-using OrdemCerta.Domain.ServiceOrders.ValueObjects;
 using OrdemCerta.Infrastructure.DataContext.Uow;
 using OrdemCerta.Infrastructure.Repositories.CompanyRepository;
 using OrdemCerta.Infrastructure.Repositories.CustomerRepository;
@@ -89,24 +88,18 @@ public class ServiceOrderService : IServiceOrderService
                 return "Limite de 10 ordens de serviço atingido. Faça upgrade para o plano pago.";
         }
 
-        var equipmentResult = EquipmentInfo.Create(
-            input.DeviceType,
-            input.Brand,
-            input.Model,
-            input.ReportedDefect,
-            input.Accessories,
-            input.Observations);
-
-        if (equipmentResult.IsFailure)
-            return Result<ServiceOrderOutput>.Failure(equipmentResult.Errors);
-
         var orderNumber = await _sequenceRepository.GetNextNumberAsync(_currentCompany.CompanyId, cancellationToken);
 
         var orderResult = ServiceOrder.Create(
             _currentCompany.CompanyId,
             input.CustomerId,
             orderNumber,
-            equipmentResult.Value!,
+            input.DeviceType,
+            input.Brand,
+            input.Model,
+            input.ReportedDefect,
+            input.Accessories,
+            input.Observations,
             input.TechnicianName);
 
         if (orderResult.IsFailure)
@@ -130,7 +123,7 @@ public class ServiceOrderService : IServiceOrderService
 
         var order = orderResult.Value!;
 
-        var equipmentResult = EquipmentInfo.Create(
+        order.UpdateEquipment(
             input.DeviceType,
             input.Brand,
             input.Model,
@@ -138,10 +131,6 @@ public class ServiceOrderService : IServiceOrderService
             input.Accessories,
             input.Observations);
 
-        if (equipmentResult.IsFailure)
-            return Result<ServiceOrderOutput>.Failure(equipmentResult.Errors);
-
-        order.UpdateEquipment(equipmentResult.Value!);
         order.UpdateTechnician(input.TechnicianName);
 
         await _serviceOrderRepository.UpdateAsync(order, cancellationToken);
@@ -183,19 +172,22 @@ public class ServiceOrderService : IServiceOrderService
     public async Task<Result<List<ServiceOrderOutput>>> GetPagedAsync(GetPagedInput input, CancellationToken cancellationToken)
     {
         var orders = await _serviceOrderRepository.GetPagedAsync(input.Page, input.PageSize, cancellationToken);
-        return orders.Select(o => o.ToOutput()).ToList();
+        var names = await _customerRepository.GetNamesByIdsAsync(orders.Select(o => o.CustomerId), cancellationToken);
+        return orders.Select(o => o.ToOutput(customerName: names.GetValueOrDefault(o.CustomerId))).ToList();
     }
 
     public async Task<Result<List<ServiceOrderOutput>>> GetByStatusAsync(ServiceOrderStatus status, GetPagedInput input, CancellationToken cancellationToken)
     {
         var orders = await _serviceOrderRepository.GetByStatusAsync(status, input.Page, input.PageSize, cancellationToken);
-        return orders.Select(o => o.ToOutput()).ToList();
+        var names = await _customerRepository.GetNamesByIdsAsync(orders.Select(o => o.CustomerId), cancellationToken);
+        return orders.Select(o => o.ToOutput(customerName: names.GetValueOrDefault(o.CustomerId))).ToList();
     }
 
     public async Task<Result<List<ServiceOrderOutput>>> GetByCustomerAsync(Guid customerId, GetPagedInput input, CancellationToken cancellationToken)
     {
         var orders = await _serviceOrderRepository.GetByCustomerAsync(customerId, input.Page, input.PageSize, cancellationToken);
-        return orders.Select(o => o.ToOutput()).ToList();
+        var names = await _customerRepository.GetNamesByIdsAsync(orders.Select(o => o.CustomerId), cancellationToken);
+        return orders.Select(o => o.ToOutput(customerName: names.GetValueOrDefault(o.CustomerId))).ToList();
     }
 
     public async Task<Result<ServiceOrderOutput>> ChangeStatusAsync(Guid id, ChangeStatusInput input, CancellationToken cancellationToken)
@@ -245,12 +237,7 @@ public class ServiceOrderService : IServiceOrderService
             return Result<ServiceOrderOutput>.Failure(orderResult.Errors);
 
         var order = orderResult.Value!;
-
-        var warrantyResult = Warranty.Create(input.Duration, input.Unit);
-        if (warrantyResult.IsFailure)
-            return Result<ServiceOrderOutput>.Failure(warrantyResult.Errors);
-
-        order.SetWarranty(warrantyResult.Value!);
+        order.SetWarranty(input.Duration, input.Unit);
 
         await _serviceOrderRepository.UpdateAsync(order, cancellationToken);
         await _unitOfWork.CommitAsync(cancellationToken);
@@ -286,21 +273,7 @@ public class ServiceOrderService : IServiceOrderService
             return Result<ServiceOrderOutput>.Failure(orderResult.Errors);
 
         var order = orderResult.Value!;
-
-        var budgetResult = Budget.Create(input.Value, input.Description);
-        if (budgetResult.IsFailure)
-            return Result<ServiceOrderOutput>.Failure(budgetResult.Errors);
-
-        Warranty? warranty = null;
-        if (input.WarrantyDuration.HasValue && input.WarrantyUnit.HasValue)
-        {
-            var warrantyResult = Warranty.Create(input.WarrantyDuration.Value, input.WarrantyUnit.Value);
-            if (warrantyResult.IsFailure)
-                return Result<ServiceOrderOutput>.Failure(warrantyResult.Errors);
-            warranty = warrantyResult.Value;
-        }
-
-        order.CreateBudget(budgetResult.Value!, input.RepairResult, warranty);
+        order.CreateBudget(input.Value, input.Description, input.RepairResult, input.WarrantyDuration, input.WarrantyUnit);
 
         await _serviceOrderRepository.UpdateAsync(order, cancellationToken);
         await _unitOfWork.CommitAsync(cancellationToken);
@@ -319,21 +292,7 @@ public class ServiceOrderService : IServiceOrderService
             return Result<ServiceOrderOutput>.Failure(orderResult.Errors);
 
         var order = orderResult.Value!;
-
-        var budgetResult = Budget.Create(input.Value, input.Description);
-        if (budgetResult.IsFailure)
-            return Result<ServiceOrderOutput>.Failure(budgetResult.Errors);
-
-        Warranty? warranty = null;
-        if (input.WarrantyDuration.HasValue && input.WarrantyUnit.HasValue)
-        {
-            var warrantyResult = Warranty.Create(input.WarrantyDuration.Value, input.WarrantyUnit.Value);
-            if (warrantyResult.IsFailure)
-                return Result<ServiceOrderOutput>.Failure(warrantyResult.Errors);
-            warranty = warrantyResult.Value;
-        }
-
-        var updateResult = order.UpdateBudget(budgetResult.Value!, input.RepairResult, warranty);
+        var updateResult = order.UpdateBudget(input.Value, input.Description, input.RepairResult, input.WarrantyDuration, input.WarrantyUnit);
         if (updateResult.IsFailure)
             return Result<ServiceOrderOutput>.Failure(updateResult.Errors);
 
@@ -358,7 +317,7 @@ public class ServiceOrderService : IServiceOrderService
         await _unitOfWork.CommitAsync(cancellationToken);
 
         var companyResult = await _companyRepository.GetByIdAsync(order.CompanyId, cancellationToken);
-        var companyName = companyResult.IsSuccess ? companyResult.Value!.Name.Value : null;
+        var companyName = companyResult.IsSuccess ? companyResult.Value!.Name : null;
 
         return order.ToOutput(companyName);
     }
@@ -378,7 +337,7 @@ public class ServiceOrderService : IServiceOrderService
         await _unitOfWork.CommitAsync(cancellationToken);
 
         var companyResult = await _companyRepository.GetByIdAsync(order.CompanyId, cancellationToken);
-        var companyName = companyResult.IsSuccess ? companyResult.Value!.Name.Value : null;
+        var companyName = companyResult.IsSuccess ? companyResult.Value!.Name : null;
 
         return order.ToOutput(companyName);
     }
@@ -400,35 +359,35 @@ public class ServiceOrderService : IServiceOrderService
         var companyResult = await _companyRepository.GetByIdAsync(order.CompanyId, cancellationToken);
         var customerResult = await _customerRepository.GetByIdAsync(order.CustomerId, cancellationToken);
 
-        if (companyResult.IsSuccess && customerResult.IsSuccess && customerResult.Value!.Phones.Any())
+        if (companyResult.IsSuccess && customerResult.IsSuccess && customerResult.Value!.Phone != null)
         {
             var company = companyResult.Value!;
             var customer = customerResult.Value!;
-            var device = $"{order.Equipment.DeviceType} {order.Equipment.Brand} {order.Equipment.Model}";
+            var device = $"{order.DeviceType} {order.Brand} {order.Model}";
 
             _backgroundJobClient.Enqueue<WhatsAppJobs>(j => j.SendTextAsync(
-                $"55{customer.Phones.First().Value}",
+                $"55{customer.Phone}",
                 $"""
                 *Orçamento aprovado!*
 
-                Olá, {customer.Name.FullName}! Recebemos sua aprovação do orçamento da ordem *#{order.OrderNumber}*.
+                Olá, {customer.FullName}! Recebemos sua aprovação do orçamento da ordem *#{order.OrderNumber}*.
 
                 O reparo do seu *{device}* será iniciado em breve.
 
-                Dúvidas? Fale conosco: {company.Phone.GetFormatted()}
+                Dúvidas? Fale conosco: {company.GetPhoneFormatted()}
 
-                *{company.Name.Value}*
+                *{company.Name}*
                 """,
                 CancellationToken.None));
 
             _backgroundJobClient.Enqueue<WhatsAppJobs>(j => j.SendTextAsync(
-                $"55{company.Phone.Value}",
+                $"55{company.Phone}",
                 $"""
                 *Orçamento aprovado pelo cliente*
 
                 O cliente aprovou o orçamento da ordem *#{order.OrderNumber}* pelo link.
 
-                *Cliente:* {customer.Name.FullName}
+                *Cliente:* {customer.FullName}
                 *Aparelho:* {device}
 
                 O reparo pode ser iniciado.
@@ -436,7 +395,7 @@ public class ServiceOrderService : IServiceOrderService
                 CancellationToken.None));
         }
 
-        var companyName = companyResult.IsSuccess ? companyResult.Value!.Name.Value : null;
+        var companyName = companyResult.IsSuccess ? companyResult.Value!.Name : null;
         return order.ToOutput(companyName);
     }
 
@@ -457,41 +416,41 @@ public class ServiceOrderService : IServiceOrderService
         var companyResult = await _companyRepository.GetByIdAsync(order.CompanyId, cancellationToken);
         var customerResult = await _customerRepository.GetByIdAsync(order.CustomerId, cancellationToken);
 
-        if (companyResult.IsSuccess && customerResult.IsSuccess && customerResult.Value!.Phones.Any())
+        if (companyResult.IsSuccess && customerResult.IsSuccess && customerResult.Value!.Phone != null)
         {
             var company = companyResult.Value!;
             var customer = customerResult.Value!;
-            var device = $"{order.Equipment.DeviceType} {order.Equipment.Brand} {order.Equipment.Model}";
+            var device = $"{order.DeviceType} {order.Brand} {order.Model}";
 
             _backgroundJobClient.Enqueue<WhatsAppJobs>(j => j.SendTextAsync(
-                $"55{customer.Phones.First().Value}",
+                $"55{customer.Phone}",
                 $"""
                 *Orçamento recusado*
 
-                Olá, {customer.Name.FullName}! Recebemos sua recusa do orçamento da ordem *#{order.OrderNumber}*.
+                Olá, {customer.FullName}! Recebemos sua recusa do orçamento da ordem *#{order.OrderNumber}*.
 
                 Seu *{device}* estará disponível para retirada em breve.
 
-                Dúvidas? Fale conosco: {company.Phone.GetFormatted()}
+                Dúvidas? Fale conosco: {company.GetPhoneFormatted()}
 
-                *{company.Name.Value}*
+                *{company.Name}*
                 """,
                 CancellationToken.None));
 
             _backgroundJobClient.Enqueue<WhatsAppJobs>(j => j.SendTextAsync(
-                $"55{company.Phone.Value}",
+                $"55{company.Phone}",
                 $"""
                 *Orçamento recusado pelo cliente*
 
                 O cliente recusou o orçamento da ordem *#{order.OrderNumber}* pelo link.
 
-                *Cliente:* {customer.Name.FullName}
+                *Cliente:* {customer.FullName}
                 *Aparelho:* {device}
                 """,
                 CancellationToken.None));
         }
 
-        var companyName = companyResult.IsSuccess ? companyResult.Value!.Name.Value : null;
+        var companyName = companyResult.IsSuccess ? companyResult.Value!.Name : null;
         return order.ToOutput(companyName);
     }
 
@@ -517,7 +476,7 @@ public class ServiceOrderService : IServiceOrderService
         }
 
         var customerResult = await _customerRepository.GetByIdAsync(order.CustomerId, cancellationToken);
-        if (customerResult.IsFailure || !customerResult.Value!.Phones.Any())
+        if (customerResult.IsFailure || string.IsNullOrEmpty(customerResult.Value!.Phone))
             return Result.Success();
 
         var companyResult = await _companyRepository.GetByIdAsync(order.CompanyId, cancellationToken);
@@ -526,7 +485,7 @@ public class ServiceOrderService : IServiceOrderService
 
         var customer = customerResult.Value!;
         var company = companyResult.Value!;
-        var phone = $"55{customer.Phones.First().Value}";
+        var phone = $"55{customer.Phone}";
 
         var canBeRepaired = order.RepairResult == RepairResult.CanBeRepaired;
 
@@ -536,17 +495,17 @@ public class ServiceOrderService : IServiceOrderService
             var budgetLink = $"{_baseUrl}/orcamento/order/{order.Id}";
 
             message = $"""
-                *{company.Name.Value}*
+                *{company.Name}*
 
-                Olá, {customer.Name.FullName}! O orçamento da ordem *#{order.OrderNumber}* está pronto.
+                Olá, {customer.FullName}! O orçamento da ordem *#{order.OrderNumber}* está pronto.
 
-                *Aparelho:* {order.Equipment.DeviceType} {order.Equipment.Brand} {order.Equipment.Model}
+                *Aparelho:* {order.DeviceType} {order.Brand} {order.Model}
                 *Valor:* R$ {order.BudgetValue:N2}
                 *Descrição:* {order.BudgetDescription}
 
                 Acesse o link abaixo para visualizar e responder ao orçamento
 
-                Dúvidas? Fale conosco: {company.Phone.GetFormatted()}
+                Dúvidas? Fale conosco: {company.GetPhoneFormatted()}
                 """;
 
             _backgroundJobClient.Enqueue<WhatsAppJobs>(j => j.SendTextAsync(phone, message, CancellationToken.None));
@@ -563,25 +522,25 @@ public class ServiceOrderService : IServiceOrderService
                 : string.Empty;
 
             message = $"""
-                *{company.Name.Value}*
+                *{company.Name}*
 
-                Olá, {customer.Name.FullName}! Finalizamos a análise do seu *{order.Equipment.DeviceType} {order.Equipment.Brand} {order.Equipment.Model}* (ordem *#{order.OrderNumber}*).
+                Olá, {customer.FullName}! Finalizamos a análise do seu *{order.DeviceType} {order.Brand} {order.Model}* (ordem *#{order.OrderNumber}*).
 
                 Infelizmente, o aparelho *{motivo}*.{taxaLinha}
 
                 {order.BudgetDescription}
 
-                Dúvidas? Fale conosco: {company.Phone.GetFormatted()}
+                Dúvidas? Fale conosco: {company.GetPhoneFormatted()}
                 """;
 
             _backgroundJobClient.Enqueue<WhatsAppJobs>(j => j.SendTextAsync(phone, message, CancellationToken.None));
         }
 
-        var companyPhone = $"55{company.Phone.Value}";
+        var companyPhone = $"55{company.Phone}";
         var companyNotification = $"""
             *Mensagem enviada ao cliente*
 
-            O resultado da ordem *#{order.OrderNumber}* foi enviado para *{customer.Name.FullName}* via WhatsApp.
+            O resultado da ordem *#{order.OrderNumber}* foi enviado para *{customer.FullName}* via WhatsApp.
             """;
 
         _backgroundJobClient.Enqueue<WhatsAppJobs>(j => j.SendTextAsync(companyPhone, companyNotification, CancellationToken.None));
@@ -601,7 +560,7 @@ public class ServiceOrderService : IServiceOrderService
             return Result.Success();
 
         var company = companyResult.Value!;
-        var phone = $"55{company.Phone.Value}";
+        var phone = $"55{company.Phone}";
 
         var message = $"""
             APROVADO
@@ -628,7 +587,7 @@ public class ServiceOrderService : IServiceOrderService
             return Result.Success();
 
         var company = companyResult.Value!;
-        var phone = $"55{company.Phone.Value}";
+        var phone = $"55{company.Phone}";
 
         var message = $"""
             RECUSADO
@@ -651,7 +610,7 @@ public class ServiceOrderService : IServiceOrderService
         var order = orderResult.Value!;
 
         var customerResult = await _customerRepository.GetByIdAsync(order.CustomerId, cancellationToken);
-        if (customerResult.IsFailure || !customerResult.Value!.Phones.Any())
+        if (customerResult.IsFailure || string.IsNullOrEmpty(customerResult.Value!.Phone))
             return Result.Success();
 
         var companyResult = await _companyRepository.GetByIdAsync(order.CompanyId, cancellationToken);
@@ -660,9 +619,9 @@ public class ServiceOrderService : IServiceOrderService
 
         var customer = customerResult.Value!;
         var company = companyResult.Value!;
-        var phone = $"55{customer.Phones.First().Value}";
+        var phone = $"55{customer.Phone}";
 
-        var device = $"{order.Equipment.DeviceType} {order.Equipment.Brand} {order.Equipment.Model}";
+        var device = $"{order.DeviceType} {order.Brand} {order.Model}";
 
         var (headline, body) = order.RepairResult switch
         {
@@ -674,21 +633,25 @@ public class ServiceOrderService : IServiceOrderService
                 ("*Atualização sobre seu equipamento*",
                  $"O *{device}* da ordem *#{order.OrderNumber}* foi avaliado e *não apresentou defeito* detectável.\n\n📍 O equipamento está disponível para retirada."),
 
+            RepairResult.CanBeRepaired when order.BudgetStatus == ServiceOrderRepairStatus.Disapproved =>
+                ("*Equipamento disponível para retirada*",
+                 $"O orçamento da ordem *#{order.OrderNumber}* foi recusado. O *{device}* está disponível para retirada sem reparo."),
+
             _ =>
-                ("*Equipamento pronto para retirada!*",
-                 $"O *{device}* da ordem *#{order.OrderNumber}* está pronto para retirada."),
+                ("*Equipamento pronto para retirada!* 🎉",
+                 $"O *{device}* da ordem *#{order.OrderNumber}* foi consertado e está pronto para retirada."),
         };
 
         var message = $"""
             {headline}
 
-            Olá, {customer.Name.FullName}!
+            Olá, {customer.FullName}!
 
             {body}
 
-            📞 Dúvidas? Entre em contato: {company.Phone.GetFormatted()}
+            📞 Dúvidas? Entre em contato: {company.GetPhoneFormatted()}
 
-            *{company.Name.Value}*
+            *{company.Name}*
             """;
 
         _backgroundJobClient.Enqueue<WhatsAppJobs>(j => j.SendTextAsync(phone, message, CancellationToken.None));
@@ -697,14 +660,15 @@ public class ServiceOrderService : IServiceOrderService
         {
             RepairResult.NoFix         => "sem conserto",
             RepairResult.NoDefectFound => "sem defeito detectado",
+            RepairResult.CanBeRepaired when order.BudgetStatus == ServiceOrderRepairStatus.Disapproved => "orçamento recusado",
             _                          => "consertado",
         };
 
-        var companyPhone = $"55{company.Phone.Value}";
+        var companyPhone = $"55{company.Phone}";
         var companyNotification = $"""
             *Mensagem enviada ao cliente*
 
-            A notificação de *pronto para retirada* ({resultLabel}) foi enviada para *{customer.Name.FullName}* via WhatsApp.
+            A notificação de *pronto para retirada* ({resultLabel}) foi enviada para *{customer.FullName}* via WhatsApp.
 
             *Aparelho:* {device}
             *Ordem:* #{order.OrderNumber}

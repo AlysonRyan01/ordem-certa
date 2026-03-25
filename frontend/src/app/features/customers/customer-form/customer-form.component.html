@@ -24,16 +24,14 @@
             }
           </mat-form-field>
 
-          @if (!isEdit) {
-            <mat-form-field appearance="outline">
-              <mat-label>Telefone</mat-label>
-              <input matInput formControlName="phone" mask="(00) 00000-0000||(00) 0000-0000" />
-              <mat-hint>Ex: (11) 98765-4321</mat-hint>
-              @if (form.controls.phone.hasError('required')) {
-                <mat-error>Telefone é obrigatório</mat-error>
-              }
-            </mat-form-field>
-          }
+          <mat-form-field appearance="outline">
+            <mat-label>WhatsApp</mat-label>
+            <input matInput formControlName="phone" mask="(00) 00000-0000||(00) 0000-0000" />
+            <mat-hint>Ex: (11) 98765-4321</mat-hint>
+            @if (form.controls.phone.hasError('required')) {
+              <mat-error>Telefone é obrigatório</mat-error>
+            }
+          </mat-form-field>
 
           <div class="grid grid-cols-2 gap-4">
             <mat-form-field appearance="outline">

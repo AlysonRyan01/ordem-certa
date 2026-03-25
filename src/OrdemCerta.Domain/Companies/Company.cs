@@ -1,14 +1,15 @@
 using OrdemCerta.Domain.Companies.Enums;
-using OrdemCerta.Domain.Companies.ValueObjects;
 using OrdemCerta.Shared;
 
 namespace OrdemCerta.Domain.Companies;
 
 public class Company : AggregateRoot
 {
-    public CompanyName Name { get; private set; } = null!;
-    public CompanyCnpj? Cnpj { get; private set; }
-    public CompanyPhone Phone { get; private set; } = null!;
+    public string Name { get; private set; } = null!;
+    public string? Cnpj { get; private set; }
+    public string Phone { get; private set; } = null!;
+    public string PhoneAreaCode { get; private set; } = null!;
+    public string PhoneNumber { get; private set; } = null!;
     public string Email { get; private set; } = null!;
     public string PasswordHash { get; private set; } = null!;
     public string? Street { get; private set; }
@@ -18,16 +19,20 @@ public class Company : AggregateRoot
     public PlanType Plan { get; private set; }
     public string? StripeCustomerId { get; private set; }
     public string? StripeSubscriptionId { get; private set; }
+    public string? RefreshToken { get; private set; }
+    public DateTime? RefreshTokenExpiresAt { get; private set; }
 
     protected Company() { }
 
     private Company(
-        CompanyName name,
-        CompanyPhone phone,
+        string name,
+        string phone,
+        string phoneAreaCode,
+        string phoneNumber,
         string email,
         string passwordHash,
         PlanType plan,
-        CompanyCnpj? cnpj = null,
+        string? cnpj = null,
         string? street = null,
         string? number = null,
         string? city = null,
@@ -37,6 +42,8 @@ public class Company : AggregateRoot
         Name = name;
         Cnpj = cnpj;
         Phone = phone;
+        PhoneAreaCode = phoneAreaCode;
+        PhoneNumber = phoneNumber;
         Email = email;
         PasswordHash = passwordHash;
         Plan = plan;
@@ -47,29 +54,32 @@ public class Company : AggregateRoot
     }
 
     public static Result<Company> Create(
-        CompanyName name,
-        CompanyPhone phone,
+        string name,
+        string phone,
+        string phoneAreaCode,
+        string phoneNumber,
         string email,
         string passwordHash,
-        CompanyCnpj? cnpj = null,
+        string? cnpj = null,
         string? street = null,
         string? number = null,
         string? city = null,
         string? state = null)
     {
-        var company = new Company(name, phone, email, passwordHash, PlanType.Demo, cnpj, street, number, city, state);
-        return company;
+        return new Company(name, phone, phoneAreaCode, phoneNumber, email, passwordHash, PlanType.Demo, cnpj, street, number, city, state);
     }
 
-    public Result UpdateName(CompanyName name)
+    public Result UpdateName(string name)
     {
         Name = name;
         return Result.Success();
     }
 
-    public Result UpdatePhone(CompanyPhone phone)
+    public Result UpdatePhone(string phone, string phoneAreaCode, string phoneNumber)
     {
         Phone = phone;
+        PhoneAreaCode = phoneAreaCode;
+        PhoneNumber = phoneNumber;
         return Result.Success();
     }
 
@@ -106,5 +116,32 @@ public class Company : AggregateRoot
         StripeSubscriptionId = null;
         Plan = PlanType.Demo;
         return Result.Success();
+    }
+
+    public Result SetRefreshToken(string token, DateTime expiresAt)
+    {
+        RefreshToken = token;
+        RefreshTokenExpiresAt = expiresAt;
+        return Result.Success();
+    }
+
+    public Result ClearRefreshToken()
+    {
+        RefreshToken = null;
+        RefreshTokenExpiresAt = null;
+        return Result.Success();
+    }
+
+    public string GetPhoneFormatted()
+    {
+        return PhoneNumber.Length == 9
+            ? $"({PhoneAreaCode}) {PhoneNumber[..5]}-{PhoneNumber[5..]}"
+            : $"({PhoneAreaCode}) {PhoneNumber[..4]}-{PhoneNumber[4..]}";
+    }
+
+    public string? GetCnpjFormatted()
+    {
+        if (Cnpj is null || Cnpj.Length != 14) return Cnpj;
+        return $"{Cnpj[..2]}.{Cnpj[2..5]}.{Cnpj[5..8]}/{Cnpj[8..12]}-{Cnpj[12..]}";
     }
 }

@@ -1,0 +1,63 @@
+<div class="cp-wrapper" (keydown)="onKeydown($event)">
+
+  <!-- Search input -->
+  <div class="cp-search-row">
+    <mat-icon class="cp-search-icon">search</mat-icon>
+    <input
+      #searchInput
+      class="cp-input"
+      [formControl]="searchControl"
+      placeholder="Buscar clientes, navegar..."
+      autocomplete="off"
+      spellcheck="false"
+    />
+    @if (loading()) {
+      <mat-spinner diameter="18" class="cp-spinner" />
+    }
+    <kbd class="cp-esc-hint">ESC</kbd>
+  </div>
+
+  <!-- Results -->
+  <div class="cp-results">
+    @if (!hasQuery()) {
+      <p class="cp-group-label">Ações rápidas</p>
+    } @else if (results().length > 0) {
+      <p class="cp-group-label">Clientes</p>
+    }
+
+    @for (item of displayedItems(); track item.id; let i = $index) {
+      <button
+        class="cp-item"
+        [class.cp-item--active]="activeIndex() === i"
+        (mouseenter)="activeIndex.set(i)"
+        (click)="select(item)"
+      >
+        <span class="cp-item-icon">
+          <mat-icon>{{ item.icon }}</mat-icon>
+        </span>
+        <span class="cp-item-text">
+          <span class="cp-item-label">{{ item.label }}</span>
+          @if (item.sublabel) {
+            <span class="cp-item-sublabel">{{ item.sublabel }}</span>
+          }
+        </span>
+        <mat-icon class="cp-item-arrow">arrow_forward</mat-icon>
+      </button>
+    }
+
+    @if (hasQuery() && !loading() && results().length === 0) {
+      <div class="cp-empty">
+        <mat-icon>search_off</mat-icon>
+        <span>Nenhum cliente encontrado</span>
+      </div>
+    }
+  </div>
+
+  <!-- Footer -->
+  <div class="cp-footer">
+    <span class="cp-hint"><kbd>↑</kbd><kbd>↓</kbd> navegar</span>
+    <span class="cp-hint"><kbd>Enter</kbd> abrir</span>
+    <span class="cp-hint"><kbd>Esc</kbd> fechar</span>
+  </div>
+
+</div>

@@ -62,6 +62,11 @@ namespace OrdemCerta.Infrastructure.Migrations
                         .HasColumnType("character varying(100)")
                         .HasColumnName("address_city");
 
+                    b.Property<string>("Cnpj")
+                        .HasMaxLength(14)
+                        .HasColumnType("character varying(14)")
+                        .HasColumnName("cnpj");
+
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("created_at");
@@ -71,6 +76,12 @@ namespace OrdemCerta.Infrastructure.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("character varying(200)")
                         .HasColumnName("email");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("name");
 
                     b.Property<string>("Number")
                         .HasMaxLength(20)
@@ -82,10 +93,37 @@ namespace OrdemCerta.Infrastructure.Migrations
                         .HasColumnType("text")
                         .HasColumnName("password_hash");
 
+                    b.Property<string>("Phone")
+                        .IsRequired()
+                        .HasMaxLength(11)
+                        .HasColumnType("character varying(11)")
+                        .HasColumnName("phone");
+
+                    b.Property<string>("PhoneAreaCode")
+                        .IsRequired()
+                        .HasMaxLength(2)
+                        .HasColumnType("character varying(2)")
+                        .HasColumnName("phone_area_code");
+
+                    b.Property<string>("PhoneNumber")
+                        .IsRequired()
+                        .HasMaxLength(9)
+                        .HasColumnType("character varying(9)")
+                        .HasColumnName("phone_number");
+
                     b.Property<string>("Plan")
                         .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("plan");
+
+                    b.Property<string>("RefreshToken")
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)")
+                        .HasColumnName("refresh_token");
+
+                    b.Property<DateTime?>("RefreshTokenExpiresAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("refresh_token_expires_at");
 
                     b.Property<string>("State")
                         .HasMaxLength(2)
@@ -122,12 +160,70 @@ namespace OrdemCerta.Infrastructure.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("id");
 
+                    b.Property<string>("AddressCity")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("address_city");
+
+                    b.Property<string>("AddressNumber")
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("address_number");
+
+                    b.Property<string>("AddressState")
+                        .HasMaxLength(2)
+                        .HasColumnType("character varying(2)")
+                        .HasColumnName("address_state");
+
+                    b.Property<string>("AddressStreet")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("address_street");
+
                     b.Property<Guid>("CompanyId")
                         .HasColumnType("uuid")
                         .HasColumnName("company_id");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Document")
+                        .HasMaxLength(14)
+                        .HasColumnType("character varying(14)")
+                        .HasColumnName("document");
+
+                    b.Property<string>("DocumentType")
+                        .HasColumnType("text")
+                        .HasColumnName("document_type");
+
+                    b.Property<string>("Email")
+                        .HasMaxLength(254)
+                        .HasColumnType("character varying(254)")
+                        .HasColumnName("email");
+
+                    b.Property<string>("FullName")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("full_name");
+
+                    b.Property<string>("Phone")
+                        .IsRequired()
+                        .HasMaxLength(11)
+                        .HasColumnType("character varying(11)")
+                        .HasColumnName("phone");
+
+                    b.Property<string>("PhoneAreaCode")
+                        .IsRequired()
+                        .HasMaxLength(2)
+                        .HasColumnType("character varying(2)")
+                        .HasColumnName("phone_area_code");
+
+                    b.Property<string>("PhoneNumber")
+                        .IsRequired()
+                        .HasMaxLength(9)
+                        .HasColumnType("character varying(9)")
+                        .HasColumnName("phone_number");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
@@ -267,6 +363,14 @@ namespace OrdemCerta.Infrastructure.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("updated_at");
 
+                    b.Property<int?>("WarrantyDuration")
+                        .HasColumnType("integer")
+                        .HasColumnName("warranty_duration");
+
+                    b.Property<int?>("WarrantyUnit")
+                        .HasColumnType("integer")
+                        .HasColumnName("warranty_unit");
+
                     b.HasKey("Id");
 
                     b.HasIndex("CompanyId");
@@ -299,6 +403,17 @@ namespace OrdemCerta.Infrastructure.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("id");
 
+                    b.Property<string>("Accessories")
+                        .HasMaxLength(300)
+                        .HasColumnType("character varying(300)")
+                        .HasColumnName("accessories");
+
+                    b.Property<string>("Brand")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("brand");
+
                     b.Property<string>("BudgetDescription")
                         .HasMaxLength(500)
                         .HasColumnType("character varying(500)")
@@ -324,9 +439,26 @@ namespace OrdemCerta.Infrastructure.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("customer_id");
 
+                    b.Property<string>("DeviceType")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("device_type");
+
                     b.Property<DateTime>("EntryDate")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("entry_date");
+
+                    b.Property<string>("Model")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("model");
+
+                    b.Property<string>("Observations")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("observations");
 
                     b.Property<int>("OrderNumber")
                         .HasColumnType("integer")
@@ -335,6 +467,12 @@ namespace OrdemCerta.Infrastructure.Migrations
                     b.Property<int?>("RepairResult")
                         .HasColumnType("integer")
                         .HasColumnName("repair_result");
+
+                    b.Property<string>("ReportedDefect")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("reported_defect");
 
                     b.Property<int>("Status")
                         .HasColumnType("integer")
@@ -368,258 +506,8 @@ namespace OrdemCerta.Infrastructure.Migrations
                     b.ToTable("service_orders", (string)null);
                 });
 
-            modelBuilder.Entity("OrdemCerta.Domain.Companies.Company", b =>
-                {
-                    b.OwnsOne("OrdemCerta.Domain.Companies.ValueObjects.CompanyCnpj", "Cnpj", b1 =>
-                        {
-                            b1.Property<Guid>("CompanyId")
-                                .HasColumnType("uuid");
-
-                            b1.Property<string>("Value")
-                                .IsRequired()
-                                .HasMaxLength(14)
-                                .HasColumnType("character varying(14)")
-                                .HasColumnName("cnpj");
-
-                            b1.HasKey("CompanyId");
-
-                            b1.ToTable("companies");
-
-                            b1.WithOwner()
-                                .HasForeignKey("CompanyId");
-                        });
-
-                    b.OwnsOne("OrdemCerta.Domain.Companies.ValueObjects.CompanyName", "Name", b1 =>
-                        {
-                            b1.Property<Guid>("CompanyId")
-                                .HasColumnType("uuid");
-
-                            b1.Property<string>("Value")
-                                .IsRequired()
-                                .HasMaxLength(200)
-                                .HasColumnType("character varying(200)")
-                                .HasColumnName("name");
-
-                            b1.HasKey("CompanyId");
-
-                            b1.ToTable("companies");
-
-                            b1.WithOwner()
-                                .HasForeignKey("CompanyId");
-                        });
-
-                    b.OwnsOne("OrdemCerta.Domain.Companies.ValueObjects.CompanyPhone", "Phone", b1 =>
-                        {
-                            b1.Property<Guid>("CompanyId")
-                                .HasColumnType("uuid");
-
-                            b1.Property<string>("AreaCode")
-                                .IsRequired()
-                                .HasMaxLength(2)
-                                .HasColumnType("character varying(2)")
-                                .HasColumnName("phone_area_code");
-
-                            b1.Property<string>("Number")
-                                .IsRequired()
-                                .HasMaxLength(9)
-                                .HasColumnType("character varying(9)")
-                                .HasColumnName("phone_number");
-
-                            b1.Property<string>("Value")
-                                .IsRequired()
-                                .HasMaxLength(11)
-                                .HasColumnType("character varying(11)")
-                                .HasColumnName("phone");
-
-                            b1.HasKey("CompanyId");
-
-                            b1.ToTable("companies");
-
-                            b1.WithOwner()
-                                .HasForeignKey("CompanyId");
-                        });
-
-                    b.Navigation("Cnpj");
-
-                    b.Navigation("Name")
-                        .IsRequired();
-
-                    b.Navigation("Phone")
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("OrdemCerta.Domain.Customers.Customer", b =>
-                {
-                    b.OwnsOne("OrdemCerta.Domain.Customers.ValueObjects.CustomerAddress", "Address", b1 =>
-                        {
-                            b1.Property<Guid>("CustomerId")
-                                .HasColumnType("uuid");
-
-                            b1.Property<string>("City")
-                                .HasMaxLength(100)
-                                .HasColumnType("character varying(100)")
-                                .HasColumnName("address_city");
-
-                            b1.Property<string>("Number")
-                                .HasMaxLength(20)
-                                .HasColumnType("character varying(20)")
-                                .HasColumnName("address_number");
-
-                            b1.Property<string>("State")
-                                .HasMaxLength(2)
-                                .HasColumnType("character varying(2)")
-                                .HasColumnName("address_state");
-
-                            b1.Property<string>("Street")
-                                .HasMaxLength(200)
-                                .HasColumnType("character varying(200)")
-                                .HasColumnName("address_street");
-
-                            b1.HasKey("CustomerId");
-
-                            b1.ToTable("customers");
-
-                            b1.WithOwner()
-                                .HasForeignKey("CustomerId");
-                        });
-
-                    b.OwnsOne("OrdemCerta.Domain.Customers.ValueObjects.CustomerDocument", "Document", b1 =>
-                        {
-                            b1.Property<Guid>("CustomerId")
-                                .HasColumnType("uuid");
-
-                            b1.Property<string>("Type")
-                                .IsRequired()
-                                .HasColumnType("text")
-                                .HasColumnName("document_type");
-
-                            b1.Property<string>("Value")
-                                .IsRequired()
-                                .HasMaxLength(14)
-                                .HasColumnType("character varying(14)")
-                                .HasColumnName("document");
-
-                            b1.HasKey("CustomerId");
-
-                            b1.ToTable("customers");
-
-                            b1.WithOwner()
-                                .HasForeignKey("CustomerId");
-                        });
-
-                    b.OwnsOne("OrdemCerta.Domain.Customers.ValueObjects.CustomerEmail", "Email", b1 =>
-                        {
-                            b1.Property<Guid>("CustomerId")
-                                .HasColumnType("uuid");
-
-                            b1.Property<string>("Value")
-                                .IsRequired()
-                                .HasMaxLength(254)
-                                .HasColumnType("character varying(254)")
-                                .HasColumnName("email");
-
-                            b1.HasKey("CustomerId");
-
-                            b1.ToTable("customers");
-
-                            b1.WithOwner()
-                                .HasForeignKey("CustomerId");
-                        });
-
-                    b.OwnsOne("OrdemCerta.Domain.Customers.ValueObjects.CustomerName", "Name", b1 =>
-                        {
-                            b1.Property<Guid>("CustomerId")
-                                .HasColumnType("uuid");
-
-                            b1.Property<string>("FullName")
-                                .IsRequired()
-                                .HasMaxLength(200)
-                                .HasColumnType("character varying(200)")
-                                .HasColumnName("full_name");
-
-                            b1.HasKey("CustomerId");
-
-                            b1.ToTable("customers");
-
-                            b1.WithOwner()
-                                .HasForeignKey("CustomerId");
-                        });
-
-                    b.OwnsMany("OrdemCerta.Domain.Customers.ValueObjects.CustomerPhone", "Phones", b1 =>
-                        {
-                            b1.Property<int>("id")
-                                .ValueGeneratedOnAdd()
-                                .HasColumnType("integer")
-                                .HasColumnName("id");
-
-                            NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b1.Property<int>("id"));
-
-                            b1.Property<string>("AreaCode")
-                                .IsRequired()
-                                .HasMaxLength(2)
-                                .HasColumnType("character varying(2)")
-                                .HasColumnName("area_code");
-
-                            b1.Property<string>("Number")
-                                .IsRequired()
-                                .HasMaxLength(9)
-                                .HasColumnType("character varying(9)")
-                                .HasColumnName("number");
-
-                            b1.Property<string>("Value")
-                                .IsRequired()
-                                .HasMaxLength(11)
-                                .HasColumnType("character varying(11)")
-                                .HasColumnName("value");
-
-                            b1.Property<Guid>("customer_id")
-                                .HasColumnType("uuid");
-
-                            b1.HasKey("id");
-
-                            b1.HasIndex("customer_id");
-
-                            b1.ToTable("customer_phones", (string)null);
-
-                            b1.WithOwner()
-                                .HasForeignKey("customer_id");
-                        });
-
-                    b.Navigation("Address");
-
-                    b.Navigation("Document");
-
-                    b.Navigation("Email");
-
-                    b.Navigation("Name")
-                        .IsRequired();
-
-                    b.Navigation("Phones");
-                });
-
             modelBuilder.Entity("OrdemCerta.Domain.Sales.Sale", b =>
                 {
-                    b.OwnsOne("OrdemCerta.Domain.ServiceOrders.ValueObjects.Warranty", "Warranty", b1 =>
-                        {
-                            b1.Property<Guid>("SaleId")
-                                .HasColumnType("uuid");
-
-                            b1.Property<int>("Duration")
-                                .HasColumnType("integer")
-                                .HasColumnName("warranty_duration");
-
-                            b1.Property<int>("Unit")
-                                .HasColumnType("integer")
-                                .HasColumnName("warranty_unit");
-
-                            b1.HasKey("SaleId");
-
-                            b1.ToTable("sales");
-
-                            b1.WithOwner()
-                                .HasForeignKey("SaleId");
-                        });
-
                     b.OwnsMany("OrdemCerta.Domain.Sales.SaleItem", "Items", b1 =>
                         {
                             b1.Property<Guid>("Id")
@@ -662,61 +550,6 @@ namespace OrdemCerta.Infrastructure.Migrations
                         });
 
                     b.Navigation("Items");
-
-                    b.Navigation("Warranty");
-                });
-
-            modelBuilder.Entity("OrdemCerta.Domain.ServiceOrders.ServiceOrder", b =>
-                {
-                    b.OwnsOne("OrdemCerta.Domain.ServiceOrders.ValueObjects.EquipmentInfo", "Equipment", b1 =>
-                        {
-                            b1.Property<Guid>("ServiceOrderId")
-                                .HasColumnType("uuid");
-
-                            b1.Property<string>("Accessories")
-                                .HasMaxLength(300)
-                                .HasColumnType("character varying(300)")
-                                .HasColumnName("accessories");
-
-                            b1.Property<string>("Brand")
-                                .IsRequired()
-                                .HasMaxLength(100)
-                                .HasColumnType("character varying(100)")
-                                .HasColumnName("brand");
-
-                            b1.Property<string>("DeviceType")
-                                .IsRequired()
-                                .HasMaxLength(100)
-                                .HasColumnType("character varying(100)")
-                                .HasColumnName("device_type");
-
-                            b1.Property<string>("Model")
-                                .IsRequired()
-                                .HasMaxLength(100)
-                                .HasColumnType("character varying(100)")
-                                .HasColumnName("model");
-
-                            b1.Property<string>("Observations")
-                                .HasMaxLength(500)
-                                .HasColumnType("character varying(500)")
-                                .HasColumnName("observations");
-
-                            b1.Property<string>("ReportedDefect")
-                                .IsRequired()
-                                .HasMaxLength(500)
-                                .HasColumnType("character varying(500)")
-                                .HasColumnName("reported_defect");
-
-                            b1.HasKey("ServiceOrderId");
-
-                            b1.ToTable("service_orders");
-
-                            b1.WithOwner()
-                                .HasForeignKey("ServiceOrderId");
-                        });
-
-                    b.Navigation("Equipment")
-                        .IsRequired();
                 });
 #pragma warning restore 612, 618
         }
