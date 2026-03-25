@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using OrdemCerta.Domain.Companies.Interfaces;
 using OrdemCerta.Domain.Customers;
 using OrdemCerta.Infrastructure.DataContext.Context;
 using OrdemCerta.Shared;
@@ -8,17 +9,19 @@ namespace OrdemCerta.Infrastructure.Repositories.CustomerRepository;
 public class CustomerRepository : ICustomerRepository
 {
     private readonly ApplicationDataContext _context;
+    private readonly ICurrentCompany _currentCompany;
 
-    public CustomerRepository(ApplicationDataContext context)
+    public CustomerRepository(ApplicationDataContext context, ICurrentCompany currentCompany)
     {
         _context = context;
+        _currentCompany = currentCompany;
     }
 
     public async Task<Result<Customer>> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
         var customer = await _context.Customers
             .AsNoTracking()
-            .FirstOrDefaultAsync(c => c.Id == id, cancellationToken);
+            .FirstOrDefaultAsync(c => c.Id == id && c.CompanyId == _currentCompany.CompanyId, cancellationToken);
 
         if (customer == null)
             return "Cliente não encontrado";
@@ -29,7 +32,7 @@ public class CustomerRepository : ICustomerRepository
     public async Task<Result<Customer>> GetByIdTrackedAsync(Guid id, CancellationToken cancellationToken = default)
     {
         var customer = await _context.Customers
-            .FirstOrDefaultAsync(c => c.Id == id, cancellationToken);
+            .FirstOrDefaultAsync(c => c.Id == id && c.CompanyId == _currentCompany.CompanyId, cancellationToken);
 
         if (customer == null)
             return "Cliente não encontrado";
@@ -47,6 +50,7 @@ public class CustomerRepository : ICustomerRepository
 
         var customers = await _context.Customers
             .AsNoTracking()
+            .Where(c => c.CompanyId == _currentCompany.CompanyId)
             .OrderBy(c => c.FullName)
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
@@ -70,7 +74,7 @@ public class CustomerRepository : ICustomerRepository
 
         var customers = await _context.Customers
             .AsNoTracking()
-            .Where(c => EF.Functions.Like(c.FullName.ToLower(), $"%{normalizedSearchTerm}%"))
+            .Where(c => c.CompanyId == _currentCompany.CompanyId && EF.Functions.Like(c.FullName.ToLower(), $"%{normalizedSearchTerm}%"))
             .OrderBy(c => c.FullName)
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
@@ -84,7 +88,7 @@ public class CustomerRepository : ICustomerRepository
         var idList = ids.Distinct().ToList();
         return await _context.Customers
             .AsNoTracking()
-            .Where(c => idList.Contains(c.Id))
+            .Where(c => c.CompanyId == _currentCompany.CompanyId && idList.Contains(c.Id))
             .Select(c => new { c.Id, c.FullName })
             .ToDictionaryAsync(c => c.Id, c => c.FullName, cancellationToken);
     }
