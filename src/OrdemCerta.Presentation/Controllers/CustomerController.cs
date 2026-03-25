@@ -24,11 +24,10 @@ public class CustomerController : ControllerBase
     [ProducesResponseType(typeof(CustomerOutput), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> Create(
-        [FromHeader(Name = "X-Company-Id")] Guid companyId,
         [FromBody] CreateCustomerInput input,
         CancellationToken cancellationToken)
     {
-        var result = await _customerService.CreateAsync(companyId, input, cancellationToken);
+        var result = await _customerService.CreateAsync(input, cancellationToken);
 
         if (result.IsFailure)
             return BadRequest(new { errors = result.Errors });

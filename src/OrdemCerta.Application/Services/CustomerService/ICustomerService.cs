@@ -6,7 +6,7 @@ namespace OrdemCerta.Application.Services.CustomerService;
 
 public interface ICustomerService
 {
-    Task<Result<CustomerOutput>> CreateAsync(Guid companyId, CreateCustomerInput input, CancellationToken cancellationToken = default);
+    Task<Result<CustomerOutput>> CreateAsync(CreateCustomerInput input, CancellationToken cancellationToken = default);
     Task<Result<CustomerOutput>> UpdateAsync(Guid id, UpdateCustomerInput input, CancellationToken cancellationToken = default);
     Task<Result> DeleteAsync(Guid id, CancellationToken cancellationToken = default);
     Task<Result<CustomerOutput>> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);

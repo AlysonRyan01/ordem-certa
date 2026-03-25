@@ -1,5 +1,6 @@
 using FluentValidation;
 using OrdemCerta.Application.Inputs.CustomerInputs;
+using OrdemCerta.Domain.Companies.Interfaces;
 using OrdemCerta.Domain.Customers;
 using OrdemCerta.Domain.Customers.DTOs;
 using OrdemCerta.Domain.Customers.Enums;
@@ -15,22 +16,25 @@ public class CustomerService : ICustomerService
 {
     private readonly ICustomerRepository _customerRepository;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly ICurrentCompany _currentCompany;
     private readonly IValidator<CreateCustomerInput> _createValidator;
     private readonly IValidator<UpdateCustomerInput> _updateValidator;
 
     public CustomerService(
         ICustomerRepository customerRepository,
         IUnitOfWork unitOfWork,
+        ICurrentCompany currentCompany,
         IValidator<CreateCustomerInput> createValidator,
         IValidator<UpdateCustomerInput> updateValidator)
     {
         _customerRepository = customerRepository;
         _unitOfWork = unitOfWork;
+        _currentCompany = currentCompany;
         _createValidator = createValidator;
         _updateValidator = updateValidator;
     }
 
-    public async Task<Result<CustomerOutput>> CreateAsync(Guid companyId, CreateCustomerInput input, CancellationToken cancellationToken = default)
+    public async Task<Result<CustomerOutput>> CreateAsync(CreateCustomerInput input, CancellationToken cancellationToken = default)
     {
         var validationResult = await _createValidator.ValidateAsync(input, cancellationToken);
         if (!validationResult.IsValid)
@@ -43,7 +47,7 @@ public class CustomerService : ICustomerService
         (string? document, CustomerDocumentType? documentType) = ParseDocument(input.Document);
 
         var customerResult = Customer.Create(
-            companyId,
+            _currentCompany.CompanyId,
             input.FullName,
             phone,
             areaCode!,
