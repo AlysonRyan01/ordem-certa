@@ -1,4 +1,4 @@
-import { Component, inject, OnDestroy, OnInit } from '@angular/core';
+import { Component, inject, OnDestroy, OnInit, signal } from '@angular/core';
 import { DOCUMENT } from '@angular/common';
 import { Meta, Title } from '@angular/platform-browser';
 import { Router, RouterLink } from '@angular/router';
@@ -66,6 +66,8 @@ export class LandingComponent implements OnInit, OnDestroy {
     this.jsonLdScript.text = JSON.stringify(schema);
     this.document.head.appendChild(this.jsonLdScript);
   }
+  readonly videoPlaying = signal(false);
+
   readonly steps = [
     { n: 1, title: 'Crie a ordem', desc: 'Registre o equipamento, o defeito relatado e as peças necessárias.' },
     { n: 2, title: 'Envie o orçamento', desc: 'Com um clique, o cliente recebe o valor e o link de aprovação via WhatsApp.' },

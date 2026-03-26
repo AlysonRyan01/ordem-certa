@@ -180,6 +180,91 @@
   </div>
 </div>
 
+<!-- ═══════════════════════════════════════════════════════ DEMO VIDEO -->
+<section class="py-24 border-t border-white/5 relative overflow-hidden">
+  <!-- Ambient glow -->
+  <div class="absolute inset-0 pointer-events-none">
+    <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[900px] h-[500px] bg-amber-500/4 blur-[150px] rounded-full"></div>
+  </div>
+
+  <div class="relative max-w-5xl mx-auto px-6">
+    <div class="text-center mb-12">
+      <span class="inline-flex items-center gap-2 bg-amber-400/10 border border-amber-400/20 text-amber-400 text-xs font-bold px-3.5 py-1.5 rounded-full tracking-wide uppercase mb-5">
+        <mat-icon class="!text-sm">play_circle</mat-icon>
+        Demonstração real
+      </span>
+      <h2 class="text-3xl lg:text-[2.75rem] font-extrabold text-white leading-tight mb-4">
+        Veja o OrdemCerta<br>
+        <span class="gradient-text-amber">em ação</span>
+      </h2>
+      <p class="text-slate-400 max-w-md mx-auto text-base leading-relaxed">
+        Do cadastro da OS ao cliente aprovando pelo WhatsApp — tudo em menos de 2 minutos.
+      </p>
+    </div>
+
+    <!-- Video wrapper -->
+    <div class="demo-video-frame relative rounded-2xl overflow-hidden shadow-[0_40px_100px_rgba(0,0,0,0.6)] border border-white/8">
+      @if (!videoPlaying()) {
+        <!-- Thumbnail + play button -->
+        <button
+          class="demo-thumbnail group relative w-full block cursor-pointer border-0 p-0 bg-transparent"
+          (click)="videoPlaying.set(true)"
+          aria-label="Reproduzir demonstração do OrdemCerta">
+
+          <img
+            src="https://img.youtube.com/vi/vT1wMJheYU0/maxresdefault.jpg"
+            alt="Demonstração do OrdemCerta"
+            class="w-full h-auto block aspect-video object-cover" />
+
+          <!-- Dark overlay -->
+          <div class="demo-overlay absolute inset-0 bg-[#050B18]/50 group-hover:bg-[#050B18]/35 transition-all duration-300"></div>
+
+          <!-- Play button -->
+          <div class="absolute inset-0 flex items-center justify-center">
+            <div class="demo-play-btn w-20 h-20 rounded-full bg-amber-400 flex items-center justify-center shadow-[0_0_60px_rgba(245,183,0,0.5)] group-hover:scale-110 group-hover:shadow-[0_0_90px_rgba(245,183,0,0.7)] transition-all duration-300">
+              <mat-icon class="!text-4xl text-[#0F1629] translate-x-0.5">play_arrow</mat-icon>
+            </div>
+          </div>
+
+          <!-- Bottom label -->
+          <div class="absolute bottom-5 left-1/2 -translate-x-1/2 flex items-center gap-2 bg-[#050B18]/70 backdrop-blur-sm border border-white/10 text-white/80 text-xs font-medium px-4 py-2 rounded-full whitespace-nowrap">
+            <span class="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse"></span>
+            Demonstração gravada pelo criador
+          </div>
+        </button>
+      } @else {
+        <!-- YouTube iframe -->
+        <div class="aspect-video w-full">
+          <iframe
+            class="w-full h-full"
+            src="https://www.youtube-nocookie.com/embed/vT1wMJheYU0?autoplay=1&rel=0&modestbranding=1"
+            title="Demonstração do OrdemCerta"
+            frameborder="0"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowfullscreen>
+          </iframe>
+        </div>
+      }
+    </div>
+
+    <!-- Caption below video -->
+    <div class="flex flex-col sm:flex-row items-center justify-center gap-6 mt-8">
+      <div class="flex items-center gap-2 text-slate-500 text-sm">
+        <mat-icon class="!text-base text-[#25D366]">check_circle</mat-icon>
+        Sem necessidade de cartão
+      </div>
+      <div class="flex items-center gap-2 text-slate-500 text-sm">
+        <mat-icon class="!text-base text-[#25D366]">check_circle</mat-icon>
+        Pronto para usar em minutos
+      </div>
+      <div class="flex items-center gap-2 text-slate-500 text-sm">
+        <mat-icon class="!text-base text-[#25D366]">check_circle</mat-icon>
+        Exatamente o que você viu no vídeo
+      </div>
+    </div>
+  </div>
+</section>
+
 <!-- ═══════════════════════════════════════════════════════ PAIN -->
 <section class="py-24 border-t border-white/5">
   <div class="max-w-6xl mx-auto px-6">

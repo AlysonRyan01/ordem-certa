@@ -68,6 +68,23 @@
 .testimonial-card:hover { transform: translateY(-2px); }
 .testimonial-card { transition: transform 0.2s ease, border-color 0.2s ease; }
 
+/* Demo Video */
+.demo-video-frame {
+  background: #0D1625;
+}
+
+.demo-thumbnail {
+  display: block;
+  width: 100%;
+
+  img {
+    display: block;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+  }
+}
+
 /* FAQ */
 .faq-item summary::-webkit-details-marker { display: none; }
 .faq-item[open] .faq-icon { transform: rotate(45deg); color: #F5B700; }
