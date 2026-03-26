@@ -238,6 +238,22 @@ export class OrderDetailComponent implements OnInit {
     this.editingBudget.set(false);
   }
 
+  sendReadyForPickupWhatsApp(): void {
+    this.askWhatsApp(
+      'Notificar cliente por WhatsApp?',
+      'Deseja enviar uma mensagem informando que o equipamento está pronto para retirada?',
+      () => this.orderService.notifyReadyForPickup(this.id).subscribe(),
+    );
+  }
+
+  sendBudgetWhatsApp(): void {
+    this.askWhatsApp(
+      'Enviar orçamento por WhatsApp?',
+      'Deseja enviar o orçamento para o cliente via WhatsApp?',
+      () => this.orderService.notifyBudgetCreated(this.id).subscribe(),
+    );
+  }
+
   saveBudget(): void {
     if (this.editBudgetForm.invalid) return;
     const raw = this.editBudgetForm.getRawValue();

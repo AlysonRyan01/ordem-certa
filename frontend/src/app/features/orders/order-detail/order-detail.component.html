@@ -197,6 +197,9 @@
                 <button mat-flat-button (click)="changeStatusTo('Delivered')" [disabled]="changingStatus()">
                   @if (changingStatus()) { <mat-spinner diameter="18" /> } @else { <span class="flex items-center gap-1.5"><mat-icon>done_all</mat-icon> Confirmar entrega</span> }
                 </button>
+                <button mat-stroked-button (click)="sendReadyForPickupWhatsApp()">
+                  <mat-icon>send</mat-icon> Enviar WhatsApp
+                </button>
               }
 
               @if (canRollback()) {
@@ -274,13 +277,18 @@
             }
           </div>
 
-          @if (canEditBudget()) {
-            <div class="px-5 py-4">
+          <div class="px-5 py-4 flex items-center gap-3">
+            @if (canEditBudget()) {
               <button mat-stroked-button (click)="startEditBudget()">
                 <mat-icon>edit</mat-icon> Editar orçamento
               </button>
-            </div>
-          }
+            }
+            @if (o.status !== 'Delivered' && o.status !== 'Cancelled') {
+              <button mat-stroked-button (click)="sendBudgetWhatsApp()">
+                <mat-icon>send</mat-icon> Enviar WhatsApp
+              </button>
+            }
+          </div>
 
         } @else {
           <!-- Edit form -->
