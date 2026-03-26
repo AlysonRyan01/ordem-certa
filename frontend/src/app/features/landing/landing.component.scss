@@ -73,18 +73,6 @@
   background: #0D1625;
 }
 
-.demo-thumbnail {
-  display: block;
-  width: 100%;
-
-  img {
-    display: block;
-    width: 100%;
-    aspect-ratio: 16 / 9;
-    object-fit: cover;
-  }
-}
-
 /* FAQ */
 .faq-item summary::-webkit-details-marker { display: none; }
 .faq-item[open] .faq-icon { transform: rotate(45deg); color: #F5B700; }
