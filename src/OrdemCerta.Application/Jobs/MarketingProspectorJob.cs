@@ -13,22 +13,57 @@ public class MarketingProspectorJob(
     ILogger<MarketingProspectorJob> logger)
 {
     private const int MaxNewProspectsPerRun = 200;
+    private const int TermsPerRun = 5;
 
     private static readonly string[] Cities =
     [
+        // Capitais
         "São Paulo SP", "Rio de Janeiro RJ", "Belo Horizonte MG", "Salvador BA",
         "Fortaleza CE", "Curitiba PR", "Manaus AM", "Recife PE", "Goiânia GO",
         "Belém PA", "Porto Alegre RS", "Campinas SP", "São Luís MA", "Maceió AL",
         "Natal RN", "Teresina PI", "Campo Grande MS", "João Pessoa PB",
         "Porto Velho RO", "Cuiabá MT", "Florianópolis SC", "Vitória ES",
-        "Aracaju SE", "Macapá AP", "Palmas TO", "Rio Branco AC", "Boa Vista RR"
+        "Aracaju SE", "Macapá AP", "Palmas TO", "Rio Branco AC", "Boa Vista RR",
+        // Cidades médias
+        "Ribeirão Preto SP", "Sorocaba SP", "São Bernardo do Campo SP",
+        "Santo André SP", "Osasco SP", "Guarulhos SP", "Mauá SP",
+        "Uberlândia MG", "Contagem MG", "Juiz de Fora MG", "Montes Claros MG",
+        "Feira de Santana BA", "Vitória da Conquista BA", "Camaçari BA",
+        "Joinville SC", "Blumenau SC", "Chapecó SC",
+        "Londrina PR", "Maringá PR", "Ponta Grossa PR",
+        "Caxias do Sul RS", "Pelotas RS", "Santa Maria RS",
+        "Niterói RJ", "Duque de Caxias RJ", "Nova Iguaçu RJ",
+        "Caucaia CE", "Juazeiro do Norte CE", "Sobral CE",
+        "Caruaru PE", "Petrolina PE", "Olinda PE",
+        "Aparecida de Goiânia GO", "Anápolis GO",
+        "Imperatriz MA", "Timon MA",
+        "Mossoró RN", "Parnamirim RN",
+        "Campina Grande PB",
+        "Santarém PA", "Marabá PA",
+        "Porto Velho RO", "Ji-Paraná RO",
+        "Sinop MT", "Várzea Grande MT"
     ];
 
-    private static readonly string[] SearchTerms =
+    private static readonly string[] SearchTermsPool =
     [
         "assistência técnica celular",
         "assistência técnica eletrônicos",
-        "conserto notebook"
+        "conserto notebook",
+        "conserto de celular",
+        "reparo smartphone",
+        "assistência técnica iPhone",
+        "manutenção eletrônicos",
+        "técnico de celular",
+        "conserto Samsung",
+        "troca de tela celular",
+        "reparo notebook",
+        "assistência técnica computador",
+        "conserto tablet",
+        "assistência técnica Apple",
+        "reparo de computador",
+        "técnico em informática",
+        "loja conserto celular",
+        "celular com defeito conserto"
     ];
 
     public async Task ExecuteAsync(CancellationToken cancellationToken)
@@ -38,11 +73,16 @@ public class MarketingProspectorJob(
         var existingPlaceIds = await repository.GetAllPlaceIdsAsync(cancellationToken);
         var newCount = 0;
 
-        foreach (var city in Cities)
+        var cities = Cities.OrderBy(_ => Random.Shared.Next()).ToArray();
+        var terms = SearchTermsPool.OrderBy(_ => Random.Shared.Next()).Take(TermsPerRun).ToArray();
+
+        logger.LogInformation("Termos desta rodada: {Terms}", string.Join(", ", terms));
+
+        foreach (var city in cities)
         {
             if (newCount >= MaxNewProspectsPerRun) break;
 
-            foreach (var term in SearchTerms)
+            foreach (var term in terms)
             {
                 if (newCount >= MaxNewProspectsPerRun) break;
 
