@@ -60,7 +60,7 @@ export class DashboardComponent implements OnInit {
   readonly loading = signal(true);
 
   allStatusCounts(d: DashboardOutput): StatusCount[] {
-    const countMap = new Map(d.ordersByStatus.map((s) => [s.status, s.count]));
+    const countMap = new Map(d.allOrdersByStatus.map((s) => [s.status, s.count]));
     return STATUS_ORDER.map((status) => ({
       status,
       meta: STATUS_META[status],

@@ -16,6 +16,7 @@ public interface IServiceOrderRepository
     Task<int> CountByStatusesAsync(ServiceOrderStatus[] statuses, CancellationToken cancellationToken);
     Task<int> CountByBudgetStatusAsync(ServiceOrderRepairStatus budgetStatus, CancellationToken cancellationToken);
     Task<List<ServiceOrder>> GetRecentAsync(int count, CancellationToken cancellationToken);
+    Task<List<(ServiceOrderStatus Status, int Count)>> GetCountsByStatusAsync(CancellationToken cancellationToken);
     Task<List<(ServiceOrderStatus Status, int Count)>> GetCountsByStatusThisMonthAsync(CancellationToken cancellationToken);
     Task AddAsync(ServiceOrder order, CancellationToken cancellationToken);
     Task UpdateAsync(ServiceOrder order, CancellationToken cancellationToken);

@@ -49,8 +49,13 @@ public class DashboardService : IDashboardService
         var totalOrders = await _orderRepository.CountAsync(cancellationToken);
         var recentOrders = await _orderRepository.GetRecentAsync(5, cancellationToken);
         var countsByStatus = await _orderRepository.GetCountsByStatusThisMonthAsync(cancellationToken);
+        var allCountsByStatus = await _orderRepository.GetCountsByStatusAsync(cancellationToken);
 
         var ordersByStatus = countsByStatus
+            .Select(x => new StatusCountOutput(x.Status.ToString(), x.Count))
+            .ToList();
+
+        var allOrdersByStatus = allCountsByStatus
             .Select(x => new StatusCountOutput(x.Status.ToString(), x.Count))
             .ToList();
 
@@ -63,6 +68,7 @@ public class DashboardService : IDashboardService
             totalOrders,
             plan,
             recentOrders.Select(o => o.ToOutput()).ToList(),
-            ordersByStatus);
+            ordersByStatus,
+            allOrdersByStatus);
     }
 }

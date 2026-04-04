@@ -118,6 +118,17 @@ public class ServiceOrderRepository : IServiceOrderRepository
             .ToListAsync(cancellationToken);
     }
 
+    public async Task<List<(ServiceOrderStatus Status, int Count)>> GetCountsByStatusAsync(CancellationToken cancellationToken)
+    {
+        return await _context.ServiceOrders
+            .Where(o => o.CompanyId == _currentCompany.CompanyId)
+            .AsNoTracking()
+            .GroupBy(o => o.Status)
+            .Select(g => new { Status = g.Key, Count = g.Count() })
+            .ToListAsync(cancellationToken)
+            .ContinueWith(t => t.Result.Select(x => (x.Status, x.Count)).ToList(), cancellationToken);
+    }
+
     public async Task<List<(ServiceOrderStatus Status, int Count)>> GetCountsByStatusThisMonthAsync(CancellationToken cancellationToken)
     {
         var now = DateTime.UtcNow;

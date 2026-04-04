@@ -13,4 +13,5 @@ export interface DashboardOutput {
   plan: 'Demo' | 'Paid';
   recentOrders: ServiceOrderOutput[];
   ordersByStatus: StatusCountOutput[];
+  allOrdersByStatus: StatusCountOutput[];
 }

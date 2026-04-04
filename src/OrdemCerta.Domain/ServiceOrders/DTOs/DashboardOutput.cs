@@ -9,4 +9,5 @@ public record DashboardOutput(
     int TotalOrders,
     string Plan,
     List<ServiceOrderOutput> RecentOrders,
-    List<StatusCountOutput> OrdersByStatus);
+    List<StatusCountOutput> OrdersByStatus,
+    List<StatusCountOutput> AllOrdersByStatus);
