@@ -19,11 +19,24 @@ public class MarketingProspectRepository(ApplicationDataContext context) : IMark
 
     public async Task<List<MarketingProspect>> GetPendingAsync(int limit, CancellationToken cancellationToken)
     {
-        return await context.MarketingProspects
+        var pending = await context.MarketingProspects
             .Where(p => p.Status == ProspectStatus.Pending)
             .OrderBy(p => p.CreatedAt)
             .Take(limit)
             .ToListAsync(cancellationToken);
+
+        if (pending.Count < limit)
+        {
+            var failed = await context.MarketingProspects
+                .Where(p => p.Status == ProspectStatus.Failed)
+                .OrderBy(p => p.CreatedAt)
+                .Take(limit - pending.Count)
+                .ToListAsync(cancellationToken);
+
+            pending.AddRange(failed);
+        }
+
+        return pending;
     }
 
     public async Task AddAsync(MarketingProspect prospect, CancellationToken cancellationToken)

@@ -12,7 +12,7 @@ public class MarketingProspectorJob(
     IUnitOfWork unitOfWork,
     ILogger<MarketingProspectorJob> logger)
 {
-    private const int MaxNewProspectsPerRun = 100;
+    private const int MaxNewProspectsPerRun = 200;
 
     private static readonly string[] Cities =
     [
