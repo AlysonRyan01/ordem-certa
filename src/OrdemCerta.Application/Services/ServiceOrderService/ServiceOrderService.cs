@@ -568,23 +568,28 @@ public class ServiceOrderService : IServiceOrderService
 
         var order = orderResult.Value!;
 
+        var customerResult = await _customerRepository.GetByIdAsync(order.CustomerId, cancellationToken);
+        if (customerResult.IsFailure || string.IsNullOrEmpty(customerResult.Value!.Phone))
+            return Result.Success();
+
         var companyResult = await _companyRepository.GetByIdAsync(order.CompanyId, cancellationToken);
         if (companyResult.IsFailure)
             return Result.Success();
 
+        var customer = customerResult.Value!;
         var company = companyResult.Value!;
-        var phone = $"55{company.Phone}";
+        var phone = $"55{customer.Phone}";
 
         var message = $"""
-            APROVADO
+            *{company.Name}*
 
-            O orçamento da ordem *#{order.OrderNumber}* foi aprovado.
+            Olá, {customer.FullName}! O orçamento da ordem *#{order.OrderNumber}* foi aprovado e o reparo do seu *{order.DeviceType} {order.Brand} {order.Model}* será iniciado em breve.
 
-            Acesse o sistema para mais detalhes.
+            Dúvidas? Fale conosco: {company.GetPhoneFormatted()}
             """;
 
         _backgroundJobClient.Enqueue<WhatsAppJobs>(j => j.SendTextAsync(phone, message, CancellationToken.None));
-        await RecordNotificationAsync(order.Id, order.CompanyId, NotificationType.BudgetApproved, NotificationRecipientType.Company, company.Name, phone, cancellationToken);
+        await RecordNotificationAsync(order.Id, order.CompanyId, NotificationType.BudgetApproved, NotificationRecipientType.Customer, customer.FullName, phone, cancellationToken);
         return Result.Success();
     }
 
@@ -596,23 +601,28 @@ public class ServiceOrderService : IServiceOrderService
 
         var order = orderResult.Value!;
 
+        var customerResult = await _customerRepository.GetByIdAsync(order.CustomerId, cancellationToken);
+        if (customerResult.IsFailure || string.IsNullOrEmpty(customerResult.Value!.Phone))
+            return Result.Success();
+
         var companyResult = await _companyRepository.GetByIdAsync(order.CompanyId, cancellationToken);
         if (companyResult.IsFailure)
             return Result.Success();
 
+        var customer = customerResult.Value!;
         var company = companyResult.Value!;
-        var phone = $"55{company.Phone}";
+        var phone = $"55{customer.Phone}";
 
         var message = $"""
-            RECUSADO
+            *{company.Name}*
 
-            O orçamento da ordem *#{order.OrderNumber}* foi recusado.
+            Olá, {customer.FullName}! O orçamento da ordem *#{order.OrderNumber}* foi recusado. Seu *{order.DeviceType} {order.Brand} {order.Model}* está disponível para retirada.
 
-            Acesse o sistema para mais detalhes.
+            Dúvidas? Fale conosco: {company.GetPhoneFormatted()}
             """;
 
         _backgroundJobClient.Enqueue<WhatsAppJobs>(j => j.SendTextAsync(phone, message, CancellationToken.None));
-        await RecordNotificationAsync(order.Id, order.CompanyId, NotificationType.BudgetRefused, NotificationRecipientType.Company, company.Name, phone, cancellationToken);
+        await RecordNotificationAsync(order.Id, order.CompanyId, NotificationType.BudgetRefused, NotificationRecipientType.Customer, customer.FullName, phone, cancellationToken);
         return Result.Success();
     }
 

@@ -53,6 +53,7 @@ export class OrderDetailComponent implements OnInit {
 
   readonly order = signal<ServiceOrderOutput | null>(null);
   readonly notifications = signal<ServiceOrderNotificationOutput[]>([]);
+  readonly customerNotifications = computed(() => this.notifications().filter(n => n.recipientType === 'Customer'));
   readonly loading = signal(true);
   readonly changingStatus = signal(false);
   readonly editingBudget = signal(false);

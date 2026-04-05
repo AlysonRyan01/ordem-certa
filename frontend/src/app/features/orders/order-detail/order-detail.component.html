@@ -417,9 +417,9 @@
     <div class="oc-section-card">
       <div class="oc-section-header">Mensagens enviadas</div>
       <div class="px-5 py-4">
-        @if (notifications().length) {
+        @if (customerNotifications().length) {
           <div class="flex flex-col">
-            @for (n of notifications(); track n.id; let last = $last) {
+            @for (n of customerNotifications(); track n.id; let last = $last) {
               <div class="flex gap-4" [class.pb-4]="!last">
                 <div class="flex flex-col items-center flex-shrink-0">
                   <div class="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0" [class]="notificationBg(n)">
