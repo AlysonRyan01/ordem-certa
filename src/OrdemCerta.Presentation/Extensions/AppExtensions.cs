@@ -24,7 +24,6 @@ public static class AppExtensions
         }
 
         app.UseRateLimiter();
-        app.UseHttpsRedirection();
         app.UseAuthentication();
         app.UseAuthorization();
         app.MapControllers();
