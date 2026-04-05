@@ -5,7 +5,7 @@ namespace OrdemCerta.Presentation.Filters;
 public class HangfireAuthFilter : IDashboardAuthorizationFilter
 {
     // IPs confiáveis que podem acessar o dashboard sem JWT
-    private static readonly string[] TrustedIps = ["127.0.0.1", "::1", "172.18.0.1"];
+    private static readonly string[] TrustedIps = ["127.0.0.1", "::1", "172.18.0.1", "::ffff:172.18.0.1"];
 
     public bool Authorize(DashboardContext context)
     {
