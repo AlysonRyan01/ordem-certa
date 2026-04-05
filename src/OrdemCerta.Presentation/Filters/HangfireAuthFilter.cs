@@ -10,11 +10,12 @@ public class HangfireAuthFilter : IDashboardAuthorizationFilter
     public bool Authorize(DashboardContext context)
     {
         var http = context.GetHttpContext();
-
         var remoteIp = http.Connection.RemoteIpAddress?.ToString();
+        
+        Console.WriteLine($"[Hangfire] RemoteIp: {remoteIp}");
+        
         if (remoteIp != null && TrustedIps.Contains(remoteIp))
             return true;
-
         return http.User.Identity?.IsAuthenticated == true
             && http.User.IsInRole("Admin");
     }
