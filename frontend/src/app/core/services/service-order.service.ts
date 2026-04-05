@@ -13,6 +13,7 @@ import {
   UpdateBudgetInput,
   UpdateServiceOrderInput,
 } from '../models/service-order.model';
+import { ServiceOrderNotificationOutput } from '../models/service-order-notification.model';
 
 @Injectable({ providedIn: 'root' })
 export class ServiceOrderService {
@@ -118,6 +119,10 @@ export class ServiceOrderService {
 
   notifyReadyForPickup(id: string): Observable<void> {
     return this.http.post<void>(`${this.base}/${id}/notify/ready-for-pickup`, {});
+  }
+
+  getNotifications(id: string): Observable<ServiceOrderNotificationOutput[]> {
+    return this.http.get<ServiceOrderNotificationOutput[]>(`${this.base}/${id}/notifications`);
   }
 
   print(id: string): void {

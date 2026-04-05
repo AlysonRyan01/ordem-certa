@@ -30,4 +30,5 @@ public interface IServiceOrderService
     Task<Result> NotifyBudgetRefusedAsync(Guid id, CancellationToken cancellationToken);
     Task<Result> NotifyReadyForPickupAsync(Guid id, CancellationToken cancellationToken);
     Task<Result<byte[]>> PrintAsync(Guid id, CancellationToken cancellationToken);
+    Task<Result<List<ServiceOrderNotificationOutput>>> GetNotificationsAsync(Guid id, CancellationToken cancellationToken);
 }

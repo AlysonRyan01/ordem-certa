@@ -28,6 +28,7 @@ public class ApplicationDataContext : DbContext
     public DbSet<CompanySaleSequence> CompanySaleSequences => Set<CompanySaleSequence>();
     public DbSet<AdminUser> AdminUsers => Set<AdminUser>();
     public DbSet<MarketingProspect> MarketingProspects => Set<MarketingProspect>();
+    public DbSet<ServiceOrderNotification> ServiceOrderNotifications => Set<ServiceOrderNotification>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

@@ -6,6 +6,7 @@ using OrdemCerta.Application.Services.ServiceOrderService;
 using OrdemCerta.Domain.ServiceOrders.DTOs;
 using OrdemCerta.Domain.ServiceOrders.Enums;
 using OrdemCerta.Shared;
+using ServiceOrderNotificationOutput = OrdemCerta.Domain.ServiceOrders.DTOs.ServiceOrderNotificationOutput;
 
 namespace OrdemCerta.Presentation.Controllers;
 
@@ -48,6 +49,20 @@ public class ServiceOrderController : ControllerBase
 
         if (result.IsFailure)
             return NotFound(new { errors = result.Errors });
+
+        return Ok(result.Value);
+    }
+
+    [HttpGet("{id:guid}/notifications")]
+    [ProducesResponseType(typeof(List<ServiceOrderNotificationOutput>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetNotifications(
+        [FromRoute] Guid id,
+        CancellationToken cancellationToken)
+    {
+        var result = await _serviceOrderService.GetNotificationsAsync(id, cancellationToken);
+
+        if (result.IsFailure)
+            return BadRequest(new { errors = result.Errors });
 
         return Ok(result.Value);
     }

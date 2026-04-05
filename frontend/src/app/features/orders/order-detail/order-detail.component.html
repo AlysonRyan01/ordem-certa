@@ -413,6 +413,39 @@
 
     </div>
 
+    <!-- Mensagens enviadas -->
+    <div class="oc-section-card">
+      <div class="oc-section-header">Mensagens enviadas</div>
+      <div class="px-5 py-4">
+        @if (notifications().length) {
+          <div class="flex flex-col">
+            @for (n of notifications(); track n.id; let last = $last) {
+              <div class="flex gap-4" [class.pb-4]="!last">
+                <div class="flex flex-col items-center flex-shrink-0">
+                  <div class="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0" [class]="notificationBg(n)">
+                    <mat-icon class="!text-sm !w-4 !h-4 !leading-4" [class]="notificationColor(n)">{{ notificationIcon(n) }}</mat-icon>
+                  </div>
+                  @if (!last) {
+                    <div class="w-px flex-1 bg-slate-100 mt-1.5"></div>
+                  }
+                </div>
+                <div class="flex-1 min-w-0 pt-1" [class.pb-1]="last">
+                  <p class="text-sm font-semibold text-slate-700 leading-tight">{{ notificationLabel(n) }}</p>
+                  <p class="text-xs text-slate-400 mt-0.5">{{ n.recipientName }}</p>
+                  <p class="text-xs text-slate-300 font-mono mt-0.5">{{ n.sentAt | date:'dd/MM/yyyy HH:mm' }}</p>
+                </div>
+              </div>
+            }
+          </div>
+        } @else {
+          <div class="flex items-center gap-3 text-slate-400 py-2">
+            <mat-icon class="!text-lg text-slate-300">chat_bubble_outline</mat-icon>
+            <p class="text-sm">Nenhuma mensagem enviada ainda.</p>
+          </div>
+        }
+      </div>
+    </div>
+
     <div class="flex items-center justify-between">
       <a mat-button routerLink="/orders">
         <mat-icon>arrow_back</mat-icon> Voltar para ordens

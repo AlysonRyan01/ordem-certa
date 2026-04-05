@@ -17,6 +17,7 @@ using OrdemCerta.Domain.ServiceOrders.Extensions;
 using OrdemCerta.Infrastructure.DataContext.Uow;
 using OrdemCerta.Infrastructure.Repositories.CompanyRepository;
 using OrdemCerta.Infrastructure.Repositories.CustomerRepository;
+using OrdemCerta.Infrastructure.Repositories.ServiceOrderNotificationRepository;
 using OrdemCerta.Infrastructure.Repositories.ServiceOrderRepository;
 using OrdemCerta.Shared;
 
@@ -28,6 +29,7 @@ public class ServiceOrderService : IServiceOrderService
     private readonly ICompanyOrderSequenceRepository _sequenceRepository;
     private readonly ICompanyRepository _companyRepository;
     private readonly ICustomerRepository _customerRepository;
+    private readonly IServiceOrderNotificationRepository _notificationRepository;
     private readonly IBackgroundJobClient _backgroundJobClient;
     private readonly IPdfService _pdfService;
     private readonly IUnitOfWork _unitOfWork;
@@ -44,6 +46,7 @@ public class ServiceOrderService : IServiceOrderService
         ICompanyOrderSequenceRepository sequenceRepository,
         ICompanyRepository companyRepository,
         ICustomerRepository customerRepository,
+        IServiceOrderNotificationRepository notificationRepository,
         IBackgroundJobClient backgroundJobClient,
         IPdfService pdfService,
         IUnitOfWork unitOfWork,
@@ -59,6 +62,7 @@ public class ServiceOrderService : IServiceOrderService
         _sequenceRepository = sequenceRepository;
         _companyRepository = companyRepository;
         _customerRepository = customerRepository;
+        _notificationRepository = notificationRepository;
         _backgroundJobClient = backgroundJobClient;
         _pdfService = pdfService;
         _unitOfWork = unitOfWork;
@@ -393,6 +397,9 @@ public class ServiceOrderService : IServiceOrderService
                 O reparo pode ser iniciado.
                 """,
                 CancellationToken.None));
+
+            await RecordNotificationAsync(order.Id, order.CompanyId, NotificationType.BudgetApproved, NotificationRecipientType.Customer, customer.FullName, $"55{customer.Phone}", cancellationToken);
+            await RecordNotificationAsync(order.Id, order.CompanyId, NotificationType.BudgetApproved, NotificationRecipientType.Company, company.Name, $"55{company.Phone}", cancellationToken);
         }
 
         var companyName = companyResult.IsSuccess ? companyResult.Value!.Name : null;
@@ -448,6 +455,9 @@ public class ServiceOrderService : IServiceOrderService
                 *Aparelho:* {device}
                 """,
                 CancellationToken.None));
+
+            await RecordNotificationAsync(order.Id, order.CompanyId, NotificationType.BudgetRefused, NotificationRecipientType.Customer, customer.FullName, $"55{customer.Phone}", cancellationToken);
+            await RecordNotificationAsync(order.Id, order.CompanyId, NotificationType.BudgetRefused, NotificationRecipientType.Company, company.Name, $"55{company.Phone}", cancellationToken);
         }
 
         var companyName = companyResult.IsSuccess ? companyResult.Value!.Name : null;
@@ -510,6 +520,7 @@ public class ServiceOrderService : IServiceOrderService
 
             _backgroundJobClient.Enqueue<WhatsAppJobs>(j => j.SendTextAsync(phone, message, CancellationToken.None));
             _backgroundJobClient.Enqueue<WhatsAppJobs>(j => j.SendTextAsync(phone, budgetLink, CancellationToken.None));
+            await RecordNotificationAsync(order.Id, order.CompanyId, NotificationType.BudgetCreated, NotificationRecipientType.Customer, customer.FullName, phone, cancellationToken);
         }
         else
         {
@@ -534,6 +545,7 @@ public class ServiceOrderService : IServiceOrderService
                 """;
 
             _backgroundJobClient.Enqueue<WhatsAppJobs>(j => j.SendTextAsync(phone, message, CancellationToken.None));
+            await RecordNotificationAsync(order.Id, order.CompanyId, NotificationType.BudgetCreated, NotificationRecipientType.Customer, customer.FullName, phone, cancellationToken);
         }
 
         var companyPhone = $"55{company.Phone}";
@@ -544,6 +556,7 @@ public class ServiceOrderService : IServiceOrderService
             """;
 
         _backgroundJobClient.Enqueue<WhatsAppJobs>(j => j.SendTextAsync(companyPhone, companyNotification, CancellationToken.None));
+        await RecordNotificationAsync(order.Id, order.CompanyId, NotificationType.BudgetCreated, NotificationRecipientType.Company, company.Name, companyPhone, cancellationToken);
         return Result.Success();
     }
 
@@ -571,6 +584,7 @@ public class ServiceOrderService : IServiceOrderService
             """;
 
         _backgroundJobClient.Enqueue<WhatsAppJobs>(j => j.SendTextAsync(phone, message, CancellationToken.None));
+        await RecordNotificationAsync(order.Id, order.CompanyId, NotificationType.BudgetApproved, NotificationRecipientType.Company, company.Name, phone, cancellationToken);
         return Result.Success();
     }
 
@@ -598,6 +612,7 @@ public class ServiceOrderService : IServiceOrderService
             """;
 
         _backgroundJobClient.Enqueue<WhatsAppJobs>(j => j.SendTextAsync(phone, message, CancellationToken.None));
+        await RecordNotificationAsync(order.Id, order.CompanyId, NotificationType.BudgetRefused, NotificationRecipientType.Company, company.Name, phone, cancellationToken);
         return Result.Success();
     }
 
@@ -675,6 +690,8 @@ public class ServiceOrderService : IServiceOrderService
             """;
 
         _backgroundJobClient.Enqueue<WhatsAppJobs>(j => j.SendTextAsync(companyPhone, companyNotification, CancellationToken.None));
+        await RecordNotificationAsync(order.Id, order.CompanyId, NotificationType.ReadyForPickup, NotificationRecipientType.Customer, customer.FullName, phone, cancellationToken);
+        await RecordNotificationAsync(order.Id, order.CompanyId, NotificationType.ReadyForPickup, NotificationRecipientType.Company, company.Name, companyPhone, cancellationToken);
         return Result.Success();
     }
 
@@ -709,5 +726,31 @@ public class ServiceOrderService : IServiceOrderService
             : _pdfService.GenerateEntryReceipt(orderOutput, customerOutput, companyOutput);
 
         return pdf;
+    }
+
+    public async Task<Result<List<ServiceOrderNotificationOutput>>> GetNotificationsAsync(Guid id, CancellationToken cancellationToken)
+    {
+        var orderResult = await _serviceOrderRepository.GetByIdAsync(id, cancellationToken);
+        if (orderResult.IsFailure)
+            return Result<List<ServiceOrderNotificationOutput>>.Failure(orderResult.Errors);
+
+        var notifications = await _notificationRepository.GetByOrderIdAsync(id, cancellationToken);
+        return notifications
+            .Select(n => new ServiceOrderNotificationOutput(n.Id, n.Type.ToString(), n.RecipientType.ToString(), n.RecipientName, n.Phone, n.SentAt))
+            .ToList();
+    }
+
+    private async Task RecordNotificationAsync(
+        Guid serviceOrderId,
+        Guid companyId,
+        NotificationType type,
+        NotificationRecipientType recipientType,
+        string recipientName,
+        string phone,
+        CancellationToken cancellationToken)
+    {
+        var notification = ServiceOrderNotification.Create(serviceOrderId, companyId, type, recipientType, recipientName, phone);
+        await _notificationRepository.AddAsync(notification, cancellationToken);
+        await _unitOfWork.CommitAsync(cancellationToken);
     }
 }

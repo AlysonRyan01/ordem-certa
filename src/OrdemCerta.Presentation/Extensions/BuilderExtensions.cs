@@ -32,6 +32,7 @@ using OrdemCerta.Application.Jobs;
 using OrdemCerta.Application.Security;
 using OrdemCerta.Application.WhatsApp;
 using OrdemCerta.Infrastructure.Repositories.MarketingProspectRepository;
+using OrdemCerta.Infrastructure.Repositories.ServiceOrderNotificationRepository;
 
 namespace OrdemCerta.Presentation.Extensions;
 
@@ -178,6 +179,7 @@ public static class BuilderExtensions
         services.AddScoped<ICompanySaleSequenceRepository, CompanySaleSequenceRepository>();
         services.AddScoped<IAdminRepository, AdminRepository>();
         services.AddScoped<IMarketingProspectRepository, MarketingProspectRepository>();
+        services.AddScoped<IServiceOrderNotificationRepository, ServiceOrderNotificationRepository>();
     }
 
     public static void AddAuth(this IServiceCollection services, IConfiguration configuration)

@@ -15,6 +15,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { RepairResult, ServiceOrderOutput, ServiceOrderStatus, WarrantyUnit } from '../../../core/models/service-order.model';
+import { ServiceOrderNotificationOutput } from '../../../core/models/service-order-notification.model';
 import { ALL_REPAIR_RESULTS, REPAIR_RESULT_META } from '../../../core/models/service-order-status.helper';
 import { ServiceOrderService } from '../../../core/services/service-order.service';
 import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialog/confirm-dialog.component';
@@ -51,6 +52,7 @@ export class OrderDetailComponent implements OnInit {
   private readonly snackBar = inject(MatSnackBar);
 
   readonly order = signal<ServiceOrderOutput | null>(null);
+  readonly notifications = signal<ServiceOrderNotificationOutput[]>([]);
   readonly loading = signal(true);
   readonly changingStatus = signal(false);
   readonly editingBudget = signal(false);
@@ -334,12 +336,55 @@ export class OrderDetailComponent implements OnInit {
     });
   }
 
+  notificationLabel(n: ServiceOrderNotificationOutput): string {
+    const labels: Record<string, Record<string, string>> = {
+      BudgetCreated:  { Customer: 'Orçamento enviado ao cliente',     Company: 'Envio confirmado à empresa' },
+      BudgetApproved: { Customer: 'Aprovação confirmada ao cliente',  Company: 'Aprovação notificada à empresa' },
+      BudgetRefused:  { Customer: 'Recusa confirmada ao cliente',     Company: 'Recusa notificada à empresa' },
+      ReadyForPickup: { Customer: 'Pronto para retirada enviado',     Company: 'Retirada notificada à empresa' },
+    };
+    return labels[n.type]?.[n.recipientType] ?? n.type;
+  }
+
+  notificationIcon(n: ServiceOrderNotificationOutput): string {
+    const icons: Record<string, string> = {
+      BudgetCreated: 'request_quote',
+      BudgetApproved: 'check_circle',
+      BudgetRefused: 'cancel',
+      ReadyForPickup: 'inventory_2',
+    };
+    return icons[n.type] ?? 'notifications';
+  }
+
+  notificationColor(n: ServiceOrderNotificationOutput): string {
+    const colors: Record<string, string> = {
+      BudgetCreated: 'text-blue-500',
+      BudgetApproved: 'text-emerald-500',
+      BudgetRefused: 'text-red-400',
+      ReadyForPickup: 'text-amber-500',
+    };
+    return colors[n.type] ?? 'text-slate-400';
+  }
+
+  notificationBg(n: ServiceOrderNotificationOutput): string {
+    const bgs: Record<string, string> = {
+      BudgetCreated: 'bg-blue-50',
+      BudgetApproved: 'bg-emerald-50',
+      BudgetRefused: 'bg-red-50',
+      ReadyForPickup: 'bg-amber-50',
+    };
+    return bgs[n.type] ?? 'bg-slate-100';
+  }
+
   private askWhatsApp(title: string, message: string, onConfirm: () => void): void {
     const ref = this.dialog.open(ConfirmDialogComponent, {
       data: { title, message, confirmLabel: 'Enviar' },
     });
     ref.afterClosed().subscribe((confirmed) => {
-      if (confirmed) onConfirm();
+      if (confirmed) {
+        onConfirm();
+        setTimeout(() => this.loadNotifications(), 800);
+      }
     });
   }
 
@@ -353,7 +398,14 @@ export class OrderDetailComponent implements OnInit {
       next: (o) => {
         this.setOrder(o);
         this.loading.set(false);
+        this.loadNotifications();
       },
+    });
+  }
+
+  private loadNotifications(): void {
+    this.orderService.getNotifications(this.id).subscribe({
+      next: (list) => this.notifications.set(list),
     });
   }
 }
