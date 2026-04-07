@@ -86,7 +86,7 @@ public static class AppExtensions
         manager.AddOrUpdate<MarketingDispatcherJob>(
             "marketing-dispatcher",
             job => job.ExecuteAsync(CancellationToken.None),
-            "0 8-19 * * 1-6",
+            "*/15 8-19 * * 1-6",
             new RecurringJobOptions { TimeZone = brasiliaTimeZone });
     }
 

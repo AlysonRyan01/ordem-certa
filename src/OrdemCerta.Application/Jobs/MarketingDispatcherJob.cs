@@ -11,7 +11,7 @@ public class MarketingDispatcherJob(
     IUnitOfWork unitOfWork,
     ILogger<MarketingDispatcherJob> logger)
 {
-    private const int BatchSize = 2;
+    private const int BatchSize = 1;
     private const string LinkMessage = "ordemcerta.app";
 
     private static string BuildMessage(string companyName) =>
