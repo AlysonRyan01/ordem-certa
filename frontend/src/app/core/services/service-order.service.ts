@@ -90,11 +90,11 @@ export class ServiceOrderService {
   }
 
   approveBudgetFromLink(id: string): Observable<ServiceOrderOutput> {
-    return this.http.get<ServiceOrderOutput>(`${environment.apiUrl}/public/orders/${id}/approve`);
+    return this.http.get<ServiceOrderOutput>(`${environment.apiUrl}/api/public/orders/${id}/approve`);
   }
 
   refuseBudgetFromLink(id: string): Observable<ServiceOrderOutput> {
-    return this.http.get<ServiceOrderOutput>(`${environment.apiUrl}/public/orders/${id}/refuse`);
+    return this.http.get<ServiceOrderOutput>(`${environment.apiUrl}/api/public/orders/${id}/refuse`);
   }
 
   setRepairResult(id: string, input: SetRepairResultInput): Observable<ServiceOrderOutput> {
