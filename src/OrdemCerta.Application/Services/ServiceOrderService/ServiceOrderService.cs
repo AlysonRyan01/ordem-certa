@@ -369,6 +369,8 @@ public class ServiceOrderService : IServiceOrderService
             var customer = customerResult.Value!;
             var device = $"{order.DeviceType} {order.Brand} {order.Model}";
 
+            var trackingLink = $"{_baseUrl}/orcamento/order/{order.Id}";
+
             _backgroundJobClient.Enqueue<WhatsAppJobs>(j => j.SendTextAsync(
                 $"55{customer.Phone}",
                 $"""
@@ -378,11 +380,14 @@ public class ServiceOrderService : IServiceOrderService
 
                 O reparo do seu *{device}* será iniciado em breve.
 
+                Acompanhe o andamento da sua ordem pelo link abaixo:
+
                 Dúvidas? Fale conosco: {company.GetPhoneFormatted()}
 
                 *{company.Name}*
                 """,
                 CancellationToken.None));
+            _backgroundJobClient.Enqueue<WhatsAppJobs>(j => j.SendTextAsync($"55{customer.Phone}", trackingLink, CancellationToken.None));
 
             _backgroundJobClient.Enqueue<WhatsAppJobs>(j => j.SendTextAsync(
                 $"55{company.Phone}",
