@@ -95,6 +95,7 @@
                 </div>
               }
 
+
               @if (o.status === 'AwaitingApproval' && (o.repairResult === 'NoFix' || o.repairResult === 'NoDefectFound')) {
                 <div class="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center flex-shrink-0">
                   <mat-icon class="!text-slate-500 !text-xl">inbox</mat-icon>
@@ -160,6 +161,12 @@
             <!-- Actions -->
             <div class="flex items-center gap-2 flex-wrap">
 
+              @if (o.status === 'UnderAnalysis') {
+                <button mat-stroked-button (click)="sendUnderAnalysisWhatsApp()">
+                  <mat-icon>send</mat-icon> Enviar WhatsApp
+                </button>
+              }
+
               @if (o.status === 'AwaitingApproval' && (o.repairResult === 'NoFix' || o.repairResult === 'NoDefectFound')) {
                 <button mat-flat-button (click)="changeStatusTo('ReadyForPickup')" [disabled]="changingStatus()">
                   @if (changingStatus()) { <mat-spinner diameter="18" /> } @else { <span class="flex items-center gap-1.5"><mat-icon>check_circle</mat-icon> Pronto para retirada</span> }
@@ -187,9 +194,16 @@
                 </button>
               }
 
+
               @if (o.status === 'BudgetRefused' || o.status === 'UnderRepair') {
                 <button mat-flat-button (click)="changeStatusTo('ReadyForPickup')" [disabled]="changingStatus()">
                   @if (changingStatus()) { <mat-spinner diameter="18" /> } @else { <span class="flex items-center gap-1.5"><mat-icon>check_circle</mat-icon> Pronto para retirada</span> }
+                </button>
+              }
+
+              @if (o.status === 'UnderRepair') {
+                <button mat-stroked-button (click)="sendUnderRepairWhatsApp()">
+                  <mat-icon>send</mat-icon> Enviar WhatsApp
                 </button>
               }
 
@@ -450,11 +464,23 @@
       <a mat-button routerLink="/orders">
         <mat-icon>arrow_back</mat-icon> Voltar para ordens
       </a>
-      @if (o.status !== 'Delivered' && o.status !== 'Cancelled') {
-        <button mat-stroked-button color="warn" (click)="confirmCancel()" [disabled]="changingStatus()">
-          <mat-icon>cancel</mat-icon> Cancelar ordem
-        </button>
-      }
+      <div class="flex items-center gap-2">
+        @if (o.status === 'Delivered') {
+          <button mat-stroked-button (click)="sendDeliveredWhatsApp()">
+            <mat-icon>send</mat-icon> Enviar WhatsApp
+          </button>
+        }
+        @if (o.status === 'Cancelled') {
+          <button mat-stroked-button (click)="sendCancelledWhatsApp()">
+            <mat-icon>send</mat-icon> Enviar WhatsApp
+          </button>
+        }
+        @if (o.status !== 'Delivered' && o.status !== 'Cancelled') {
+          <button mat-stroked-button color="warn" (click)="confirmCancel()" [disabled]="changingStatus()">
+            <mat-icon>cancel</mat-icon> Cancelar ordem
+          </button>
+        }
+      </div>
     </div>
   </div>
 }

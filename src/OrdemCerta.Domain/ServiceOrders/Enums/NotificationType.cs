@@ -6,4 +6,8 @@ public enum NotificationType
     BudgetApproved,
     BudgetRefused,
     ReadyForPickup,
+    UnderAnalysis,
+    UnderRepair,
+    Delivered,
+    Cancelled,
 }

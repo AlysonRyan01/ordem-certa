@@ -303,6 +303,66 @@ public class ServiceOrderController : ControllerBase
         return NoContent();
     }
 
+    [HttpPost("{id:guid}/notify/under-analysis")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> NotifyUnderAnalysis(
+        [FromRoute] Guid id,
+        CancellationToken cancellationToken)
+    {
+        var result = await _serviceOrderService.NotifyUnderAnalysisAsync(id, cancellationToken);
+
+        if (result.IsFailure)
+            return BadRequest(new { errors = result.Errors });
+
+        return NoContent();
+    }
+
+    [HttpPost("{id:guid}/notify/under-repair")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> NotifyUnderRepair(
+        [FromRoute] Guid id,
+        CancellationToken cancellationToken)
+    {
+        var result = await _serviceOrderService.NotifyUnderRepairAsync(id, cancellationToken);
+
+        if (result.IsFailure)
+            return BadRequest(new { errors = result.Errors });
+
+        return NoContent();
+    }
+
+    [HttpPost("{id:guid}/notify/delivered")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> NotifyDelivered(
+        [FromRoute] Guid id,
+        CancellationToken cancellationToken)
+    {
+        var result = await _serviceOrderService.NotifyDeliveredAsync(id, cancellationToken);
+
+        if (result.IsFailure)
+            return BadRequest(new { errors = result.Errors });
+
+        return NoContent();
+    }
+
+    [HttpPost("{id:guid}/notify/cancelled")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> NotifyCancelled(
+        [FromRoute] Guid id,
+        CancellationToken cancellationToken)
+    {
+        var result = await _serviceOrderService.NotifyCancelledAsync(id, cancellationToken);
+
+        if (result.IsFailure)
+            return BadRequest(new { errors = result.Errors });
+
+        return NoContent();
+    }
+
     [HttpGet("{id:guid}/print")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]

@@ -121,6 +121,22 @@ export class ServiceOrderService {
     return this.http.post<void>(`${this.base}/${id}/notify/ready-for-pickup`, {});
   }
 
+  notifyUnderAnalysis(id: string): Observable<void> {
+    return this.http.post<void>(`${this.base}/${id}/notify/under-analysis`, {});
+  }
+
+  notifyUnderRepair(id: string): Observable<void> {
+    return this.http.post<void>(`${this.base}/${id}/notify/under-repair`, {});
+  }
+
+  notifyDelivered(id: string): Observable<void> {
+    return this.http.post<void>(`${this.base}/${id}/notify/delivered`, {});
+  }
+
+  notifyCancelled(id: string): Observable<void> {
+    return this.http.post<void>(`${this.base}/${id}/notify/cancelled`, {});
+  }
+
   getNotifications(id: string): Observable<ServiceOrderNotificationOutput[]> {
     return this.http.get<ServiceOrderNotificationOutput[]>(`${this.base}/${id}/notifications`);
   }

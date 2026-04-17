@@ -29,6 +29,10 @@ public interface IServiceOrderService
     Task<Result> NotifyBudgetApprovedAsync(Guid id, CancellationToken cancellationToken);
     Task<Result> NotifyBudgetRefusedAsync(Guid id, CancellationToken cancellationToken);
     Task<Result> NotifyReadyForPickupAsync(Guid id, CancellationToken cancellationToken);
+    Task<Result> NotifyUnderAnalysisAsync(Guid id, CancellationToken cancellationToken);
+    Task<Result> NotifyUnderRepairAsync(Guid id, CancellationToken cancellationToken);
+    Task<Result> NotifyDeliveredAsync(Guid id, CancellationToken cancellationToken);
+    Task<Result> NotifyCancelledAsync(Guid id, CancellationToken cancellationToken);
     Task<Result<byte[]>> PrintAsync(Guid id, CancellationToken cancellationToken);
     Task<Result<List<ServiceOrderNotificationOutput>>> GetNotificationsAsync(Guid id, CancellationToken cancellationToken);
 }

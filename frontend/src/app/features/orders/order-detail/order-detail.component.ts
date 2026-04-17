@@ -160,8 +160,29 @@ export class OrderDetailComponent implements OnInit {
           );
         }
 
+        if (status === 'UnderRepair') {
+          this.askWhatsApp(
+            'Notificar cliente por WhatsApp?',
+            'Deseja enviar uma mensagem informando que o conserto foi iniciado?',
+            () => this.orderService.notifyUnderRepair(this.id).subscribe(),
+          );
+        }
+
         if (status === 'Delivered') {
           this.orderService.print(this.id);
+          this.askWhatsApp(
+            'Notificar cliente por WhatsApp?',
+            'Deseja enviar uma mensagem confirmando a entrega do equipamento?',
+            () => this.orderService.notifyDelivered(this.id).subscribe(),
+          );
+        }
+
+        if (status === 'Cancelled') {
+          this.askWhatsApp(
+            'Notificar cliente por WhatsApp?',
+            'Deseja enviar uma mensagem informando que a ordem foi cancelada?',
+            () => this.orderService.notifyCancelled(this.id).subscribe(),
+          );
         }
       },
       error: () => this.changingStatus.set(false),
@@ -239,6 +260,38 @@ export class OrderDetailComponent implements OnInit {
 
   cancelEditBudget(): void {
     this.editingBudget.set(false);
+  }
+
+  sendUnderAnalysisWhatsApp(): void {
+    this.askWhatsApp(
+      'Notificar cliente por WhatsApp?',
+      'Deseja enviar uma mensagem informando que o equipamento está em análise?',
+      () => this.orderService.notifyUnderAnalysis(this.id).subscribe(),
+    );
+  }
+
+  sendUnderRepairWhatsApp(): void {
+    this.askWhatsApp(
+      'Notificar cliente por WhatsApp?',
+      'Deseja enviar uma mensagem informando que o conserto foi iniciado?',
+      () => this.orderService.notifyUnderRepair(this.id).subscribe(),
+    );
+  }
+
+  sendDeliveredWhatsApp(): void {
+    this.askWhatsApp(
+      'Notificar cliente por WhatsApp?',
+      'Deseja enviar uma mensagem confirmando a entrega do equipamento?',
+      () => this.orderService.notifyDelivered(this.id).subscribe(),
+    );
+  }
+
+  sendCancelledWhatsApp(): void {
+    this.askWhatsApp(
+      'Notificar cliente por WhatsApp?',
+      'Deseja enviar uma mensagem informando que a ordem foi cancelada?',
+      () => this.orderService.notifyCancelled(this.id).subscribe(),
+    );
   }
 
   sendReadyForPickupWhatsApp(): void {
@@ -339,10 +392,14 @@ export class OrderDetailComponent implements OnInit {
 
   notificationLabel(n: ServiceOrderNotificationOutput): string {
     const labels: Record<string, Record<string, string>> = {
-      BudgetCreated:  { Customer: 'Orçamento enviado ao cliente',     Company: 'Envio confirmado à empresa' },
-      BudgetApproved: { Customer: 'Aprovação confirmada ao cliente',  Company: 'Aprovação notificada à empresa' },
-      BudgetRefused:  { Customer: 'Recusa confirmada ao cliente',     Company: 'Recusa notificada à empresa' },
-      ReadyForPickup: { Customer: 'Pronto para retirada enviado',     Company: 'Retirada notificada à empresa' },
+      BudgetCreated:  { Customer: 'Orçamento enviado ao cliente',          Company: 'Envio confirmado à empresa' },
+      BudgetApproved: { Customer: 'Aprovação confirmada ao cliente',       Company: 'Aprovação notificada à empresa' },
+      BudgetRefused:  { Customer: 'Recusa confirmada ao cliente',          Company: 'Recusa notificada à empresa' },
+      ReadyForPickup: { Customer: 'Pronto para retirada enviado',          Company: 'Retirada notificada à empresa' },
+      UnderAnalysis:  { Customer: 'Em análise — cliente notificado',       Company: 'Análise notificada à empresa' },
+      UnderRepair:    { Customer: 'Em conserto — cliente notificado',      Company: 'Conserto notificado à empresa' },
+      Delivered:      { Customer: 'Entrega confirmada ao cliente',         Company: 'Entrega notificada à empresa' },
+      Cancelled:      { Customer: 'Cancelamento informado ao cliente',     Company: 'Cancelamento notificado à empresa' },
     };
     return labels[n.type]?.[n.recipientType] ?? n.type;
   }
@@ -353,6 +410,10 @@ export class OrderDetailComponent implements OnInit {
       BudgetApproved: 'check_circle',
       BudgetRefused: 'cancel',
       ReadyForPickup: 'inventory_2',
+      UnderAnalysis: 'pending_actions',
+      UnderRepair: 'build',
+      Delivered: 'done_all',
+      Cancelled: 'block',
     };
     return icons[n.type] ?? 'notifications';
   }
@@ -363,6 +424,10 @@ export class OrderDetailComponent implements OnInit {
       BudgetApproved: 'text-emerald-500',
       BudgetRefused: 'text-red-400',
       ReadyForPickup: 'text-amber-500',
+      UnderAnalysis: 'text-amber-400',
+      UnderRepair: 'text-orange-500',
+      Delivered: 'text-emerald-600',
+      Cancelled: 'text-slate-400',
     };
     return colors[n.type] ?? 'text-slate-400';
   }
@@ -373,6 +438,10 @@ export class OrderDetailComponent implements OnInit {
       BudgetApproved: 'bg-emerald-50',
       BudgetRefused: 'bg-red-50',
       ReadyForPickup: 'bg-amber-50',
+      UnderAnalysis: 'bg-amber-50',
+      UnderRepair: 'bg-orange-50',
+      Delivered: 'bg-emerald-50',
+      Cancelled: 'bg-slate-100',
     };
     return bgs[n.type] ?? 'bg-slate-100';
   }
