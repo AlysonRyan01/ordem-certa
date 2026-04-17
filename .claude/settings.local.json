@@ -29,6 +29,7 @@
       "Bash(\"$USERPROFILE/.dotnet/tools/dotnet-ef\" migrations:*)",
       "Bash(xargs basename:*)",
       "Bash(curl -sA Mozilla/5.0 https://fonts.googleapis.com/icon?family=Material+Icons)",
+      "Bash(git:*)",
       "Bash(npx tsc:*)"
     ]
   }
