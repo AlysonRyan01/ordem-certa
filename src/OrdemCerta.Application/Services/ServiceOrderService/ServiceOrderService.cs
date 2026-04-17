@@ -580,15 +580,20 @@ public class ServiceOrderService : IServiceOrderService
         var company = companyResult.Value!;
         var phone = $"55{customer.Phone}";
 
+        var trackingLink = $"{_baseUrl}/orcamento/order/{order.Id}";
+
         var message = $"""
             *{company.Name}*
 
             Olá, {customer.FullName}! O orçamento da ordem *#{order.OrderNumber}* foi aprovado e o reparo do seu *{order.DeviceType} {order.Brand} {order.Model}* será iniciado em breve.
 
+            Acompanhe o andamento da sua ordem pelo link abaixo:
+
             Dúvidas? Fale conosco: {company.GetPhoneFormatted()}
             """;
 
         _backgroundJobClient.Enqueue<WhatsAppJobs>(j => j.SendTextAsync(phone, message, CancellationToken.None));
+        _backgroundJobClient.Enqueue<WhatsAppJobs>(j => j.SendTextAsync(phone, trackingLink, CancellationToken.None));
         await RecordNotificationAsync(order.Id, order.CompanyId, NotificationType.BudgetApproved, NotificationRecipientType.Customer, customer.FullName, phone, cancellationToken);
         return Result.Success();
     }

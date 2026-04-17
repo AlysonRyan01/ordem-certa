@@ -13,7 +13,7 @@
       @case ('loading') {
         <div class="flex flex-col items-center gap-4">
           <mat-spinner diameter="48" />
-          <p class="text-slate-400 text-sm">Carregando orçamento...</p>
+          <p class="text-slate-400 text-sm">Carregando...</p>
         </div>
       }
 
@@ -21,7 +21,7 @@
         @if (order(); as o) {
           <div class="w-full max-w-md flex flex-col gap-4">
 
-            <!-- Header card -->
+            <!-- Header -->
             <div class="text-center">
               <p class="text-slate-400 text-xs font-semibold uppercase tracking-widest mb-1">
                 {{ o.companyName ?? 'Assistência Técnica' }}
@@ -141,6 +141,7 @@
                           [class.!bg-emerald-600]="action() === 'approve'"
                           [class.!text-white]="action() === 'approve'"
                           [class.!bg-red-600]="action() === 'refuse'"
+                          [class.!text-white]="action() === 'refuse'"
                           (click)="submit()"
                           [disabled]="submitting()">
                     @if (submitting()) {
@@ -159,87 +160,161 @@
         }
       }
 
-      @case ('success') {
+      @case ('tracking') {
         @if (order(); as o) {
-          <div class="w-full max-w-md">
+          <div class="w-full max-w-md flex flex-col gap-5">
+
+            <!-- Company + Order number -->
+            <div class="text-center">
+              @if (o.companyName) {
+                <p class="text-slate-400 text-xs font-bold uppercase tracking-widest mb-3">{{ o.companyName }}</p>
+              }
+              <div class="inline-flex items-center gap-2 bg-white/5 border border-white/10 rounded-full px-4 py-1.5">
+                <span class="text-slate-500 text-xs">Ordem</span>
+                <span class="font-mono font-bold text-white text-sm tracking-wider">#{{ o.orderNumber }}</span>
+              </div>
+            </div>
+
+            <!-- Main tracking card -->
             <div class="bg-white rounded-2xl shadow-2xl overflow-hidden">
-              <div class="h-1.5"
-                   [class.bg-emerald-400]="action() === 'approve'"
-                   [class.bg-red-400]="action() === 'refuse'"></div>
 
-              <div class="px-8 py-8 flex flex-col items-center text-center gap-6">
+              <!-- Accent bar colorida por status -->
+              <div class="h-1.5" [style.background]="statusAccentColor(o.status)"></div>
 
-                @if (o.companyName) {
-                  <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">{{ o.companyName }}</p>
-                }
-
-                <div class="w-16 h-16 rounded-full flex items-center justify-center"
-                     [class.bg-emerald-100]="action() === 'approve'"
-                     [class.bg-red-100]="action() === 'refuse'">
-                  <mat-icon class="!text-4xl"
+              <!-- Banner de feedback imediato (apenas quando o usuário acabou de responder) -->
+              @if (action()) {
+                <div class="px-5 py-3 flex items-center gap-2.5 border-b"
+                     [class.bg-emerald-50]="action() === 'approve'"
+                     [class.border-emerald-100]="action() === 'approve'"
+                     [class.bg-red-50]="action() === 'refuse'"
+                     [class.border-red-100]="action() === 'refuse'">
+                  <mat-icon class="!text-base flex-shrink-0"
                             [class.text-emerald-600]="action() === 'approve'"
-                            [class.text-red-600]="action() === 'refuse'">
+                            [class.text-red-500]="action() === 'refuse'">
                     {{ action() === 'approve' ? 'check_circle' : 'cancel' }}
                   </mat-icon>
+                  <p class="text-xs font-semibold leading-relaxed"
+                     [class.text-emerald-800]="action() === 'approve'"
+                     [class.text-red-700]="action() === 'refuse'">
+                    {{ action() === 'approve'
+                        ? 'Orçamento aprovado! O reparo será iniciado em breve.'
+                        : 'Orçamento recusado. Seu equipamento está disponível para retirada.' }}
+                  </p>
                 </div>
+              }
 
-                @if (action() === 'approve') {
-                  <div>
-                    <h1 class="text-2xl font-bold text-slate-900 mb-2">Orçamento Aprovado!</h1>
-                    <p class="text-slate-500 text-sm leading-relaxed">
-                      Ótimo! Seu orçamento foi aprovado com sucesso.<br>
-                      Em breve entraremos em contato para confirmar.
-                    </p>
-                  </div>
-                } @else {
-                  <div>
-                    <h1 class="text-2xl font-bold text-slate-900 mb-2">Orçamento Recusado</h1>
-                    <p class="text-slate-500 text-sm leading-relaxed">
-                      Entendemos. Entraremos em contato para discutir outras opções.
-                    </p>
-                  </div>
-                }
+              <!-- Progress stepper (oculto para ordens canceladas) -->
+              @if (o.status !== 'Cancelled') {
+                <div class="px-6 pt-6 pb-4">
+                  <div class="relative flex justify-between">
 
-                <div class="w-full bg-slate-50 rounded-xl p-5 text-left border border-slate-100">
-                  <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4">Resumo</p>
-                  <div class="flex flex-col gap-3 text-sm">
-                    <div class="flex items-center justify-between">
-                      <span class="text-slate-500">Ordem</span>
-                      <span class="font-bold text-slate-800 font-mono">#{{ o.orderNumber }}</span>
-                    </div>
-                    <div class="flex items-center justify-between">
-                      <span class="text-slate-500">Equipamento</span>
-                      <span class="text-slate-800">{{ o.deviceType }} {{ o.brand }}</span>
-                    </div>
-                    @if (o.budgetValue) {
-                      <div class="flex items-center justify-between pt-3 border-t border-slate-200">
-                        <span class="text-slate-500">Valor</span>
-                        <span class="font-bold text-emerald-700 text-base">R$ {{ o.budgetValue | number:'1.2-2' }}</span>
+                    <!-- Linha de fundo -->
+                    <div class="absolute top-3.5 left-[22px] right-[22px] h-px bg-slate-100"></div>
+
+                    @for (step of trackingSteps; track step.label; let i = $index) {
+                      <div class="flex flex-col items-center gap-1.5 z-10">
+                        <div class="relative">
+                          <!-- Anel de pulse no step ativo -->
+                          @if (stepState(i, o.status) === 'active') {
+                            <div class="absolute -inset-1.5 rounded-full animate-ping opacity-25"
+                                 [style.background]="statusAccentColor(o.status)"></div>
+                          }
+                          <!-- Círculo do step -->
+                          <div class="w-7 h-7 rounded-full flex items-center justify-center relative transition-all duration-300"
+                               [class]="stepState(i, o.status) === 'completed'
+                                          ? 'bg-slate-200'
+                                          : stepState(i, o.status) === 'pending'
+                                            ? 'bg-white border-2 border-slate-200'
+                                            : ''"
+                               [style.background]="stepState(i, o.status) === 'active' ? statusAccentColor(o.status) : null">
+                            @if (stepState(i, o.status) === 'completed') {
+                              <mat-icon class="!text-[13px] !w-3.5 !h-3.5 !leading-none text-slate-500">check</mat-icon>
+                            } @else if (stepState(i, o.status) === 'active') {
+                              <mat-icon class="!text-[13px] !w-3.5 !h-3.5 !leading-none text-white">{{ step.icon }}</mat-icon>
+                            } @else {
+                              <span class="text-[9px] font-bold text-slate-300">{{ i + 1 }}</span>
+                            }
+                          </div>
+                        </div>
+                        <!-- Label do step -->
+                        <span class="text-[9px] font-bold uppercase tracking-wide leading-none"
+                              [class]="stepState(i, o.status) === 'active' ? 'text-slate-700' : 'text-slate-400'">
+                          {{ step.label }}
+                        </span>
                       </div>
                     }
                   </div>
                 </div>
+              }
 
-                <p class="text-xs text-slate-400">Você pode fechar esta página com segurança.</p>
+              <!-- Status principal -->
+              <div class="px-6 py-6 flex flex-col items-center text-center gap-4"
+                   [class.pt-4]="o.status !== 'Cancelled'">
+                <!-- Ícone grande -->
+                <div class="w-16 h-16 rounded-full flex items-center justify-center"
+                     [style.background]="statusIconBg(o.status)">
+                  <mat-icon class="!text-[2rem]" [style.color]="statusIconColor(o.status)">
+                    {{ statusIcon(o.status) }}
+                  </mat-icon>
+                </div>
+
+                <!-- Headline e descrição -->
+                <div>
+                  <h1 class="text-xl font-bold text-slate-900 leading-tight">{{ statusHeadline(o.status) }}</h1>
+                  <p class="text-slate-500 text-sm mt-2 leading-relaxed max-w-xs mx-auto">{{ statusDescription(o) }}</p>
+                </div>
               </div>
+
+              <!-- Badge de garantia (somente quando Delivered + tem garantia) -->
+              @if (o.status === 'Delivered' && o.warrantyDuration && o.warrantyUnit) {
+                <div class="mx-6 mb-5 bg-indigo-50 border border-indigo-100 rounded-xl px-4 py-3 flex items-center gap-3">
+                  <mat-icon class="text-indigo-500 !text-xl flex-shrink-0">verified_user</mat-icon>
+                  <div>
+                    <p class="text-xs font-bold text-indigo-700 uppercase tracking-wide">Garantia ativa</p>
+                    <p class="text-sm text-indigo-800 mt-0.5">
+                      {{ o.warrantyDuration }}
+                      {{ o.warrantyUnit === 'Days'   ? (o.warrantyDuration === 1 ? 'dia'  : 'dias')
+                       : o.warrantyUnit === 'Months' ? (o.warrantyDuration === 1 ? 'mês'  : 'meses')
+                       :                               (o.warrantyDuration === 1 ? 'ano'  : 'anos') }}
+                      a partir da entrega
+                    </p>
+                  </div>
+                </div>
+              }
+
+              <!-- Lembrete de retirada (ReadyForPickup e BudgetRefused) -->
+              @if (o.status === 'ReadyForPickup' || o.status === 'BudgetRefused') {
+                <div class="mx-6 mb-5 bg-emerald-50 border border-emerald-200 rounded-xl px-4 py-3 flex items-start gap-3">
+                  <mat-icon class="text-emerald-600 !text-xl flex-shrink-0 mt-0.5">info</mat-icon>
+                  <p class="text-sm text-emerald-800 leading-relaxed">
+                    Traga o comprovante da ordem
+                    <span class="font-mono font-bold">#{{ o.orderNumber }}</span>
+                    ao retirar seu equipamento.
+                  </p>
+                </div>
+              }
+
+              <!-- Dispositivo -->
+              <div class="border-t border-slate-100 px-6 py-4">
+                <div class="flex items-center gap-3">
+                  <div class="w-9 h-9 rounded-xl bg-slate-100 flex items-center justify-center flex-shrink-0">
+                    <mat-icon class="text-slate-400 !text-lg">devices</mat-icon>
+                  </div>
+                  <div class="min-w-0 flex-1">
+                    <p class="font-semibold text-slate-800 text-sm truncate">{{ o.deviceType }} {{ o.brand }} {{ o.model }}</p>
+                    <p class="text-xs text-slate-400 mt-0.5 truncate">{{ o.reportedDefect }}</p>
+                  </div>
+                </div>
+              </div>
+
             </div>
+
+            <p class="text-center text-xs text-slate-500 leading-relaxed">
+              Guarde este link para acompanhar sua ordem de serviço.
+            </p>
+
           </div>
         }
-      }
-
-      @case ('already-answered') {
-        <div class="bg-white rounded-2xl shadow-2xl px-10 py-10 max-w-md w-full flex flex-col items-center text-center gap-5">
-          <div class="w-16 h-16 rounded-full bg-amber-100 flex items-center justify-center">
-            <mat-icon class="text-amber-500 !text-4xl">info</mat-icon>
-          </div>
-          <div>
-            <h1 class="text-xl font-bold text-slate-900 mb-2">Orçamento já respondido</h1>
-            <p class="text-slate-500 text-sm leading-relaxed">
-              Este orçamento já foi aprovado ou recusado anteriormente.<br>
-              Caso tenha dúvidas, entre em contato com a assistência técnica.
-            </p>
-          </div>
-        </div>
       }
 
       @case ('error') {
@@ -250,7 +325,7 @@
           <div>
             <h1 class="text-xl font-bold text-slate-900 mb-2">Algo deu errado</h1>
             <p class="text-slate-500 text-sm leading-relaxed">
-              Não foi possível carregar o orçamento.<br>
+              Não foi possível carregar a ordem de serviço.<br>
               Tente novamente ou entre em contato com a assistência técnica.
             </p>
           </div>
