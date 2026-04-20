@@ -12,7 +12,7 @@ public class MarketingDispatcherJob(
     ILogger<MarketingDispatcherJob> logger)
 {
     private const int BatchSize = 1;
-    private const string LinkMessage = "ordemcerta.app";
+    private const string LinkMessage = "https://ordemcerta.app/";
 
     private static string BuildMessage(string companyName) =>
         $"Olá! Tudo bem?\n\n" +
